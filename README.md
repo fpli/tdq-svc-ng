@@ -1,5 +1,4 @@
-# sojourner-service
-Sojourner Service Application
+# Tracking Data Quality Backend Application
 
 ## Development
 
