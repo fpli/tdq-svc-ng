@@ -1,0 +1,52 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+Test.java
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+/log/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Raptor IO
+temp_persist_config_*xml
+SensitiveParameters.xml
+ThreadLocalFlushBean.xml
+XslTransformObjectCacheConfig64.xml
+TomcatThreadPoolSizeBean
+clientconfig
+TrustFabricHandlerConfigBean
+TrustFabricInjectionHandlerConfigBean
+raptor-upgrade-*
+
+.java-version
+.env

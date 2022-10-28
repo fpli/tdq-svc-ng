@@ -1,0 +1,35 @@
+spring:
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+    time-zone: UTC
+  datasource:
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    type: "com.zaxxer.hikari.HikariDataSource"
+    hikari:
+      maximumPoolSize: 10
+      connection-timeout: 15000
+      validation-timeout: 5000
+  flyway:
+    enabled: false
+    clean-disabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    out-of-order: false
+    validate-on-migrate: true
+
+mybatis-plus:
+  typeEnumsPackage: com.ebay.dap.epic.tdq.data.enums
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+
+keystone:
+  url: "https://os-identity.vip.ebayc3.com:5443"
+
+global:
+  web:
+    security:
+      enabled: true
