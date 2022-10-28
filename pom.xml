@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.ebay.raptorio.platform</groupId>
     <artifactId>raptor-io-parent</artifactId>
-    <version>0.15.0-RELEASE</version>
+    <version>0.16.1-RELEASE</version>
     <relativePath></relativePath> <!-- lookup parent from repository -->
   </parent>
 
@@ -26,9 +26,9 @@
     <lombok.version>1.18.22</lombok.version>
     <swagger.version>2.9.2</swagger.version>
     <curator.version>4.2.0</curator.version>
-    <trustfabric.handler.server.version>0.14.1-RELEASE</trustfabric.handler.server.version>
-    <globalconfig.component.version>0.15.1-RELEASE</globalconfig.component.version>
-    <jacoco.plugin.version>0.8.5</jacoco.plugin.version>
+    
+    
+    
     <compiler.plugin.version>3.8.1</compiler.plugin.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <fount.client.version>0.2.16</fount.client.version>
@@ -290,6 +290,10 @@
     <dependency>
       <groupId>com.ebay.raptorio.component</groupId>
       <artifactId>raptor-gis-aid-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-opentelemetry-starter</artifactId>
     </dependency>
   </dependencies>
 
