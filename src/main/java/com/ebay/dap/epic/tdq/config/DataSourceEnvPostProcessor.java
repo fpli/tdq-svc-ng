@@ -19,7 +19,7 @@ import org.springframework.core.env.MutablePropertySources;
 
 public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
 
-  private static final String LOGICAL_DS_NAME = "sojournermyhost";
+  private static final String LOGICAL_DS_NAME = "tdqmyhost";
   private static final String STAGING = "staging";
   private static final String PROD = "prod";
 
@@ -51,11 +51,11 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
     }
 
     if (fountClient != null) {
-      FountDatasourceConfig sojournermyhost = fountClient.getDatasourceConfig(LOGICAL_DS_NAME);
+      FountDatasourceConfig fdsc = fountClient.getDatasourceConfig(LOGICAL_DS_NAME);
       MutablePropertySources propertySources = environment.getPropertySources();
       Map<String, Object> properties = new HashMap<>();
 
-      StringBuilder url = new StringBuilder(sojournermyhost.getUrl());
+      StringBuilder url = new StringBuilder(fdsc.getUrl());
       if (url.toString().contains("?")) {
         url.append("&");
       } else {
@@ -66,11 +66,11 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
       // Spring managed logging system initialized only after Spring context is initialized
       // so use System.out.println to log the info.
       System.out.println(url);
-      System.out.println(sojournermyhost.getUser() + "/" + sojournermyhost.getPassword());
+      System.out.println(fdsc.getUser() + "/" + fdsc.getPassword());
 
       properties.put("spring.datasource.url", url.toString());
-      properties.put("spring.datasource.username", sojournermyhost.getUser());
-      properties.put("spring.datasource.password", sojournermyhost.getPassword());
+      properties.put("spring.datasource.username", fdsc.getUser());
+      properties.put("spring.datasource.password", fdsc.getPassword());
       propertySources.addAfter(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
           new MapPropertySource("ds", properties));
     }

@@ -6,8 +6,6 @@
     </encoder>
   </appender>
 
-  <logger name="com.ebay.sojourner" level="INFO"/>
-
   <root level="INFO">
     <appender-ref ref="console"/>
   </root>

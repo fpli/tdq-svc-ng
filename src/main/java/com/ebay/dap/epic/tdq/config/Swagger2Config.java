@@ -18,16 +18,18 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class Swagger2Config {
 
+  private static final String BASE_PACKAGE = "com.ebay.dap.epic.tdq.web.controller";
+
   @Bean
   public Docket createRestApi() {
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(new ApiInfoBuilder()
-            .description("Sojourner Service API v1.0")
-            .title("soj-service-api")
+            .description("TDQ Service API v1.0")
+            .title("tdq-service-api")
             .version("1.0.0")
             .build())
         .select()
-        .apis(RequestHandlerSelectors.basePackage("com.ebay.sojourner.service.web.controller"))
+        .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE))
         .paths(PathSelectors.any())
         .build()
         .pathMapping("/");

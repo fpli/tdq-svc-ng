@@ -25,13 +25,9 @@
     <docker.image.prefix>hub.tess.io/raptorontess</docker.image.prefix>
     <lombok.version>1.18.22</lombok.version>
     <swagger.version>2.9.2</swagger.version>
-    <curator.version>4.2.0</curator.version>
-    
-    
-    
-    <compiler.plugin.version>3.8.1</compiler.plugin.version>
-    <mapstruct.version>1.4.2.Final</mapstruct.version>
-    <fount.client.version>0.2.16</fount.client.version>
+    <compiler.plugin.version>3.10.1</compiler.plugin.version>
+    <mapstruct.version>1.5.3.Final</mapstruct.version>
+    <fount.client.version>0.3.0</fount.client.version>
     <mysql.connector.version>8.0.28</mysql.connector.version>
     <mybatis-plus.version>3.5.1</mybatis-plus.version>
   </properties>
@@ -395,111 +391,6 @@
 
   <profiles>
     <profile>
-      <id>ebay</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <!-- add a repository property to ease the archetype:generate useage -->
-      <properties>
-        <archetypeCatalog>https://ebaycentral.qa.ebay.com/content/repositories/releases/archetype-catalog.xml</archetypeCatalog>
-      </properties>
-      <repositories>
-        <!-- Raptor Repository -->
-        <repository>
-          <id>raptor-releases</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/releases/</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-        <repository>
-          <id>raptor-snapshots</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/snapshots/</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-        <repository>
-          <id>raptor-thirdparty</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/thirdparty</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-        <repository>
-          <id>raptor-commercial</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/commercial</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>central</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/central</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-          <id>raptor-releases</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/releases</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-          <id>raptor-plugins</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/plugins</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-          <id>raptor-snapshots</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/snapshots/</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-          <id>raptor-thirdparty</id>
-          <url>https://ebaycentral.qa.ebay.com/content/repositories/thirdparty</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-    <profile>
       <id>sonar</id>
       <activation>
         <activeByDefault>true</activeByDefault>
@@ -507,8 +398,8 @@
       <properties>
         <!-- Optional URL to server. Default value is http://localhost:9000 -->
         <sonar.host.url>https://sonar-01-es.vip.es.ebay.com/</sonar.host.url>
-        <sonar.projectKey>sojourner-service</sonar.projectKey>
-        <sonar.projectName>Sojourner Service</sonar.projectName>
+        <sonar.projectKey>tdq-svc-ng</sonar.projectKey>
+        <sonar.projectName>TDQ Service</sonar.projectName>
         <sonar.login>a3b235345cf8817eeb06064a3a5d21383b3ecb1a</sonar.login>
         <sonar.junit.reportsPath>target/surefire-reports</sonar.junit.reportsPath>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>

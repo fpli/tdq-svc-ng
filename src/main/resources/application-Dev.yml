@@ -2,13 +2,12 @@ spring:
   datasource:
     username: root
     password: password
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/sojourner?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
   flyway:
     out-of-order: true
 logging:
   level:
-    com.ebay.sojourner.service.data.mapper: debug
-    com.ebay.sojourner.service: debug
+    com.ebay.dap.epic.tdq: debug
     org.springframework.security: debug
 
 global:
