@@ -45,7 +45,7 @@
       <version>${mapstruct.version}</version>
     </dependency>
 
-    <!-- Raptor IO Dependencies  -->
+    <!-- Raptor IO Components  -->
     <dependency>
       <groupId>com.ebay.raptorio.component</groupId>
       <artifactId>raptor-actuator-starter</artifactId>
@@ -149,7 +149,7 @@
       <artifactId>raptor-logger-starter</artifactId>
     </dependency>
 
-    <!--  Spring Boot Modules  -->
+    <!--  Spring Boot Components  -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -175,24 +175,14 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
 
-    <!-- Swagger -->
+    <!-- ElasticSearch -->
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
-      <version>${swagger.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${swagger.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-bean-validators</artifactId>
-      <version>${swagger.version}</version>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-elasticsearch</artifactId>
     </dependency>
 
-    <!-- Database -->
+
+    <!-- MySQL -->
     <dependency>
       <groupId>com.ebay.fount</groupId>
       <artifactId>managed-fount-client</artifactId>
@@ -225,12 +215,28 @@
       <version>1.0.2</version>
     </dependency>
 
-
-
+    <!-- Security -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt</artifactId>
       <version>0.9.1</version>
+    </dependency>
+
+    <!-- Swagger -->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${swagger.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${swagger.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-bean-validators</artifactId>
+      <version>${swagger.version}</version>
     </dependency>
 
     <!-- Test Dependencies  -->
