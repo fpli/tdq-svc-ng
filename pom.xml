@@ -345,11 +345,11 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.0.0</version>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>com.github.spotbugs</groupId>-->
+<!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
+<!--        <version>4.0.0</version>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
@@ -379,15 +379,15 @@
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.0.0</version>
-      </plugin>
-    </plugins>
-  </reporting>
+<!--  <reporting>-->
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>com.github.spotbugs</groupId>-->
+<!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
+<!--        <version>4.0.0</version>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+<!--  </reporting>-->
 
   <profiles>
     <profile>
