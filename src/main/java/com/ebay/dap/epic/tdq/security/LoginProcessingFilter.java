@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +38,8 @@ public class LoginProcessingFilter extends AbstractAuthenticationProcessingFilte
   }
 
   @Override
-  public Authentication attemptAuthentication(HttpServletRequest request,
-                                              HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+  public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+      throws AuthenticationException, IOException {
 
     final UserDto user = objectMapper.readValue(request.getInputStream(), UserDto.class);
     log.debug("Attempt to authenticate user: {}", user.getUsername());
@@ -50,9 +49,8 @@ public class LoginProcessingFilter extends AbstractAuthenticationProcessingFilte
   }
 
   @Override
-  protected void unsuccessfulAuthentication(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            AuthenticationException e) throws IOException, ServletException {
+  protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                            AuthenticationException e) throws IOException {
 
     SecurityContextHolder.clearContext();
     ApiError apiError;
@@ -70,10 +68,8 @@ public class LoginProcessingFilter extends AbstractAuthenticationProcessingFilte
   }
 
   @Override
-  protected void successfulAuthentication(HttpServletRequest request,
-                                          HttpServletResponse response,
-                                          FilterChain chain,
-                                          Authentication authResult) throws IOException, ServletException {
+  protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                          FilterChain chain, Authentication authResult) {
 
     log.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
 

@@ -1,20 +1,23 @@
-package com.ebay.dap.epic.tdq.security.model;
+package com.ebay.dap.epic.tdq.data.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public enum Role {
 
   // admin role, has all privileges
-  ADMIN(1, new SimpleGrantedAuthority("ADMIN")),
+  ADMIN(1, "ADMIN"),
 
   // normal user
-  USER(2, new SimpleGrantedAuthority("USER"));
+  USER(2, "USER");
 
 
+  @EnumValue
   private final int code;
-  private final SimpleGrantedAuthority authority;
+  private final String role;
 
   public static Role fromCode(int code) {
     for (Role value : Role.values()) {
@@ -27,10 +30,6 @@ public enum Role {
 
   public String getCode() {
     return String.valueOf(code);
-  }
-
-  public SimpleGrantedAuthority getAuthority() {
-    return this.authority;
   }
 
 }

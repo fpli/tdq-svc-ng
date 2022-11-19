@@ -21,7 +21,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
   }
 
   @Override
-  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
+  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
     response.setCharacterEncoding(Constants.UTF_8);
     response.setContentType(Constants.APPLICATION_JSON);
     response.setStatus(HttpStatus.UNAUTHORIZED.value());

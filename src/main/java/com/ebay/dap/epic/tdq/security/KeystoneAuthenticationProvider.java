@@ -1,15 +1,11 @@
 package com.ebay.dap.epic.tdq.security;
 
-import com.ebay.dap.epic.tdq.security.keystone.KeystoneAuthRequest;
-import com.ebay.dap.epic.tdq.security.keystone.KeystoneClient;
-import com.ebay.dap.epic.tdq.security.keystone.KeystonePasswordCredentials;
-import com.ebay.dap.epic.tdq.security.keystone.KeystoneRequest;
-import com.ebay.dap.epic.tdq.security.keystone.response.KeystoneAuthResponse;
-import com.ebay.dap.epic.tdq.security.model.Role;
 import com.ebay.dap.epic.tdq.security.model.User;
+import com.ebay.keystone.KeystoneClient;
+import com.ebay.keystone.KeystoneResponse;
+import com.ebay.keystone.exception.KeystoneAuthFailureException;
 import com.google.common.base.Preconditions;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,28 +30,32 @@ public class KeystoneAuthenticationProvider implements AuthenticationProvider {
     Preconditions.checkNotNull(authentication.getName());
     Preconditions.checkNotNull(authentication.getCredentials());
 
-    String name = authentication.getName();
+    String username = authentication.getName();
     String password = authentication.getCredentials().toString();
 
-    KeystonePasswordCredentials passwordCredentials = KeystonePasswordCredentials.builder()
-                                                                                 .username(name)
-                                                                                 .password(password)
-                                                                                 .build();
+    KeystoneResponse keystoneResponse;
 
-    KeystoneRequest request = new KeystoneRequest(new KeystoneAuthRequest(passwordCredentials));
+    try {
+      log.info("Authenticating user {} via keystone", username);
+      keystoneResponse = keystoneClient.auth(username, password);
+    } catch (KeystoneAuthFailureException e) {
+      throw new RuntimeException(e);
+    }
 
-    log.info("Authenticating user {} via keystone", name);
-    KeystoneAuthResponse keystoneResponse = keystoneClient.auth(request);
+    if (keystoneResponse.isAuthenticated()) {
 
-    // get user object from DB
-    User user = userService.updateUserLastLoginDate(name);
+      // get user object from DB
+      User user = userService.login(username);
+      List<SimpleGrantedAuthority> grantedAuthorities = user.getRoles()
+                                                            .stream()
+                                                            .map(e -> new SimpleGrantedAuthority(e.getRole()))
+                                                            .toList();
 
-    List<SimpleGrantedAuthority> simpleGrantedAuthorities = user.getRoles()
-                                               .stream()
-                                               .map(Role::getAuthority)
-                                               .collect(Collectors.toList());
+      return new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
+    } else {
+      throw new KeystoneAuthenticationException(keystoneResponse.getErrorResponse().getError().getMessage());
+    }
 
-    return new UsernamePasswordAuthenticationToken(name, null, simpleGrantedAuthorities);
   }
 
   @Override

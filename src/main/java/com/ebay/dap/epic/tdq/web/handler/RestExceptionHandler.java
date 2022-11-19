@@ -1,7 +1,6 @@
 package com.ebay.dap.epic.tdq.web.handler;
 
 import com.ebay.dap.epic.tdq.common.exception.ApiException;
-import com.ebay.dap.epic.tdq.common.exception.ResourceNotFoundException;
 import com.ebay.dap.epic.tdq.web.protocal.response.ApiError;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +19,10 @@ public class RestExceptionHandler {
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<Object> handle(ApiException ex, WebRequest request) {
     log.error("Error:", ex);
-    ApiError apiError = new ApiError();
+    ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR);
 
     apiError.setPath(getPath(request));
     apiError.setMessage(ex.getMessage());
-
-    if (ex instanceof ResourceNotFoundException) {
-      apiError.setStatus(HttpStatus.NOT_FOUND.value());
-      apiError.setError("Resource not found");
-    } else {
-      apiError.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-      apiError.setError("Unexpected server error");
-    }
 
     return buildResponseEntity(apiError);
   }

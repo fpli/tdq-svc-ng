@@ -4,8 +4,8 @@ spring:
       write_dates_as_timestamps: false
     time-zone: UTC
   datasource:
-    driver-class-name: "com.mysql.cj.jdbc.Driver"
-    type: "com.zaxxer.hikari.HikariDataSource"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximumPoolSize: 10
       connection-timeout: 15000
@@ -19,7 +19,11 @@ spring:
     validate-on-migrate: true
 
 mybatis-plus:
-  typeEnumsPackage: com.ebay.dap.epic.tdq.data.enums
+#  typeEnumsPackage: com.ebay.dap.epic.tdq.data.enums
+  typeHandlersPackage: com.ebay.dap.epic.tdq.data.handler
+  configuration:
+    mapUnderscoreToCamelCase: true
+
 
 server:
   error:

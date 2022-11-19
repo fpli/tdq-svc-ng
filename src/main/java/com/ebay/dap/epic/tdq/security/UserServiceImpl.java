@@ -3,12 +3,12 @@ package com.ebay.dap.epic.tdq.security;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.UserEntity;
+import com.ebay.dap.epic.tdq.data.enums.Role;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.UserMapper;
-import com.ebay.dap.epic.tdq.security.model.Role;
 import com.ebay.dap.epic.tdq.security.model.User;
-
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +24,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User getByUsername(String username) {
-    LambdaQueryWrapper<UserEntity> queryWrapper =
-        Wrappers.<UserEntity>lambdaQuery()
-                .eq(UserEntity::getUsername, username);
+    LambdaQueryWrapper<UserEntity> queryWrapper = Wrappers.<UserEntity>lambdaQuery()
+                                                          .eq(UserEntity::getUsername, username);
     UserEntity userEntity = userMapper.selectOne(queryWrapper);
     if (userEntity != null) {
       return User.fromUserEntity(userEntity);
@@ -35,7 +34,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User updateUserLastLoginDate(String username) {
+  public User login(String username) {
     User user = this.getByUsername(username);
     UserEntity userEntity = null;
     if (user == null) {
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
       userMapper.insert(userEntity);
     } else {
       userEntity = user.toUserEntity();
-      userEntity.setLastLoginDate(LocalDateTime.now());
+      userEntity.setLastLoginTime(LocalDateTime.now());
 
       LambdaQueryWrapper<UserEntity> queryWrapper =
           Wrappers.<UserEntity>lambdaQuery()
@@ -54,8 +53,20 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User setUserRoles(List<Role> roles) {
-    // TODO(yxiao6): to be implemented
-    return null;
+  public User createUser(String username, Role... roles) {
+    UserEntity user = new UserEntity();
+    user.setUsername(username);
+    if (roles == null || roles.length == 0) {
+      // if role is not set, then use default User role
+      user.setRoles(Collections.singletonList(Role.USER));
+    } else {
+      user.setRoles(Arrays.stream(roles).toList());
+    }
+    user.setIsActive(true);
+    user.setLastLoginTime(LocalDateTime.now());
+
+    userMapper.insert(user);
+
+    return User.fromUserEntity(user);
   }
 }

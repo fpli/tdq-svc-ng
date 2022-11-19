@@ -20,8 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
-  protected void doFilterInternal(HttpServletRequest httpRequest,
-                                  HttpServletResponse httpResponse,
+  protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
                                   FilterChain filterChain) throws ServletException, IOException {
 
     log.debug("Authenticating JWT token");
@@ -39,9 +38,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (token != null) {
       // 1. For api user, do basic auth
-      if (username != null && username.equals("soj-flink-app") && token.startsWith("Basic ")) {
+      if (username != null && username.equals("tdq-api-user") && token.startsWith("Basic ")) {
         String s = new String(Base64.getDecoder().decode(token.split(" ")[1]));
-        if (s.split(":")[0].equals("sojourner") && s.split(":")[1].equals("sojourner")) {
+        if (s.split(":")[0].equals("tdq") && s.split(":")[1].equals("tdq")) {
           return new UsernamePasswordAuthenticationToken(username, null,
                                                          AuthorityUtils.createAuthorityList(Constants.ROLE_API_USER));
         }
