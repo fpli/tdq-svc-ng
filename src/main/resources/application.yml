@@ -36,4 +36,4 @@ keystone:
 global:
   web:
     security:
-      enabled: true
+      enabled: false
