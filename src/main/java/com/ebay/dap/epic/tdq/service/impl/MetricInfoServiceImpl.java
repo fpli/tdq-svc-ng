@@ -1,7 +1,6 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MetricInfoMapper;
 import com.ebay.dap.epic.tdq.service.MetricInfoService;
