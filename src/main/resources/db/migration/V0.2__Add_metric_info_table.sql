@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS `t_metric_info`;
 CREATE TABLE `t_metric_info`
 (
     `id`                BIGINT        NOT NULL AUTO_INCREMENT COMMENT 'PK',
-    `metric_id`         INT           NOT NULL,
     `metric_key`        VARCHAR(255)  NOT NULL,
     `metric_name`       VARCHAR(255)  NOT NULL,
     `desc`              VARCHAR(1000) NULL,
@@ -24,6 +23,5 @@ CREATE TABLE `t_metric_info`
     `create_time`       TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
     `update_time`       TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY metric_id_uni (`metric_id`),
     UNIQUE KEY metric_key_uni (`metric_key`)
 ) AUTO_INCREMENT = 1000;

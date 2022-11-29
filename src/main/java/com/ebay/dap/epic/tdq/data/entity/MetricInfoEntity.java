@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @TableName("t_metric_info")
 public class MetricInfoEntity extends AuditableEntity {
-   private Integer metric_id;
    private String metricKey;
    private String metricName;
    private String desc;
@@ -21,5 +20,6 @@ public class MetricInfoEntity extends AuditableEntity {
    private String dimension;
    private String dimensionSrcTbl;
    private String dimensionValCol;
+   private Integer status;
    private Integer version;
 }
