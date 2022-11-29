@@ -46,6 +46,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -145,7 +146,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
                 metricValueItemVO = new MetricValueItemVO();
                 metricValueItemVOList.add(metricValueItemVO);
                 metricValueItemVO.setValue(metricValue.getValue());
-                metricValueItemVO.setDate(LocalDate.parse(dt, dateTimeFormatter));
+                metricValueItemVO.setTimestamp(LocalDateTime.parse(dt, dateTimeFormatter).toEpochSecond(ZoneOffset.UTC));
             }
             metricChartVO.setMetricValueItemVOList(metricValueItemVOList);
         } catch (IOException e) {
