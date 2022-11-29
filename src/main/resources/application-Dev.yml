@@ -11,7 +11,7 @@ logging:
   level:
     com.ebay.dap.epic.tdq: debug
     org.springframework.security: debug
-    com.baomidou.mybatisplus: DEBUG
+    com.baomidou.mybatisplus: debug
 
 global:
   web:
