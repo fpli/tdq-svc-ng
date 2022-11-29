@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: root
-    password: password
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: tdq_app
+    password: pA_tdqap_22
+    url: jdbc:mysql://${MYSQL_HOST:mysqltdq.db.dev.ebayc3.com}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
   flyway:
     enabled: true
     out-of-order: true
@@ -17,3 +17,11 @@ global:
   web:
     security:
       enabled: true
+
+
+pronto:
+  scheme: https
+  hostname: estess762test-dataslc.stratus.qa.ebay.com
+  port: 443
+  api-key: _TDQ_SVC_USER
+  api-value: anGp2222anGp2222$

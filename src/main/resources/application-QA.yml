@@ -1,0 +1,7 @@
+
+pronto:
+  scheme: https
+  hostname: estess762test-dataslc.stratus.qa.ebay.com
+  port: 443
+  api-key: _TDQ_SVC_USER
+  api-value: anGp2222anGp2222$

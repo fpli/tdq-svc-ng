@@ -4,13 +4,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 @WebMvcTest(value = TestController.class)
-class TestControllerTest extends AbstractApiBaseTest {
+public class TestControllerTest extends AbstractApiBaseTest {
 
-  // @Test
-  void test_ok() throws Exception {
+  @Test
+  public void test_ok() throws Exception {
     mvc.perform(get("/api/test"))
         .andExpect(status().isOk())
         .andExpect(content().string("OK"));

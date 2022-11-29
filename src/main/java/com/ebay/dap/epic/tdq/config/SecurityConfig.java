@@ -136,7 +136,7 @@ public class SecurityConfig {
   public WebSecurityCustomizer webSecurityCustomizer() throws Exception {
     if (GLOBAL_WEB_SECURITY_ENABLED) {
       return (web) -> web.ignoring().antMatchers(HttpMethod.GET,
-                                                 "/api/test",
+                                                 "/api/**",
                                                  "/v2/api-docs",
                                                  "/swagger-resources/**",
                                                  "/webjars/**",
