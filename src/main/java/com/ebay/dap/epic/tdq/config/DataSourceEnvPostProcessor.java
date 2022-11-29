@@ -73,10 +73,6 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
       properties.put("spring.datasource.password", fdsc.getPassword());
       propertySources.addAfter(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
           new MapPropertySource("ds", properties));
-
-
     }
-
-
   }
 }
