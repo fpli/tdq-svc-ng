@@ -128,7 +128,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         builder.query(rootBuilder);
         builder.size(0);
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram("agg").field("dt").calendarInterval(DateHistogramInterval.DAY).format(pattern);
-        SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("metricValue").field("expr.v");
+        SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum("metricValue").field("value");
         dateHistogramAggregationBuilder.subAggregation(sumAggregationBuilder);
         builder.aggregation(dateHistogramAggregationBuilder);
         LocalDate from = to.minusMonths(1).plusDays(1);
