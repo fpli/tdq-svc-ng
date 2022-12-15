@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @TableName("t_chart_info")
-public class ChartEntity extends AuditableEntity {
+public class ChartInfoEntity extends AuditableEntity {
 
   private String name;
 
