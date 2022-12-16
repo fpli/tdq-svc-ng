@@ -1,0 +1,25 @@
+{
+  "name": "multiple chart demo",
+  "datasetConfigurations": [
+    {
+      "type": "bar",
+      "label": "Total UBI Session Count Daily",
+      "expression": "total_ubi_session_cnt"
+    },
+    {
+      "type": "bar",
+      "label": "Daily Bot Diff Count Between UBI Session and Clav Session",
+      "expression": "nonbot_ubi_and_bot_clav_cnt"
+    },
+    {
+      "type": "line",
+      "label": "(total_ubi_session_cnt + total_ubi_session_cnt)",
+      "expression": "(total_ubi_session_cnt + nonbot_ubi_and_bot_clav_cnt)"
+    },
+    {
+      "type": "line",
+      "label": "(total_ubi_session_cnt - total_ubi_session_cnt) / total_ubi_session_cnt",
+      "expression": "(total_ubi_session_cnt - nonbot_ubi_and_bot_clav_cnt) / nonbot_ubi_and_bot_clav_cnt"
+    }
+  ]
+}
