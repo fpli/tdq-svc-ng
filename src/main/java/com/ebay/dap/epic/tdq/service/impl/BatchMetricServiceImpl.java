@@ -28,6 +28,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -56,12 +57,17 @@ public class BatchMetricServiceImpl implements BatchMetricService {
 
     private RestHighLevelClient restHighLevelClient;
 
+    // todo: will be removed, only test local test
+    public void setRestHighLevelClient(RestHighLevelClient restHighLevelClient) {
+        this.restHighLevelClient = restHighLevelClient;
+    }
+
     //private ElasticsearchAsyncClient elasticsearchAsyncClient;
 
     private static final String indexTemplate = "tdq.batch.profiling.metric.%s.%s";
 
     private static final String pattern = "yyyy-MM-dd";
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
 
     @Autowired
     private ProntoConfig prontoEnv;
@@ -114,6 +120,8 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         MetricChartVO metricChartVO = new MetricChartVO();
         metricChartVO.setDate(metricKey);
         metricChartVO.setDate(date);
+        List<MetricValueItemVO> metricValueItemVOList = new ArrayList<>();
+        metricChartVO.setMetricValueItemVOList(metricValueItemVOList);
 
         SearchSourceBuilder builder = new SearchSourceBuilder();
         BoolQueryBuilder rootBuilder = QueryBuilders.boolQuery();
@@ -132,23 +140,24 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         dateHistogramAggregationBuilder.subAggregation(sumAggregationBuilder);
         builder.aggregation(dateHistogramAggregationBuilder);
         LocalDate from = to.minusMonths(1).plusDays(1);
+        log.info("builder: {}", builder);
         SearchRequest searchRequest = new SearchRequest(calculateIndexes(from, to), builder);
         searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
         try {
-            log.info("searchRequest:{}", searchRequest);
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            Histogram agg = searchResponse.getAggregations().get("agg");
-            List<MetricValueItemVO> metricValueItemVOList = new ArrayList<>();
-            MetricValueItemVO metricValueItemVO;
-            for (Histogram.Bucket bucket : agg.getBuckets()) {
-                String dt = bucket.getKeyAsString();
-                Sum metricValue = bucket.getAggregations().get("metricValue");
-                metricValueItemVO = new MetricValueItemVO();
-                metricValueItemVOList.add(metricValueItemVO);
-                metricValueItemVO.setValue(metricValue.getValue());
-                metricValueItemVO.setTimestamp(LocalDateTime.parse(dt, dateTimeFormatter).toEpochSecond(ZoneOffset.UTC));
+            Aggregations aggregations = searchResponse.getAggregations();
+            if (null != aggregations){
+                Histogram agg = aggregations.get("agg");
+                MetricValueItemVO metricValueItemVO;
+                for (Histogram.Bucket bucket : agg.getBuckets()) {
+                    String dt = bucket.getKeyAsString();
+                    Sum metricValue = bucket.getAggregations().get("metricValue");
+                    metricValueItemVO = new MetricValueItemVO();
+                    metricChartVO.getMetricValueItemVOList().add(metricValueItemVO);
+                    metricValueItemVO.setValue(metricValue.getValue());
+                    metricValueItemVO.setTimestamp(LocalDate.parse(dt, dateTimeFormatter).atTime(0, 0).toEpochSecond(ZoneOffset.UTC));
+                }
             }
-            metricChartVO.setMetricValueItemVOList(metricValueItemVOList);
         } catch (IOException e) {
             log.error("occurred errors during search index", e);
             throw new RuntimeException(e);

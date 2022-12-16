@@ -300,6 +300,14 @@
       <groupId>com.ebay.raptorio.component</groupId>
       <artifactId>raptor-opentelemetry-starter</artifactId>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.groovy/groovy -->
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>4.0.6</version>
+    </dependency>
+
   </dependencies>
 
   <build>

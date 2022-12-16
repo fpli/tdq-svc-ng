@@ -1,0 +1,10 @@
+{
+  "name": "single chart demo",
+  "datasetConfigurations": [
+    {
+      "type": "bar",
+      "label": "k1",
+      "expression": "k1"
+    }
+  ]
+}

@@ -12,5 +12,5 @@ public class MetricQueryParamVO {
     String metricKey;
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate date;
-    private final Map<String, Set<String>> dimensions;
+    Map<String, Set<String>> dimensions;
 }
