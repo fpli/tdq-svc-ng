@@ -8,7 +8,7 @@ CREATE TABLE `t_chart_info`
     `mode`        TINYINT       NOT NULL,
     `metric_keys` VARCHAR(255)  NOT NULL,
     `exp`         VARCHAR(255)  NULL,
-    `view_cfg`    VARCHAR(1000) NULL,
+    `view_cfg`    JSON,
     `created_by`  VARCHAR(255)  NULL COMMENT 'Created By',
     `updated_by`  VARCHAR(255)  NULL COMMENT 'Updated By',
     `create_time` TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',

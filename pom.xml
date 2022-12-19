@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.ebay.raptorio.platform</groupId>
     <artifactId>raptor-io-parent</artifactId>
-    <version>0.16.1-RELEASE</version>
+    <version>0.16.2-RELEASE</version>
     <relativePath></relativePath> <!-- lookup parent from repository -->
   </parent>
 
@@ -130,20 +130,26 @@
       <groupId>com.ebay.raptorio.component</groupId>
       <artifactId>raptor-featureconfig-starter</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.ebay.raptorio.component</groupId>-->
-<!--      <artifactId>raptor-trustfabric-handler-starter</artifactId>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>com.ebay.raptorio.component</groupId>-->
-<!--      <artifactId>raptor-trustfabric-client-starter</artifactId>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>com.ebay.raptorio.component</groupId>-->
-<!--      <artifactId>raptor-envoyhealth-status-starter</artifactId>-->
-<!--    </dependency>-->
-
-    <!--  Logging  -->
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-trustfabric-handler-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-trustfabric-client-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-envoyhealth-status-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-gis-aid-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ebay.raptorio.component</groupId>
+      <artifactId>raptor-opentelemetry-starter</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.ebay.raptorio.component</groupId>
       <artifactId>raptor-logger-starter</artifactId>
@@ -170,18 +176,19 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
+
+    <!--  Web  -->
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
 
+    <!-- Data Store -->
     <!-- ElasticSearch -->
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-elasticsearch</artifactId>
     </dependency>
-
-
     <!-- MySQL -->
     <dependency>
       <groupId>com.ebay.fount</groupId>
@@ -263,42 +270,17 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- junit 5 -->
+    <!-- JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <scope>test</scope>
       <version>2.7</version>
-    </dependency>
-    <dependency>
-      <groupId>com.ebay.raptorio.component</groupId>
-      <artifactId>raptor-trustfabric-handler-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.ebay.raptorio.component</groupId>
-      <artifactId>raptor-trustfabric-client-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.ebay.raptorio.component</groupId>
-      <artifactId>raptor-envoyhealth-status-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.ebay.raptorio.component</groupId>
-      <artifactId>raptor-gis-aid-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.ebay.raptorio.component</groupId>
-      <artifactId>raptor-opentelemetry-starter</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.groovy/groovy -->
@@ -317,8 +299,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${compiler.plugin.version}</version>
         <configuration>
-          <source>17</source>
-          <target>17</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
