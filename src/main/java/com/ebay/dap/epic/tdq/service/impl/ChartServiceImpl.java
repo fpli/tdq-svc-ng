@@ -76,8 +76,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public List<ChartVO> listChartInfoEntities() {
-        QueryWrapper<ChartInfoEntity> queryWrapper = new QueryWrapper<>();
-        List<ChartInfoEntity> chartInfoEntities = chartMapper.selectList(queryWrapper);
+        List<ChartInfoEntity> chartInfoEntities = chartMapper.selectList(null);
         List<ChartVO> chartVOList = new ArrayList<>();
         ChartVO chartVO;
         for (ChartInfoEntity chartInfoEntity : chartInfoEntities) {
