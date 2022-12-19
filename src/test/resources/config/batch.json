@@ -4,22 +4,31 @@
     {
       "type": "bar",
       "label": "Total UBI Session Count Daily",
+      "backgroundColor": "rgb(75, 192, 192)",
       "expression": "total_ubi_session_cnt"
     },
     {
       "type": "bar",
-      "label": "Daily Bot Diff Count Between UBI Session and Clav Session",
-      "expression": "nonbot_ubi_and_bot_clav_cnt"
+      "label": "Daily Bot Diff Count Between UBI Session and Clav Session(* 10)",
+      "backgroundColor": "rgb(53, 162, 235)",
+      "expression": "nonbot_ubi_and_bot_clav_cnt * 10"
+    },
+    {
+      "type": "bar",
+      "label": "Daily Bot Diff Count Between UBI Session and Clav Session(* 100)",
+      "backgroundColor": "rgb(53, 162, 183)",
+      "expression": "nonbot_ubi_and_bot_clav_cnt * 100"
     },
     {
       "type": "line",
-      "label": "(total_ubi_session_cnt + total_ubi_session_cnt)",
-      "expression": "(total_ubi_session_cnt + nonbot_ubi_and_bot_clav_cnt)"
+      "label": "(total_ubi_session_cnt + nonbot_ubi_and_bot_clav_cnt * 10 )",
+      "backgroundColor": "rgb(53, 162, 235)",
+      "expression": "(total_ubi_session_cnt + nonbot_ubi_and_bot_clav_cnt * 10)"
     },
     {
       "type": "line",
-      "label": "(total_ubi_session_cnt - total_ubi_session_cnt) / total_ubi_session_cnt",
-      "expression": "(total_ubi_session_cnt - nonbot_ubi_and_bot_clav_cnt) / nonbot_ubi_and_bot_clav_cnt"
+      "label": "(total_ubi_session_cnt - total_ubi_session_cnt * 20)",
+      "expression": "(total_ubi_session_cnt - nonbot_ubi_and_bot_clav_cnt * 20)"
     }
   ]
 }
