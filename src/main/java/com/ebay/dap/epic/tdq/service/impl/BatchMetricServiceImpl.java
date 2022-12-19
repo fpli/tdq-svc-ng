@@ -18,6 +18,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -40,6 +41,7 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -89,7 +90,33 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         }
     }
 
+
+    private String proxyUrl = "c2sproxy.vip.ebay.com";
+    private int port = 8080;
+    @Value("${proxy.user}")
+    private String username;
+
+    @Value("${proxy.password}")
+    private String password;
+
     @PostConstruct
+    private void ts(){
+        RestClientBuilder builder = RestClient.builder(new HttpHost("10.123.170.35", 9200, "http"));
+
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("76361a1177564b72bdba1ddb23d17c58", "1tIU7GQSADe4bCGGifWLfYYJSZGA8Szlc3ZWDMnd3gMhk43XPLUpw9Mv5viYQZ73"));
+
+//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+//        credentialsProvider.setCredentials(
+//                new AuthScope(proxyUrl, port), new UsernamePasswordCredentials(username, password));
+        HttpHost proxy = new HttpHost(proxyUrl, port);
+        String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
+        builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultHeaders(Collections.singletonList(new BasicHeader("Proxy-Authorization", "Basic " + encoded))).setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
+
+        restHighLevelClient = new RestHighLevelClient(builder);
+    }
+
+    //@PostConstruct
     public void buildRestHighLevelClient(){
         RestClientBuilder builder = RestClient.builder(new HttpHost(this.prontoEnv.getHostname(), this.prontoEnv.getPort(), this.prontoEnv.getScheme()));
         if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
@@ -126,7 +153,8 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         BoolQueryBuilder rootBuilder = QueryBuilders.boolQuery();
         rootBuilder.must(QueryBuilders.termQuery("metric_key", metricKey));
-        rootBuilder.must(QueryBuilders.termQuery("dt", date));
+        LocalDate begin = to.minusMonths(1).plusDays(1);
+        rootBuilder.must(QueryBuilders.rangeQuery("dt").gte(dateTimeFormatter.format(begin)).lte(dateTimeFormatter.format(to)));
         Map<String, Set<String>> dimensions = metricQueryParamVO.getDimensions();
         if (MapUtils.isNotEmpty(dimensions)) {
             for (Map.Entry<String, Set<String>> entry : dimensions.entrySet()) {
@@ -155,7 +183,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
                     metricValueItemVO = new MetricValueItemVO();
                     metricChartVO.getMetricValueItemVOList().add(metricValueItemVO);
                     metricValueItemVO.setValue(metricValue.getValue());
-                    metricValueItemVO.setTimestamp(LocalDate.parse(dt, dateTimeFormatter).atTime(0, 0).toEpochSecond(ZoneOffset.UTC));
+                    metricValueItemVO.setTimestamp(dt);
                 }
             }
         } catch (IOException e) {

@@ -48,7 +48,7 @@ public class ChartServiceImpl implements ChartService {
         return t;
     }
 
-    public Map<Long, Map<String, Double>> build(ChartEntity chartEntity, LocalDate date){
+    public Map<String, Map<String, Double>> build(ChartEntity chartEntity, LocalDate date){
         String metricKeys = chartEntity.getMetricKeys();
         //todo: pass metric raw data
 
@@ -57,14 +57,14 @@ public class ChartServiceImpl implements ChartService {
         metricQueryParamVO.setDate(date);
         String[] metricKeyArray = metricKeys.strip().split(",");
         // todo: iterate metricArray
-        Map<Long, Map<String, Double>> map = new HashMap<>();
+        Map<String, Map<String, Double>> map = new HashMap<>();
         for (String key : metricKeyArray) {
             String strip = key.strip();
             metricQueryParamVO.setMetricKey(strip);
             MetricChartVO metricChartVO = batchMetricService.retrieveBatchMetric(metricQueryParamVO);
             List<MetricValueItemVO> metricValueItemVOList = metricChartVO.getMetricValueItemVOList();
             for (MetricValueItemVO metricValueItemVO : metricValueItemVOList) {
-                Long timestamp = metricValueItemVO.getTimestamp();
+                String timestamp = metricValueItemVO.getTimestamp();
                 map.compute(timestamp, (t, m) -> {
                     if (m == null){
                         m = new HashMap<>();
@@ -81,23 +81,24 @@ public class ChartServiceImpl implements ChartService {
     public ChartDataVO retrieveChartData(Long id, LocalDate date) throws Exception {
         ChartEntity chartEntity = chartMapper.selectById(id);
 
-        Map<Long, Map<String, Double>> map = build(chartEntity, date);
+        Map<String, Map<String, Double>> map = build(chartEntity, date);
         ChartDataVO chartDataVO = new ChartDataVO();
         String viewCfg = chartEntity.getViewCfg();
 
         ChartConfig chartConfig = objectMapper.readValue(viewCfg, ChartConfig.class);
-
+        chartDataVO.setLabels(map.keySet().stream().sorted().toList());
         convert(map, chartConfig, chartDataVO);
         return chartDataVO;
     }
 
-    public static void convert(Map<Long, Map<String, Double>> map, ChartConfig chartConfig, ChartDataVO chartDataVO) {
+    public static void convert(Map<String, Map<String, Double>> map, ChartConfig chartConfig, ChartDataVO chartDataVO) {
         List<DatasetConfig> datasetConfigurations = chartConfig.getDatasetConfigurations();
         for (DatasetConfig datasetConfiguration : datasetConfigurations) {
             DataSetVO dataSetVO = new DataSetVO();
             chartDataVO.getDatasets().add(dataSetVO);
             dataSetVO.setType(datasetConfiguration.getType());
             dataSetVO.setLabel(datasetConfiguration.getLabel());
+            dataSetVO.setBackgroundColor(datasetConfiguration.getBackgroundColor());
             String expression = datasetConfiguration.getExpression();
             Script script = parseExpression(expression);
             Binding sharedData = new Binding();

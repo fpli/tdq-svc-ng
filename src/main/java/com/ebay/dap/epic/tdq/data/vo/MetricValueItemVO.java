@@ -6,6 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class MetricValueItemVO {
-    Long      timestamp;
+    String    timestamp;
     Double    value;
 }

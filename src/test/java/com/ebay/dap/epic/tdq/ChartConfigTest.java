@@ -46,7 +46,7 @@ public class ChartConfigTest {
         chartEntity.setMetricKeys("total_ubi_session_cnt, nonbot_ubi_and_bot_clav_cnt");
         String config = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("config/batch.json"), StandardCharsets.UTF_8);
         chartEntity.setViewCfg(config);
-        Map<Long, Map<String, Double>> map = chartService.build(chartEntity, yesterday);
+        Map<String, Map<String, Double>> map = chartService.build(chartEntity, yesterday);
         LocalDate localDate = yesterday;
         for (int i = 1; i < 10; i++) {
             localDate = localDate.minusDays(i);
@@ -73,11 +73,11 @@ public class ChartConfigTest {
         for (DatasetConfig datasetConfiguration : datasetConfigurations) {
             System.out.println(objectMapper.writeValueAsString(datasetConfiguration));
         }
-        Map<Long, Map<String, Double>> map = new HashMap<>();
+        Map<String, Map<String, Double>> map = new HashMap<>();
         for (long i = 0; i < 10; i++) {
             HashMap<String, Double> doubleHashMap = new HashMap<>();
             doubleHashMap.put("k1", 30.0 + i);
-            map.put(i, doubleHashMap);
+            map.put(i+"", doubleHashMap);
         }
         ChartDataVO chartDataVO = new ChartDataVO();
         ChartServiceImpl.convert(map, chartConfig, chartDataVO);
@@ -94,12 +94,12 @@ public class ChartConfigTest {
             System.out.println(objectMapper.writeValueAsString(datasetConfiguration));
         }
         System.out.println("---------------------------------");
-        Map<Long, Map<String, Double>> map = new HashMap<>();
+        Map<String, Map<String, Double>> map = new HashMap<>();
         for (long i = 0; i < 10; i++) {
             HashMap<String, Double> doubleHashMap = new HashMap<>();
             doubleHashMap.put("k1", 30.0 + i);
             doubleHashMap.put("k2", 10.0 + i);
-            map.put(i, doubleHashMap);
+            map.put(i+"", doubleHashMap);
         }
         ChartDataVO chartDataVO = new ChartDataVO();
         ChartServiceImpl.convert(map, chartConfig, chartDataVO);

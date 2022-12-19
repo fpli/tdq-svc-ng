@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 public class DataSetVO {
     String type;
     String label;
+
+    String backgroundColor;
     List<Double> data = new ArrayList<>();
 
     @Override

@@ -7,4 +7,5 @@ public class DatasetConfig {
     String type;
     String label;
     String expression;
+    String backgroundColor;
 }
