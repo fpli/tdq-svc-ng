@@ -2,14 +2,14 @@ package com.ebay.dap.epic.tdq;
 
 import com.ebay.dap.epic.tdq.data.dto.ChartConfig;
 import com.ebay.dap.epic.tdq.data.dto.DatasetConfig;
-import com.ebay.dap.epic.tdq.data.entity.ChartEntity;
+import com.ebay.dap.epic.tdq.data.entity.ChartInfoEntity;
 import com.ebay.dap.epic.tdq.data.vo.ChartDataVO;
 import com.ebay.dap.epic.tdq.data.vo.DataSetVO;
 import com.ebay.dap.epic.tdq.service.impl.BatchMetricServiceImpl;
 import com.ebay.dap.epic.tdq.service.impl.ChartServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class ChartConfigTest {
 
-    @Test
+    @org.junit.Test
     public void f5(){
         System.out.println(Long.valueOf(BigDecimal.valueOf(7.369707384E9).toPlainString()));
     }
@@ -39,10 +39,10 @@ public class ChartConfigTest {
         ChartServiceImpl chartService = new ChartServiceImpl();
         BatchMetricServiceImpl batchMetricService = new BatchMetricServiceImpl();
         batchMetricService.setRestHighLevelClient(Tes.f3());
-        chartService.setBatchMetricService(batchMetricService);
+        //chartService.setBatchMetricService(batchMetricService);
         LocalDate yesterday = chartService.getYesterday();
         System.out.println(yesterday);
-        ChartEntity chartEntity = new ChartEntity();
+        ChartInfoEntity chartEntity = new ChartInfoEntity();
         chartEntity.setMetricKeys("total_ubi_session_cnt, nonbot_ubi_and_bot_clav_cnt");
         String config = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("config/batch.json"), StandardCharsets.UTF_8);
         chartEntity.setViewCfg(config);
