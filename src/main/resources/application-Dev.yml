@@ -1,10 +1,10 @@
 spring:
   datasource:
-    username: tdq_app
-    password: pA_tdqap_22
-    url: jdbc:mysql://${MYSQL_HOST:mysqltdq.db.dev.ebayc3.com}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MySQL.username}
+    password: ${MySQL.password}
+    url: ${MySQL.url}
   flyway:
-    enabled: true
+    enabled: false
     out-of-order: true
 
 logging:
@@ -16,7 +16,7 @@ logging:
 global:
   web:
     security:
-      enabled: true
+      enabled: false
 
 
 pronto:
