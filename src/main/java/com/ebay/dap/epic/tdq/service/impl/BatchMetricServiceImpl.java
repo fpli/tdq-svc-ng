@@ -99,7 +99,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     @Value("${proxy.password}")
     private String password;
 
-    @PostConstruct
+    //@PostConstruct
     private void ts(){
         RestClientBuilder builder = RestClient.builder(new HttpHost("10.123.170.35", 9200, "http"));
 
@@ -116,7 +116,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         restHighLevelClient = new RestHighLevelClient(builder);
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void buildRestHighLevelClient(){
         RestClientBuilder builder = RestClient.builder(new HttpHost(this.prontoEnv.getHostname(), this.prontoEnv.getPort(), this.prontoEnv.getScheme()));
         if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
