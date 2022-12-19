@@ -1,7 +1,7 @@
 package com.ebay.dap.epic.tdq.data.mapper.mybatis;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.ebay.dap.epic.tdq.data.entity.ChartEntity;
+import com.ebay.dap.epic.tdq.data.entity.ChartInfoEntity;
 
-public interface ChartMapper extends BaseMapper<ChartEntity> {
+public interface ChartMapper extends BaseMapper<ChartInfoEntity> {
 }
