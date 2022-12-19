@@ -1,8 +1,9 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ebay.dap.epic.tdq.data.dto.ChartConfig;
 import com.ebay.dap.epic.tdq.data.dto.DatasetConfig;
-import com.ebay.dap.epic.tdq.data.entity.ChartEntity;
+import com.ebay.dap.epic.tdq.data.entity.ChartInfoEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ChartMapper;
 import com.ebay.dap.epic.tdq.data.vo.*;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +35,6 @@ public class ChartServiceImpl implements ChartService {
     @Autowired
     private BatchMetricService batchMetricService;
 
-    // todo: will be removed, only test local test
-    public void setBatchMetricService(BatchMetricService batchMetricService) {
-        this.batchMetricService = batchMetricService;
-    }
-
     private static Script parseExpression(String expression){
         GroovyShell groovyShell = new GroovyShell();
         return groovyShell.parse(expression);
@@ -48,7 +45,7 @@ public class ChartServiceImpl implements ChartService {
         return t;
     }
 
-    public Map<String, Map<String, Double>> build(ChartEntity chartEntity, LocalDate date){
+    public Map<String, Map<String, Double>> build(ChartInfoEntity chartEntity, LocalDate date){
         String metricKeys = chartEntity.getMetricKeys();
         //todo: pass metric raw data
 
@@ -78,8 +75,25 @@ public class ChartServiceImpl implements ChartService {
     }
 
     @Override
+    public List<ChartVO> listChartInfoEntities() {
+        QueryWrapper<ChartInfoEntity> queryWrapper = new QueryWrapper<>();
+        List<ChartInfoEntity> chartInfoEntities = chartMapper.selectList(queryWrapper);
+        List<ChartVO> chartVOList = new ArrayList<>();
+        ChartVO chartVO;
+        for (ChartInfoEntity chartInfoEntity : chartInfoEntities) {
+            chartVO = new ChartVO();
+            chartVOList.add(chartVO);
+            chartVO.setId(chartInfoEntity.getId());
+            chartVO.setTitle(chartInfoEntity.getName());
+            chartVO.setDescription(chartInfoEntity.getDescription());
+            // ...
+        }
+        return chartVOList;
+    }
+
+    @Override
     public ChartDataVO retrieveChartData(Long id, LocalDate date) throws Exception {
-        ChartEntity chartEntity = chartMapper.selectById(id);
+        ChartInfoEntity chartEntity = chartMapper.selectById(id);
 
         Map<String, Map<String, Double>> map = build(chartEntity, date);
         ChartDataVO chartDataVO = new ChartDataVO();

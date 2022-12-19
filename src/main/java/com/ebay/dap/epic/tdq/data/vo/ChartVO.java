@@ -5,4 +5,7 @@ import lombok.Data;
 @Data
 public class ChartVO {
 
+    Long id;
+    String title;
+    String description;
 }
