@@ -8,4 +8,6 @@ public class ChartVO {
     Long id;
     String title;
     String description;
+    String categoryId;
+    int level;
 }
