@@ -12,7 +12,4 @@ public interface ChartService {
 
     ChartDataVO retrieveChartData(Long id, LocalDate date) throws Exception;
 
-    default LocalDate getYesterday(){
-        return LocalDate.now().minusDays(2);
-    }
 }
