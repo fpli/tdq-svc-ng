@@ -1,6 +1,5 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ebay.dap.epic.tdq.data.dto.ChartConfig;
 import com.ebay.dap.epic.tdq.data.dto.DatasetConfig;
 import com.ebay.dap.epic.tdq.data.entity.ChartInfoEntity;
@@ -28,24 +27,24 @@ public class ChartServiceImpl implements ChartService {
 
     @Autowired
     private ChartMapper chartMapper;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     @Autowired
     private BatchMetricService batchMetricService;
 
-    private static Script parseExpression(String expression){
+    private static Script parseExpression(String expression) {
         GroovyShell groovyShell = new GroovyShell();
         return groovyShell.parse(expression);
     }
 
-    private static  <T> T exec(Script script){
+    private static <T> T exec(Script script) {
         T t = (T) script.run();
         return t;
     }
 
-    public Map<String, Map<String, Double>> build(ChartInfoEntity chartEntity, LocalDate date){
+    public Map<String, Map<String, Double>> build(ChartInfoEntity chartEntity, LocalDate date) {
         String metricKeys = chartEntity.getMetricKeys();
         //todo: pass metric raw data
 
@@ -63,7 +62,7 @@ public class ChartServiceImpl implements ChartService {
             for (MetricValueItemVO metricValueItemVO : metricValueItemVOList) {
                 String timestamp = metricValueItemVO.getTimestamp();
                 map.compute(timestamp, (t, m) -> {
-                    if (m == null){
+                    if (m == null) {
                         m = new HashMap<>();
                     }
                     m.put(strip, metricValueItemVO.getValue());

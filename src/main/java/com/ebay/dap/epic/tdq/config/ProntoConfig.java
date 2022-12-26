@@ -11,6 +11,6 @@ public class ProntoConfig {
     String scheme;
     String hostname;
     Integer port;
-    String apiKey;
-    String apiValue;
+    String username;
+    String password;
 }

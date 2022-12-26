@@ -220,6 +220,11 @@
       <version>1.0.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.ebay.tdq</groupId>
+      <artifactId>tdq-svc-lib</artifactId>
+      <version>3.2.4-SNAPSHOT</version>
+    </dependency>
     <!-- Security -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
@@ -289,6 +294,11 @@
       <artifactId>groovy</artifactId>
       <version>4.0.6</version>
     </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <scope>test</scope>
+      </dependency>
 
   </dependencies>
 

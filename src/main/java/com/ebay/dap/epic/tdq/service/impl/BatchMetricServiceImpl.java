@@ -18,7 +18,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.message.BasicHeader;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -41,14 +40,11 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -57,13 +53,6 @@ import java.util.*;
 public class BatchMetricServiceImpl implements BatchMetricService {
 
     private RestHighLevelClient restHighLevelClient;
-
-    // todo: will be removed, only test local test
-    public void setRestHighLevelClient(RestHighLevelClient restHighLevelClient) {
-        this.restHighLevelClient = restHighLevelClient;
-    }
-
-    //private ElasticsearchAsyncClient elasticsearchAsyncClient;
 
     private static final String indexTemplate = "tdq.batch.profiling.metric.%s.%s";
 
@@ -78,50 +67,13 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     @Autowired
     private MetricInfoService metricInfoService;
 
-    private LocalDate date;
-
-    @Scheduled(cron = "0 0 11 * * *")
-    @PostConstruct
-    private void init(){
-        if (LocalDateTime.now().getHour() < 10) {
-            date = LocalDate.now().minusDays(2);
-        } else {
-            date = LocalDate.now().minusDays(1);
-        }
-    }
-
-
-    private String proxyUrl = "c2sproxy.vip.ebay.com";
-    private int port = 8080;
-    @Value("${proxy.user}")
-    private String username;
-
-    @Value("${proxy.password}")
-    private String password;
 
     @PostConstruct
-    private void ts(){
-        RestClientBuilder builder = RestClient.builder(new HttpHost("10.123.170.35", 9200, "http"));
-
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("76361a1177564b72bdba1ddb23d17c58", "1tIU7GQSADe4bCGGifWLfYYJSZGA8Szlc3ZWDMnd3gMhk43XPLUpw9Mv5viYQZ73"));
-
-//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-//        credentialsProvider.setCredentials(
-//                new AuthScope(proxyUrl, port), new UsernamePasswordCredentials(username, password));
-        HttpHost proxy = new HttpHost(proxyUrl, port);
-        String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
-        builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultHeaders(Collections.singletonList(new BasicHeader("Proxy-Authorization", "Basic " + encoded))).setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
-
-        restHighLevelClient = new RestHighLevelClient(builder);
-    }
-
-//    @PostConstruct
-    public void buildRestHighLevelClient(){
+    public void buildRestHighLevelClient() {
         RestClientBuilder builder = RestClient.builder(new HttpHost(this.prontoEnv.getHostname(), this.prontoEnv.getPort(), this.prontoEnv.getScheme()));
         if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getApiKey(), this.prontoEnv.getApiValue()));
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
             builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
         //RestClientTransport restClientTransport = new RestClientTransport(builder.build(), new JacksonJsonpMapper());
@@ -135,6 +87,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     /**
      * only support daily batch metric but real time metric,
      * don't contain mmd info
+     *
      * @param metricQueryParamVO
      * @return
      */
@@ -174,7 +127,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             Aggregations aggregations = searchResponse.getAggregations();
-            if (null != aggregations){
+            if (null != aggregations) {
                 Histogram agg = aggregations.get("agg");
                 MetricValueItemVO metricValueItemVO;
                 for (Histogram.Bucket bucket : agg.getBuckets()) {
@@ -197,14 +150,12 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     public String retrieveDimensionsByMetricKey(String metricKey, LocalDate date) throws Exception {
         ObjectNode dimension = objectMapper.createObjectNode();
         MetricInfoEntity metricInfoEntity = metricInfoService.getMetricInfoEntityByMetricKey(metricKey);
-        if (null == metricInfoEntity || null == metricInfoEntity.getDimension()){
+        if (null == metricInfoEntity || null == metricInfoEntity.getDimension()) {
             return dimension.toPrettyString();
         }
         String entityDimension = metricInfoEntity.getDimension();
         String[] ds = entityDimension.replace("[", "").replace("]", "").split(",");
-        if (null == date){
-            date = this.date;
-        }
+
         LocalDate begin = date.minusMonths(1);
         SearchSourceBuilder builder = new SearchSourceBuilder();
         BoolQueryBuilder rootBuilder = QueryBuilders.boolQuery();

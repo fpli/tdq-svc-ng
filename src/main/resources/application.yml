@@ -42,5 +42,5 @@ pronto:
   scheme: https
   hostname: estdq-datalvs.vip.ebay.com
   port: 443
-  api-key: 76361a1177564b72bdba1ddb23d17c58
-  api-value: 1tIU7GQSADe4bCGGifWLfYYJSZGA8Szlc3ZWDMnd3gMhk43XPLUpw9Mv5viYQZ73
+  username: ${pronto.username}
+  password: ${pronto.password}

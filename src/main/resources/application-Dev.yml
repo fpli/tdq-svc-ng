@@ -21,7 +21,7 @@ global:
 
 pronto:
   scheme: https
-  hostname: estess762test-dataslc.stratus.qa.ebay.com
+  hostname: estdq-datalvs.vip.ebay.com
   port: 443
-  api-key: _TDQ_SVC_USER
-  api-value: anGp2222anGp2222$
+  username: ${pronto.username}
+  password: ${pronto.password}

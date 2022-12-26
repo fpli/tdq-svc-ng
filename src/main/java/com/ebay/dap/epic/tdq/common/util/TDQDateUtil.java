@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public interface TDQDateUtil {
 
-    static LocalDate getYesterday(){
+    static LocalDate getYesterday() {
         return LocalDate.now().minusDays(1);
     }
 }

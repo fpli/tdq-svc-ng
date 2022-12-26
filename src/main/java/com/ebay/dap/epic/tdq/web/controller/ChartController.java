@@ -32,15 +32,15 @@ public class ChartController {
             @ApiImplicitParam(paramType = "query", name = "date", dataType = "Date", example = "2022-08-07", format = "yyyy-MM-dd")
     })
     public ChartDataVO retrieveChartData(@PathVariable Long id, LocalDate date) throws Exception {
-        if (null == date || date.isAfter(TDQDateUtil.getYesterday())){
+        if (null == date || date.isAfter(TDQDateUtil.getYesterday())) {
             date = TDQDateUtil.getYesterday();
         }
         return chartService.retrieveChartData(id, date);
     }
 
-    @GetMapping("/listChartInfoEntities")
+    @GetMapping("/listChartInfo")
     @ApiOperation(value = "list all Chart info", notes = "list all chart info")
-    public List<ChartVO> listChartInfoEntities(){
+    public List<ChartVO> listChartInfo() {
         return chartService.listChartInfoEntities();
     }
 }
