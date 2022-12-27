@@ -7,6 +7,7 @@ import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricValueItemVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.MetricInfoService;
+import com.ebay.tdq.svc.ServiceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,6 +41,7 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +49,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static com.ebay.dap.epic.tdq.common.Constants.isProd;
 
 @Service
 @Slf4j
@@ -67,19 +71,32 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     @Autowired
     private MetricInfoService metricInfoService;
 
+    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
+    private String proxyUrl;
+    @Value("${proxyPort:8080}")
+    private int port;
+    @Value("${proxy.user}")
+    private String username;
+    @Value("${proxy.password}")
+    private String password;
 
     @PostConstruct
     public void buildRestHighLevelClient() {
-        RestClientBuilder builder = RestClient.builder(new HttpHost(this.prontoEnv.getHostname(), this.prontoEnv.getPort(), this.prontoEnv.getScheme()));
-        if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
-            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
-            builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+        if (isProd()) {
+            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
+        } else {
+            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
+            RestClientBuilder builder = RestClient.builder(httpHost);
+            if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
+                HttpHost proxy = new HttpHost(proxyUrl, port);
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(username, password));
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
+
+                builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
+            }
+            restHighLevelClient = new RestHighLevelClient(builder);
         }
-        //RestClientTransport restClientTransport = new RestClientTransport(builder.build(), new JacksonJsonpMapper());
-        //ElasticsearchClient elasticsearchClient = new ElasticsearchClient(restClientTransport);
-        //elasticsearchAsyncClient = new ElasticsearchAsyncClient(restClientTransport);
-        restHighLevelClient = new RestHighLevelClient(builder);
         log.info("restHighLevelClient is initialized.");
     }
 
