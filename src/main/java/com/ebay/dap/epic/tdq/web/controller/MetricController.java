@@ -28,14 +28,14 @@ public class MetricController {
 
     @ApiOperation("list all metric metadata")
     @GetMapping("/listMetricAllInfo")
-    public List<MetricInfoEntity> listMetricAllInfo(){
+    public List<MetricInfoEntity> listMetricAllInfo() {
         return metricInfoService.listMetricAllInfo();
     }
 
     @ApiOperation("get metric for batch")
     @PostMapping("/retrieveBatchMetric")
     @ApiImplicitParam(paramType = "body", dataTypeClass = MetricQueryParamVO.class)
-    public MetricChartVO retrieveBatchMetric(@RequestBody MetricQueryParamVO metricQueryParamVO){
+    public MetricChartVO retrieveBatchMetric(@RequestBody MetricQueryParamVO metricQueryParamVO) {
         return batchMetricService.retrieveBatchMetric(metricQueryParamVO);
     }
 
