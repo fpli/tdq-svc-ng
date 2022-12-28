@@ -4,7 +4,7 @@ spring:
     password: ${MYSQL_PASSWORD:password}
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
   flyway:
-    enabled: true
+    enabled: false
     out-of-order: true
 
 logging:
@@ -12,3 +12,16 @@ logging:
     com.ebay.dap.epic.tdq: debug
     org.springframework.security: debug
     com.baomidou.mybatisplus: debug
+
+global:
+  web:
+    security:
+      enabled: false
+
+
+pronto:
+  scheme: https
+  hostname: estdq-datalvs.vip.ebay.com
+  port: 443
+  username: ${pronto.username}
+  password: ${pronto.password}

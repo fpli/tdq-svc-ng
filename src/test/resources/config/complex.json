@@ -1,0 +1,30 @@
+{
+  "name": "multiple chart demo",
+  "datasetConfigurations": [
+    {
+      "type": "bar",
+      "label": "k1",
+      "expression": "k1"
+    },
+    {
+      "type": "bar",
+      "label": "k2",
+      "expression": "k2"
+    },
+    {
+      "type": "line",
+      "label": "(k1 - k2) / k2",
+      "expression": "(k1 - k2) / k2"
+    },
+    {
+      "type": "line",
+      "label": "k1 * 10 + k2 / 10",
+      "expression": "k1 * 10 + k2 / 10"
+    },
+    {
+      "type": "line",
+      "label": "k1 % 10",
+      "expression": "k1 % 10"
+    }
+  ]
+}

@@ -8,16 +8,16 @@ import lombok.Data;
 @TableName("t_chart_info")
 public class ChartInfoEntity extends AuditableEntity {
 
-  private String name;
+    private String name;
 
-  private String description;
+    private String description;
 
-  private ChartMode mode;
+    private ChartMode mode;
 
-  private String metricKeys;
+    private String metricKeys;
 
-  private String exp;
+    private String exp;
 
-  private String viewCfg;
+    private String viewCfg;
 
 }

@@ -8,13 +8,13 @@ import lombok.Getter;
 @Getter
 public enum ChartMode {
 
-  SINGLE(1, "single"),
+    SINGLE(1, "single"),
 
-  COMPOSE(2, "compose"),
+    COMPOSE(2, "compose"),
 
-  DIFF(3, "diff");
+    DIFF(3, "diff");
 
-  @EnumValue
-  private final int code;
-  private final String name;
+    @EnumValue
+    private final int code;
+    private final String name;
 }
