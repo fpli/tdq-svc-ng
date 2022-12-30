@@ -44,3 +44,18 @@ pronto:
   port: 443
   username: ${pronto.username}
   password: ${pronto.password}
+
+mmd-common-cfg:
+  # url: http://10.78.235.92/mmd/find-anomaly
+  #http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:8848/mmd/find-anomaly
+  url: http://mmd-on-demand-api-svc.mmd-qa-ns.svc.57.tess.io/mmd/find-anomaly
+  head-params:
+    BI_CLIENT_APP_ID: TDQ_hourly
+    BI_CLIENT_APP_KEY: tdQ_MMD_AweS0ME
+  global-config:
+    client-app-domain-id: Buyer Growth (or any other domain/team)
+    model-type: burst
+    noise-removal: true
+  job-param:
+    id: 0
+    label: Here are some descriptions of your job

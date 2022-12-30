@@ -1,0 +1,272 @@
+mmdjson-custom-params:
+  MetricsCustParams:
+    Common:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 7
+      SEASONAL_PERIOD: 7
+      TREND_WIN: 14
+      RSD_WIN: 14
+      CHECK_WIN: 14
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Global_Mandatory_Tag_Item_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.96
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Global_Mandatory_Tag_User_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.97
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Marketing_Event_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.92
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Transformation_Error_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.96
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Overall_Event_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 7
+      SEASONAL_PERIOD: 7
+      TREND_WIN: 14
+      RSD_WIN: 14
+      CHECK_WIN: 14
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Consistency_Rate_Of_EP_Site_Id:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Qualification_Age_NQT:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Native_Tag:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Search_Tag:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Site_Email_Click_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.96
+      LINEAR_WIN: 7
+      SEASONAL_PERIOD: 7
+      TREND_WIN: 14
+      RSD_WIN: 14
+      CHECK_WIN: 14
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Search_Tag_Cpnip_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Search_Tag_Clktrack_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Search_Tag_Icpp_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Native_Tag_Dn_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.97
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Native_Tag_Mos_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Native_Tag_Osv_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.96
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Search_Tag_SrpGist_Rate:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Store_Event_Tot_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    URL_Query_String_User_Slctd_Id_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Soid_owner_id_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    URL_Query_String_Store_Name_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    Soid_Owner_public_id_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    REFRESHER_Item_Id_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.99
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    SOJ_Item_Id_Volume:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    page_profiling_daily:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 7
+      SEASONAL_PERIOD: 7
+      TREND_WIN: 14
+      RSD_WIN: 14
+      CHECK_WIN: 14
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false
+    tag_profiling_daily:
+      SHOW_BOUND_LEN: 1
+      TH_ANOMALY_SCORE: 0.98
+      LINEAR_WIN: 24
+      SEASONAL_PERIOD: 24
+      TREND_WIN: 24
+      RSD_WIN: 24
+      CHECK_WIN: 24
+      EXTRA_BOUNDARY_BUFFER: 1.3
+      HIDE_NORMAL_DETAIL: false

@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ErrorItem extends AbstractErrorItem {
-  private int errCode;
-  private String message;
+    private int errCode;
+    private String message;
 }

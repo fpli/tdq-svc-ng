@@ -4,7 +4,7 @@ import java.security.Principal;
 
 public class SecurityHelper {
 
-  public static String getUsername(Principal user) {
-    return user == null ? "Anonymous" : user.getName();
-  }
+    public static String getUsername(Principal user) {
+        return user == null ? "Anonymous" : user.getName();
+    }
 }
