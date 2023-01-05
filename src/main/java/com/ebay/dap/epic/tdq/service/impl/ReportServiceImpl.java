@@ -57,15 +57,15 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<MetadataSummaryVo> getClickSummary() {
+    public List<MetadataSummaryVo> getClickSummary(LocalDate dt) {
         log.info("Get Click metadata coverage summary report");
-        return getSummaryReportVoList("Click");
+        return getSummaryReportVoList("Click", dt);
     }
 
     @Override
-    public List<MetadataSummaryVo> getModuleSummary() {
+    public List<MetadataSummaryVo> getModuleSummary(LocalDate dt) {
         log.info("Get Module metadata coverage summary report");
-        return getSummaryReportVoList("Module");
+        return getSummaryReportVoList("Module", dt);
     }
 
     @Override
@@ -117,13 +117,17 @@ public class ReportServiceImpl implements ReportService {
         }).collect(Collectors.toList());
     }
 
-    private List<MetadataSummaryVo> getSummaryReportVoList(String metadataType) {
-        final LocalDate latestDt = getLatestDtOfSummary();
-        log.info("latest source dt for metadata summary is {}", latestDt);
+    private List<MetadataSummaryVo> getSummaryReportVoList(String metadataType, LocalDate dt) {
+        if (dt == null) {
+            dt = getLatestDtOfSummary();
+            log.info("Latest source dt for metadata summary is {}", dt);
+        }
 
         LambdaQueryWrapper<MetadataSummaryEntity> queryWrapper = Wrappers.<MetadataSummaryEntity>lambdaQuery()
-                                                                         .eq(MetadataSummaryEntity::getDt, latestDt)
+                                                                         .eq(MetadataSummaryEntity::getDt, dt)
                                                                          .eq(MetadataSummaryEntity::getMetadataType, metadataType);
+
+        log.info("Retrieve {} metadata summary report of {} from database.", metadataType, dt);
 
         List<MetadataSummaryEntity> entities = metadataSummaryMapper.selectList(queryWrapper);
         return entities.stream().map(e -> {

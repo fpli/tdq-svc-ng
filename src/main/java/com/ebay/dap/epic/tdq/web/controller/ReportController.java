@@ -27,14 +27,16 @@ public class ReportController {
 
     @ApiOperation("Get Click metadata coverage summary report")
     @GetMapping(path = "/metadata/click_summary")
-    public List<MetadataSummaryVo> getClickSummary() {
-        return reportService.getClickSummary();
+    public List<MetadataSummaryVo> getClickSummary(@RequestParam(value = "dt", required = false)
+                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dt) {
+        return reportService.getClickSummary(dt);
     }
 
     @ApiOperation("Get Module metadata coverage summary report")
     @GetMapping(path = "/metadata/module_summary")
-    public List<MetadataSummaryVo> getModuleSummary() {
-        return reportService.getModuleSummary();
+    public List<MetadataSummaryVo> getModuleSummary(@RequestParam(value = "dt", required = false)
+                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dt) {
+        return reportService.getModuleSummary(dt);
     }
 
     @ApiOperation("Get Click metadata coverage detail report")

@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ReportService {
 
-    List<MetadataSummaryVo> getClickSummary();
+    List<MetadataSummaryVo> getClickSummary(LocalDate dt);
 
-    List<MetadataSummaryVo> getModuleSummary();
+    List<MetadataSummaryVo> getModuleSummary(LocalDate dt);
 
     List<MetadataDetailVo> getClickDetail(String domain, Integer metricId, LocalDate dt);
 
