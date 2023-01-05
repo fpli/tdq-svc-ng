@@ -24,8 +24,6 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
     private static final String STAGING = "staging";
     private static final String PROD = "prod";
 
-    public static String CUR_ENV = "dev";
-
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment,
                                        SpringApplication application) {
@@ -45,7 +43,6 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
                     .dbEnv(PROD)
                     .logicalDsNames(LOGICAL_DS_NAME)
                     .build();
-            CUR_ENV = PROD;
         } else if (activeProfiles.contains(Constants.INTEGRATION_TEST_PROFILE)) {
             fountClient = (ManagedFountClient) new ManagedFountClientBuilder()
                     .decryptionDirective(DecryptionDirective.DECRYPT)
