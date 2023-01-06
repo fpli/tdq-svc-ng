@@ -8,28 +8,28 @@ import lombok.Getter;
 @Getter
 public enum Role {
 
-  // admin role, has all privileges
-  ADMIN(1, "ADMIN"),
+    // admin role, has all privileges
+    ADMIN(1, "ADMIN"),
 
-  // normal user
-  USER(2, "USER");
+    // normal user
+    USER(2, "USER");
 
 
-  @EnumValue
-  private final int code;
-  private final String role;
+    @EnumValue
+    private final int code;
+    private final String role;
 
-  public static Role fromCode(int code) {
-    for (Role value : Role.values()) {
-      if (value.code == code) {
-        return value;
-      }
+    public static Role fromCode(int code) {
+        for (Role value : Role.values()) {
+            if (value.code == code) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException("Couldn't find Role of " + code);
     }
-    throw new IllegalArgumentException("Couldn't find Role of " + code);
-  }
 
-  public String getCode() {
-    return String.valueOf(code);
-  }
+    public String getCode() {
+        return String.valueOf(code);
+    }
 
 }

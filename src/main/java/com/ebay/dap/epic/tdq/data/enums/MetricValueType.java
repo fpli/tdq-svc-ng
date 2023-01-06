@@ -8,9 +8,9 @@ import lombok.Getter;
 @Getter
 public enum MetricValueType {
 
-  GAUGE(1, "Gauge");
+    GAUGE(1, "Gauge");
 
-  @EnumValue
-  private final int code;
-  private final String name;
+    @EnumValue
+    private final int code;
+    private final String name;
 }
