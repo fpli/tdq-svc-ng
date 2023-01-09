@@ -11,7 +11,7 @@ public interface TagRecordMapper extends BaseMapper<TagRecord> {
     @Delete("delete from tag_record where dt = #{date}")
     long deleteAllByDate(LocalDate date);
 
-    default long save(TagRecord tagRecord){
+    default long save(TagRecord tagRecord) {
         insert(tagRecord);
         return tagRecord.getId();
     }

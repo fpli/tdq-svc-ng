@@ -22,6 +22,7 @@ public interface TagUsageInfoMapper extends BaseMapper<TagUsageInfoEntity> {
             "</foreach>",
             "</script>"})
     List<TagUsageInfoEntity> findAllByDtIn(@Param("dates") List<LocalDate> singletonList);
+
     @Select("select * from profiling_tag_usage where tag_name = #{tagName} and dt between #{begin} and #{end} order by dt")
     List<TagUsageInfoEntity> findAllByTagNameAndDtBetweenOrderByDt(@Param("tagName") String tagName, @Param("begin") LocalDate begin, @Param("end") LocalDate end);
 }

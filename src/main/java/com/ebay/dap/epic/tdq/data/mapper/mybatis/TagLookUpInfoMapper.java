@@ -12,13 +12,15 @@ public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
     @Select("select * from profiling_tag_lkp where tag_name = #{tagName}")
     List<TagLookUpInfo> findAllByTagName(@Param("tagName") String tagName);
 
-    @Select({"<script>",
+    @Select({
+            "<script>",
             "select * from profiling_tag_lkp where tag_name in ",
             "<foreach item='item' index='index' collection='tagNames'",
             "open='(' separator=',' close=')'>",
             "#{item}",
             "</foreach>",
-            "</script>"})
+            "</script>"
+    })
     List<TagLookUpInfo> findSomeByTagName(@Param("tagNames") List<String> tagNames);
 
     @Select("select distinct tag_name from profiling_tag_lkp")

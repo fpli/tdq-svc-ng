@@ -40,23 +40,23 @@ public class RestTemplateConfig {
             final int C2S_PROXY_PORT = 8080;
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(
-                new AuthScope(C2S_PROXY_HOST, C2S_PROXY_PORT),
-                new UsernamePasswordCredentials(env.getProperty("NT_USER"), env.getProperty("YUBI_KEY"))
+                    new AuthScope(C2S_PROXY_HOST, C2S_PROXY_PORT),
+                    new UsernamePasswordCredentials(env.getProperty("NT_USER"), env.getProperty("YUBI_KEY"))
             );
             httpClientBuilder.setProxy(new HttpHost(C2S_PROXY_HOST, C2S_PROXY_PORT, "http"))
-                             .setDefaultCredentialsProvider(credsProvider);
+                    .setDefaultCredentialsProvider(credsProvider);
         }
 
         requestFactory.setHttpClient(httpClientBuilder.build());
         //if (ConstantDefine.CUR_ENV.equalsIgnoreCase(ConstantDefine.ENV.QA)){
-            mmdCommonCfg.setUrl("http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:80/mmd/find-anomaly");
+        mmdCommonCfg.setUrl("http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:80/mmd/find-anomaly");
 //        }
         return restTemplateBuilder.requestFactory(() -> requestFactory)
-                                  .rootUri(mmdCommonCfg.getUrl())
-                                  .defaultHeader("BI_CLIENT_APP_ID", "TDQ_hourly")
-                                  .defaultHeader("BI_CLIENT_APP_KEY", "tdQ_MMD_AweS0ME")
-                                  .setConnectTimeout(Duration.ofSeconds(5))
-                                  .setReadTimeout(Duration.ofSeconds(30))
-                                  .build();
+                .rootUri(mmdCommonCfg.getUrl())
+                .defaultHeader("BI_CLIENT_APP_ID", "TDQ_hourly")
+                .defaultHeader("BI_CLIENT_APP_KEY", "tdQ_MMD_AweS0ME")
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(30))
+                .build();
     }
 }
