@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: ${MySQL.username}
-    password: ${MySQL.password}
-    url: ${MySQL.url}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:password}
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
   flyway:
     enabled: false
     out-of-order: true
