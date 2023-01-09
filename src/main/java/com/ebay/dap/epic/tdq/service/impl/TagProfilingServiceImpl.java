@@ -75,6 +75,8 @@ import static com.ebay.dap.epic.tdq.common.Constants.isProd;
 public class TagProfilingServiceImpl implements TagProfilingService {
 
     public static final String TDQ_PROFILING_METRIC_S_S = "tdq.profiling.metric.%s.%s";
+
+    @Autowired
     private RestHighLevelClient restHighLevelClient;
 
     private static final List<String> TAGS = Arrays.asList("page_id", "bot", "app", "event_family");
@@ -123,22 +125,6 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     @Scheduled(cron = "0 0 11 * * *")
     @PostConstruct
     public void init() {
-        if (isProd()) {
-            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
-        } else {
-            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
-            RestClientBuilder builder = RestClient.builder(httpHost);
-            if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
-                HttpHost proxy = new HttpHost(proxyUrl, port);
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(username, password));
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
-
-                builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
-            }
-            restHighLevelClient = new RestHighLevelClient(builder);
-        }
-        log.info("restHighLevelClient is initialized.");
         CompletableFuture.runAsync(() -> {
             Instant begin = Instant.now();
             concurrentHashMap.clear();
