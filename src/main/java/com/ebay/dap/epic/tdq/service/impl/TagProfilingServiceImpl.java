@@ -101,17 +101,17 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private int tagByVolumeTopN = 3000;
     public static double score = 0.9995;
 
-    @Autowired
-    private ProntoConfig prontoEnv;
-
-    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-    private String proxyUrl;
-    @Value("${proxyPort:8080}")
-    private int port;
-    @Value("${proxy.user}")
-    private String username;
-    @Value("${proxy.password}")
-    private String password;
+//    @Autowired
+//    private ProntoConfig prontoEnv;
+//
+//    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
+//    private String proxyUrl;
+//    @Value("${proxyPort:8080}")
+//    private int port;
+//    @Value("${proxy.user}")
+//    private String username;
+//    @Value("${proxy.password}")
+//    private String password;
 
     @Scheduled(cron = "0 0 11 * * *")
     @PostConstruct

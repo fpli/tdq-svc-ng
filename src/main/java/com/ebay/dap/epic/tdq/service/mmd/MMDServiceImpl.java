@@ -72,14 +72,14 @@ public class MMDServiceImpl implements MMDService {
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 
-    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-    private String proxyUrl;
-    @Value("${proxyPort:8080}")
-    private int port;
-    @Value("${proxy.user}")
-    private String username;
-    @Value("${proxy.password}")
-    private String password;
+//    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
+//    private String proxyUrl;
+//    @Value("${proxyPort:8080}")
+//    private int port;
+//    @Value("${proxy.user}")
+//    private String username;
+//    @Value("${proxy.password}")
+//    private String password;
 
 //    @PostConstruct
 //    public void init() {
@@ -508,8 +508,8 @@ public class MMDServiceImpl implements MMDService {
 //                httpResult = HttpResult.doPostWithJson(url, headParams, jsonEntity);
                 HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).POST(HttpRequest.BodyPublishers.ofString(jsonEntity)).setHeader("Content-Type", "application/json");
                 headParams.forEach(builder::setHeader);
-                String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
-                builder.setHeader("Proxy-Authorization", "Basic " + encoded);
+//                String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
+//                builder.setHeader("Proxy-Authorization", "Basic " + encoded);
                 HttpRequest httpRequest = builder.build();
                 HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 httpResult = httpResponse.body();
