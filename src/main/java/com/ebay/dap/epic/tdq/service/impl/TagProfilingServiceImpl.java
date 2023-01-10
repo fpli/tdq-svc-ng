@@ -7,7 +7,6 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
 import com.ebay.dap.epic.tdq.data.vo.*;
 import com.ebay.dap.epic.tdq.service.TagProfilingService;
 import com.ebay.dap.epic.tdq.service.mmd.*;
-import com.ebay.tdq.svc.ServiceFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,17 +15,10 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
@@ -68,13 +60,14 @@ import java.util.function.BiPredicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import static com.ebay.dap.epic.tdq.common.Constants.isProd;
 
 @Service
 @Slf4j
 public class TagProfilingServiceImpl implements TagProfilingService {
 
     public static final String TDQ_PROFILING_METRIC_S_S = "tdq.profiling.metric.%s.%s";
+
+    @Autowired
     private RestHighLevelClient restHighLevelClient;
 
     private static final List<String> TAGS = Arrays.asList("page_id", "bot", "app", "event_family");
@@ -123,22 +116,6 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     @Scheduled(cron = "0 0 11 * * *")
     @PostConstruct
     public void init() {
-        if (isProd()) {
-            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
-        } else {
-            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
-            RestClientBuilder builder = RestClient.builder(httpHost);
-            if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
-                HttpHost proxy = new HttpHost(proxyUrl, port);
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(username, password));
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
-
-                builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
-            }
-            restHighLevelClient = new RestHighLevelClient(builder);
-        }
-        log.info("restHighLevelClient is initialized.");
         CompletableFuture.runAsync(() -> {
             Instant begin = Instant.now();
             concurrentHashMap.clear();

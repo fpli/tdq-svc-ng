@@ -1,30 +1,21 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
-import com.ebay.dap.epic.tdq.config.ProntoConfig;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.vo.MetricChartVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricValueItemVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.MetricInfoService;
-import com.ebay.tdq.svc.ServiceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -41,64 +32,30 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.ebay.dap.epic.tdq.common.Constants.isProd;
-
 @Service
 @Slf4j
 public class BatchMetricServiceImpl implements BatchMetricService {
 
+    @Autowired
     private RestHighLevelClient restHighLevelClient;
 
     private static final String indexTemplate = "tdq.batch.profiling.metric.%s.%s";
 
     private static final String pattern = "yyyy-MM-dd";
-    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
 
-    @Autowired
-    private ProntoConfig prontoEnv;
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
 
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private MetricInfoService metricInfoService;
-
-    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-    private String proxyUrl;
-    @Value("${proxyPort:8080}")
-    private int port;
-    @Value("${proxy.user}")
-    private String username;
-    @Value("${proxy.password}")
-    private String password;
-
-    @PostConstruct
-    public void buildRestHighLevelClient() {
-        if (isProd()) {
-            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
-        } else {
-            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
-            RestClientBuilder builder = RestClient.builder(httpHost);
-            if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
-                HttpHost proxy = new HttpHost(proxyUrl, port);
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(username, password));
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
-
-                builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
-            }
-            restHighLevelClient = new RestHighLevelClient(builder);
-        }
-        log.info("restHighLevelClient is initialized.");
-    }
 
 
     /**

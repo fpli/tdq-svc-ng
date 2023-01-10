@@ -35,9 +35,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 
-import static com.ebay.dap.epic.tdq.common.Constants.isProd;
-
-
 @Log4j2
 @Service
 public class MMDServiceImpl implements MMDService {
@@ -84,13 +81,13 @@ public class MMDServiceImpl implements MMDService {
     @Value("${proxy.password}")
     private String password;
 
-    @PostConstruct
-    public void init() {
-        if (!isProd()) {
-            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
-        }
-    }
+//    @PostConstruct
+//    public void init() {
+//        if (!isProd()) {
+//            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+//            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
+//        }
+//    }
 
 //    @Override
 //    public void updateBoundByMmd(int metricId, DateTime checkDateTime, String configType) throws Exception {

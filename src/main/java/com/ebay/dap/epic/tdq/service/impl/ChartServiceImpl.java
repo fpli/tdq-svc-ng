@@ -3,7 +3,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 import com.ebay.dap.epic.tdq.data.dto.ChartConfig;
 import com.ebay.dap.epic.tdq.data.dto.DatasetConfig;
 import com.ebay.dap.epic.tdq.data.entity.ChartInfoEntity;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.ChartMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.ChartInfoMapper;
 import com.ebay.dap.epic.tdq.data.vo.*;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.ChartService;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class ChartServiceImpl implements ChartService {
 
     @Autowired
-    private ChartMapper chartMapper;
+    private ChartInfoMapper chartInfoMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -75,7 +75,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public List<ChartVO> listChartInfoEntities() {
-        List<ChartInfoEntity> chartInfoEntities = chartMapper.selectList(null);
+        List<ChartInfoEntity> chartInfoEntities = chartInfoMapper.selectList(null);
         List<ChartVO> chartVOList = new ArrayList<>();
         ChartVO chartVO;
         for (ChartInfoEntity chartInfoEntity : chartInfoEntities) {
@@ -91,7 +91,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartDataVO retrieveChartData(Long id, LocalDate date) throws Exception {
-        ChartInfoEntity chartEntity = chartMapper.selectById(id);
+        ChartInfoEntity chartEntity = chartInfoMapper.selectById(id);
 
         Map<String, Map<String, Double>> map = build(chartEntity, date);
         ChartDataVO chartDataVO = new ChartDataVO();
