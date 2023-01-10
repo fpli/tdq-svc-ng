@@ -1,6 +1,5 @@
 package com.ebay.dap.epic.tdq.config;
 
-import com.ebay.tdq.svc.ServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -42,8 +41,10 @@ public class ElasticSearchConfig {
     @Bean
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
         RestHighLevelClient restHighLevelClient = null;
+        // FIXME(yxiao6): pronto host needs to be configurable
+        HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
         if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
-            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
+            httpHost = new HttpHost("10.123.170.35", 9200, "http");
             RestClientBuilder builder = RestClient.builder(httpHost);
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
                 HttpHost proxy = new HttpHost(proxyHost, proxyPort);
@@ -55,7 +56,8 @@ public class ElasticSearchConfig {
             }
             restHighLevelClient = new RestHighLevelClient(builder);
         } else {
-            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
+//            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
+            restHighLevelClient = new RestHighLevelClient(RestClient.builder(httpHost));
         }
 
         log.info("RestHighLevelClient is initialized.");

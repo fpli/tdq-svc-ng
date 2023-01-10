@@ -256,11 +256,11 @@
             <version>4.0.6</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.ebay.tdq</groupId>
-            <artifactId>tdq-svc-lib</artifactId>
-            <version>3.2.4-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.ebay.tdq</groupId>-->
+<!--            <artifactId>tdq-svc-lib</artifactId>-->
+<!--            <version>3.2.4-SNAPSHOT</version>-->
+<!--        </dependency>-->
 
         <!-- This is to fix error: org.xerial.snappy.SnappyError: [FAILED_TO_LOAD_NATIVE_LIBRARY]
              no native library is found for os.name=Mac and os.arch=aarch64
