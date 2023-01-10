@@ -23,5 +23,5 @@ pronto:
   scheme: https
   hostname: estdq-datalvs.vip.ebay.com
   port: 443
-  username: ${pronto.username}
-  password: ${pronto.password}
+  username: ${PRONTO_USERNAME}
+  password: ${PRONTO_PASSWORD}
