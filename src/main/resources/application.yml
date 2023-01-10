@@ -24,14 +24,10 @@ mybatis-plus:
   configuration:
     mapUnderscoreToCamelCase: true
 
-
 server:
   error:
     whitelabel:
       enabled: false
-
-keystone:
-  url: "https://os-identity.vip.ebayc3.com:5443"
 
 global:
   web:

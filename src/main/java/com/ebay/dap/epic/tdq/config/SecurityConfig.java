@@ -1,6 +1,10 @@
 package com.ebay.dap.epic.tdq.config;
 
-import com.ebay.dap.epic.tdq.security.*;
+import com.ebay.dap.epic.tdq.security.JwtAuthenticationFilter;
+import com.ebay.dap.epic.tdq.security.KeystoneAuthenticationProvider;
+import com.ebay.dap.epic.tdq.security.LoginProcessingFilter;
+import com.ebay.dap.epic.tdq.security.RestAuthenticationEntryPoint;
+import com.ebay.dap.epic.tdq.security.UserService;
 import com.ebay.keystone.KeystoneClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
@@ -81,10 +87,16 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**",
                     "/admin/actuator/**");
-
         } else {
             return (web) -> web.ignoring().antMatchers("/**");
         }
+    }
+
+    @Bean
+    public HttpFirewall getHttpFirewall() {
+        StrictHttpFirewall strictHttpFirewall = new StrictHttpFirewall();
+        strictHttpFirewall.setUnsafeAllowAnyHttpMethod(true);
+        return strictHttpFirewall;
     }
 
 }
