@@ -185,10 +185,10 @@
 
         <!-- Data Store -->
         <!-- ElasticSearch -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-elasticsearch</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.data</groupId>-->
+<!--            <artifactId>spring-data-elasticsearch</artifactId>-->
+<!--        </dependency>-->
         <!-- MySQL -->
         <dependency>
             <groupId>com.ebay.fount</groupId>
@@ -259,7 +259,7 @@
         <dependency>
             <groupId>com.ebay.tdq</groupId>
             <artifactId>tdq-svc-lib</artifactId>
-            <version>3.2.4-SNAPSHOT</version>
+            <version>3.2.5-SNAPSHOT</version>
         </dependency>
 
         <!-- This is to fix error: org.xerial.snappy.SnappyError: [FAILED_TO_LOAD_NATIVE_LIBRARY]

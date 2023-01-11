@@ -43,13 +43,15 @@ public class ElasticSearchConfig {
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
         RestHighLevelClient restHighLevelClient = null;
         if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
-            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
+//        if (env.acceptsProfiles(Profiles.of("Dev"))) {
+//            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
+            HttpHost httpHost = new HttpHost("estdq-datalvs.vip.ebay.com", 443, "https");
             RestClientBuilder builder = RestClient.builder(httpHost);
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
                 HttpHost proxy = new HttpHost(proxyHost, proxyPort);
                 final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxyUsername, proxyPassword));
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
+                credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
 
                 builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
             }
