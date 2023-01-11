@@ -70,24 +70,24 @@ public class MMDServiceImpl implements MMDService {
     private static final String USTimeZone = "-07:00";
     private static final int SUCCESS_CODE = 200;
 
-    private HttpClient httpClient = HttpClient.newHttpClient();
+    private HttpClient httpClient;
 
     @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
     private String proxyUrl;
     @Value("${proxyPort:8080}")
     private int port;
-    @Value("${proxy.user}")
+    @Value("${proxy.user:fangpli}")
     private String username;
-    @Value("${proxy.password}")
+    @Value("${proxy.password:202104vvvvccnkllljkejjjfkithukgdbjkdrufkchrfcjihfe}")
     private String password;
 
-//    @PostConstruct
-//    public void init() {
+    @PostConstruct
+    public void init() {
 //        if (!isProd()) {
-//            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-//            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
 //        }
-//    }
+    }
 
 //    @Override
 //    public void updateBoundByMmd(int metricId, DateTime checkDateTime, String configType) throws Exception {
@@ -515,6 +515,7 @@ public class MMDServiceImpl implements MMDService {
                 httpResult = httpResponse.body();
                 break;
             } catch (Exception e) {
+                e.printStackTrace();
                 exception = e;
                 try {
                     TimeUnit.SECONDS.sleep(intervalTime);
