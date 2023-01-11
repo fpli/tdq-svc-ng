@@ -12,6 +12,8 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -81,12 +83,21 @@ public class MMDServiceImpl implements MMDService {
     @Value("${proxy.password:202104vvvvccnkllljkejjjfkithukgdbjkdrufkchrfcjihfe}")
     private String password;
 
+    private boolean usedProxy;
+
+    @Autowired
+    private ConfigurableEnvironment env;
+
     @PostConstruct
     public void init() {
-//        if (!isProd()) {
-            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        if (env.acceptsProfiles(Profiles.of("Dev"))) {
             httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
-//        }
+            usedProxy = true;
+        } else {
+            httpClient = HttpClient.newHttpClient();
+            usedProxy = false;
+        }
     }
 
 //    @Override
@@ -508,8 +519,10 @@ public class MMDServiceImpl implements MMDService {
 //                httpResult = HttpResult.doPostWithJson(url, headParams, jsonEntity);
                 HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).POST(HttpRequest.BodyPublishers.ofString(jsonEntity)).setHeader("Content-Type", "application/json");
                 headParams.forEach(builder::setHeader);
-                String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
-                builder.setHeader("Proxy-Authorization", "Basic " + encoded);
+                if (usedProxy){
+                    String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
+                    builder.setHeader("Proxy-Authorization", "Basic " + encoded);
+                }
                 HttpRequest httpRequest = builder.build();
                 HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 httpResult = httpResponse.body();
