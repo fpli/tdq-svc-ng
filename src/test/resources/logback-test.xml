@@ -2,9 +2,11 @@
 <configuration>
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <Pattern>%date{ISO8601} [%.-15t] %-5level %logger{40} - %msg%n</Pattern>
+      <Pattern>%date{ISO8601} [%.-40t] %-5level %logger{50} - %msg%n</Pattern>
     </encoder>
   </appender>
+
+  <logger name="com.ebay.dap.epic.tdq" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="console"/>

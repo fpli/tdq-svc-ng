@@ -1,28 +1,32 @@
 package com.ebay.dap.epic.tdq;
 
 import com.ebay.fount.fountclient.DecryptionDirective;
+import com.ebay.fount.fountclient.FountDatasourceConfig;
 import com.ebay.fount.managedfountclient.ManagedFountClient;
 import com.ebay.fount.managedfountclient.ManagedFountClientBuilder;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class FountClientTest {
+class FountClientTest {
 
-    public static void main(String[] args) throws Exception {
+    @Test
+    void test() {
+        final String ds = "tdqmyhost";
 
-//        System.setProperty("http.proxyHost", "c2syubi.vip.ebay.com");
-//        System.setProperty("http.proxyPort", "8080");
-//        System.setProperty("https.proxyHost", "");
-//        System.setProperty("https.proxyPort", "");
-
-
-        ManagedFountClient fountClientprod = (ManagedFountClient) new ManagedFountClientBuilder()
-//        .appName(applicatioName)
-//        .addFountDatasourceChangeListener()
+        ManagedFountClient fountClient = (ManagedFountClient) new ManagedFountClientBuilder()
+                //.appName(applicatioName)
+                //.addFountDatasourceChangeListener()
                 .decryptionDirective(DecryptionDirective.DECRYPT)
                 .dbEnv("staging")
-                .logicalDsNames("tdqmyhost")
+                .logicalDsNames(ds)
                 .build();
-        System.out.println(fountClientprod.getDatasourceConfig("tdqmyhost"));
-
+        FountDatasourceConfig datasourceConfig = fountClient.getDatasourceConfig(ds);
+        System.out.println(datasourceConfig);
+        assertThat(datasourceConfig.getUrl()).isNotNull();
+        assertThat(datasourceConfig.getUser()).isNotNull();
+        assertThat(datasourceConfig.getPassword()).isNotNull();
     }
+
 }

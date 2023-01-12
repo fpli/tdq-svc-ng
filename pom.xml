@@ -29,7 +29,7 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <fount.client.version>0.2.16</fount.client.version>
         <mysql.connector.version>8.0.28</mysql.connector.version>
-        <mybatis-plus.version>3.5.2</mybatis-plus.version>
+        <mybatis-plus.version>3.5.3</mybatis-plus.version>
     </properties>
 
     <dependencies>
@@ -290,6 +290,12 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter-test</artifactId>
+            <version>${mybatis-plus.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- JUnit 5 -->
