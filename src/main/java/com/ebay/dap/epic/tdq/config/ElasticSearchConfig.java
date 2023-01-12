@@ -43,7 +43,7 @@ public class ElasticSearchConfig {
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
         RestHighLevelClient restHighLevelClient = null;
 //        if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
-        if (env.acceptsProfiles(Profiles.of("Dev"))) {
+        if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
 //            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
             HttpHost httpHost = new HttpHost("estdq-datalvs.vip.ebay.com", 443, "https");
             RestClientBuilder builder = RestClient.builder(httpHost);

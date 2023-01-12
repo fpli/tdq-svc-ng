@@ -80,7 +80,7 @@ public class MMDServiceImpl implements MMDService {
     private int port;
     @Value("${proxy.user:fangpli}")
     private String username;
-    @Value("${proxy.password:202104vvvvccnkllljkejjjfkithukgdbjkdrufkchrfcjihfe}")
+    @Value("${proxy.password:202104vvvvccnkllljlbccndichenjjhdnjnnbgkbtfbdkegif}")
     private String password;
 
     private boolean usedProxy;
@@ -91,7 +91,7 @@ public class MMDServiceImpl implements MMDService {
     @PostConstruct
     public void init() {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        if (env.acceptsProfiles(Profiles.of("Dev"))) {
+        if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
             httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
             usedProxy = true;
         } else {
