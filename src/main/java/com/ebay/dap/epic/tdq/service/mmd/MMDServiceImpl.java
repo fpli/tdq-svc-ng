@@ -80,7 +80,7 @@ public class MMDServiceImpl implements MMDService {
     private int port;
     @Value("${proxy.user:'fangpli'}")
     private String username;
-    @Value("${proxy.password:'202104vvvvccnkllljlbccndichenjjhdnjnnbgkbtfbdkegif'}")
+    @Value("${proxy.password:'202104vvvvccnkllljckiitjjdgufluknndbrucerhudfvlbbi'}")
     private String password;
 
     private boolean usedProxy;

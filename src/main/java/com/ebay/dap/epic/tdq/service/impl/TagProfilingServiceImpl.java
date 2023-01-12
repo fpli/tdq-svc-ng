@@ -1,6 +1,5 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
-import com.ebay.dap.epic.tdq.config.ProntoConfig;
 import com.ebay.dap.epic.tdq.data.dto.TagDetailDTO;
 import com.ebay.dap.epic.tdq.data.entity.*;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
@@ -38,7 +37,6 @@ import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -100,18 +98,6 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private int tagTopN = 100;
     private int tagByVolumeTopN = 3000;
     public static double score = 0.9995;
-
-    @Autowired
-    private ProntoConfig prontoEnv;
-
-    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-    private String proxyUrl;
-    @Value("${proxyPort:8080}")
-    private int port;
-    @Value("${proxy.user}")
-    private String username;
-    @Value("${proxy.password}")
-    private String password;
 
     @Scheduled(cron = "0 0 11 * * *")
     @PostConstruct

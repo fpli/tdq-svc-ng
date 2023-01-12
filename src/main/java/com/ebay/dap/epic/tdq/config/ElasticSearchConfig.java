@@ -33,7 +33,7 @@ public class ElasticSearchConfig {
     @Value("${proxy.user:'fangpli'}")
     private String proxyUsername;
 
-    @Value("${proxy.password:'202104vvvvccnkllljlbccndichenjjhdnjnnbgkbtfbdkegif'}")
+    @Value("${proxy.password:'202104vvvvccnkllljckiitjjdgufluknndbrucerhudfvlbbi'}")
     private String proxyPassword;
 
     @Autowired
@@ -41,7 +41,7 @@ public class ElasticSearchConfig {
 
     @Bean
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
-        RestHighLevelClient restHighLevelClient = null;
+        RestHighLevelClient restHighLevelClient;
 //        if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
         if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
 //            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
