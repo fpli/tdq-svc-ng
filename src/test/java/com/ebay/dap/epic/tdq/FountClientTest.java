@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq;
 
+import com.ebay.dap.epic.tdq.common.FountEnv;
 import com.ebay.fount.fountclient.DecryptionDirective;
 import com.ebay.fount.fountclient.FountDatasourceConfig;
 import com.ebay.fount.managedfountclient.ManagedFountClient;
@@ -19,12 +20,15 @@ class FountClientTest {
                 //.appName(applicatioName)
                 //.addFountDatasourceChangeListener()
                 .decryptionDirective(DecryptionDirective.DECRYPT)
-                .dbEnv("staging")
+                .dbEnv(FountEnv.STAGING)
                 .logicalDsNames(ds)
                 .build();
         FountDatasourceConfig datasourceConfig = fountClient.getDatasourceConfig(ds);
         System.out.println(datasourceConfig);
+
         assertThat(datasourceConfig.getUrl()).isNotNull();
+        assertThat(datasourceConfig.getUrl()).doesNotContain(";");
+
         assertThat(datasourceConfig.getUser()).isNotNull();
         assertThat(datasourceConfig.getPassword()).isNotNull();
     }

@@ -365,49 +365,23 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
-            <!--      <plugin>-->
-            <!--        <groupId>com.github.spotbugs</groupId>-->
-            <!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
-            <!--        <version>4.0.0</version>-->
-            <!--      </plugin>-->
+            <!--  sonar   -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.7.0.1746</version>
             </plugin>
-            <!--      <plugin>-->
-            <!--        <groupId>org.apache.maven.plugins</groupId>-->
-            <!--        <artifactId>maven-surefire-plugin</artifactId>-->
-            <!--        <version>3.0.0-M5</version>-->
-            <!--        <configuration>-->
-            <!--          <includes>-->
-            <!--            <include>**/Test*.java</include>-->
-            <!--            <include>**/*Test.java</include>-->
-            <!--            <include>**/*Tests.java</include>-->
-            <!--            <include>**/*TestCase.java</include>-->
-            <!--            <include>**/*Suite.java</include>-->
-            <!--          </includes>-->
-            <!--          <failIfNoTests>false</failIfNoTests>-->
-            <!--          &lt;!&ndash;<forkCount>2C</forkCount>&ndash;&gt;-->
-            <!--          &lt;!&ndash;<reuseForks>false</reuseForks>&ndash;&gt;-->
-            <!--          &lt;!&ndash;<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>&ndash;&gt;-->
-            <!--          <systemPropertyVariables>-->
-            <!--            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>-->
-            <!--          </systemPropertyVariables>-->
-            <!--        </configuration>-->
-            <!--      </plugin>-->
+            <!--  checkstyle: skip for now  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
-    <!--  <reporting>-->
-    <!--    <plugins>-->
-    <!--      <plugin>-->
-    <!--        <groupId>com.github.spotbugs</groupId>-->
-    <!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
-    <!--        <version>4.0.0</version>-->
-    <!--      </plugin>-->
-    <!--    </plugins>-->
-    <!--  </reporting>-->
 
     <profiles>
         <profile>

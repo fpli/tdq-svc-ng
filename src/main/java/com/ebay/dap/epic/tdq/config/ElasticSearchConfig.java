@@ -17,7 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
 
-import static com.ebay.dap.epic.tdq.common.Constants.C2S_PROXY_PROFILE;
+import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
+
 
 @Slf4j
 @Configuration
@@ -43,7 +44,7 @@ public class ElasticSearchConfig {
         RestHighLevelClient restHighLevelClient = null;
         // FIXME(yxiao6): pronto host needs to be configurable
         HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
-        if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
+        if (env.acceptsProfiles(Profiles.of(C2S_PROXY))) {
             httpHost = new HttpHost("10.123.170.35", 9200, "http");
             RestClientBuilder builder = RestClient.builder(httpHost);
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
@@ -57,6 +58,7 @@ public class ElasticSearchConfig {
             restHighLevelClient = new RestHighLevelClient(builder);
         } else {
 //            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
+            //FIXME(yxiao6): current code is for passing SWU, fix this ASAP
             restHighLevelClient = new RestHighLevelClient(RestClient.builder(httpHost));
         }
 

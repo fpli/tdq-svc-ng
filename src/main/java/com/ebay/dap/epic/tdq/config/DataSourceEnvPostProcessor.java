@@ -1,6 +1,7 @@
 package com.ebay.dap.epic.tdq.config;
 
-import com.ebay.dap.epic.tdq.common.Constants;
+import com.ebay.dap.epic.tdq.common.FountEnv;
+import com.ebay.dap.epic.tdq.common.Profile;
 import com.ebay.fount.fountclient.DecryptionDirective;
 import com.ebay.fount.fountclient.FountDatasourceConfig;
 import com.ebay.fount.managedfountclient.ManagedFountClient;
@@ -21,32 +22,29 @@ import static org.springframework.core.env.StandardEnvironment.SYSTEM_ENVIRONMEN
 public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
 
     private static final String LOGICAL_DS_NAME = "tdqmyhost";
-    private static final String STAGING = "staging";
-    private static final String PROD = "prod";
 
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment,
-                                       SpringApplication application) {
+    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 
         Set<String> activeProfiles = Sets.newHashSet(environment.getActiveProfiles());
         ManagedFountClient fountClient = null;
 
-        if (activeProfiles.contains(Constants.QA_PROFILE)) {
+        if (activeProfiles.contains(Profile.QA)) {
             fountClient = (ManagedFountClient) new ManagedFountClientBuilder()
                     .decryptionDirective(DecryptionDirective.DECRYPT)
-                    .dbEnv(STAGING)
+                    .dbEnv(FountEnv.STAGING)
                     .logicalDsNames(LOGICAL_DS_NAME)
                     .build();
-        } else if (activeProfiles.contains(Constants.PRODUCTION_PROFILE)) {
+        } else if (activeProfiles.contains(Profile.PRODUCTION)) {
             fountClient = (ManagedFountClient) new ManagedFountClientBuilder()
                     .decryptionDirective(DecryptionDirective.DECRYPT)
-                    .dbEnv(PROD)
+                    .dbEnv(FountEnv.PROD)
                     .logicalDsNames(LOGICAL_DS_NAME)
                     .build();
-        } else if (activeProfiles.contains(Constants.INTEGRATION_TEST_PROFILE)) {
+        } else if (activeProfiles.contains(Profile.INTEGRATION_TEST)) {
             fountClient = (ManagedFountClient) new ManagedFountClientBuilder()
                     .decryptionDirective(DecryptionDirective.DECRYPT)
-                    .dbEnv(STAGING)
+                    .dbEnv(FountEnv.STAGING)
                     .logicalDsNames(LOGICAL_DS_NAME)
                     .build();
         }
@@ -58,15 +56,19 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
 
             StringBuilder url = new StringBuilder(fdsc.getUrl());
             if (url.toString().contains("?")) {
-                url.append("&");
+                if (!url.toString().contains("useSSL=")) {
+                    url.append("&useSSL=false");
+                }
             } else {
-                url.append("?");
+                // if no parameter set, add below parameters to url
+                url.append("?useSSL=false");
             }
-            url.append("useSSL=False");
+
 
             // Spring managed logging system initialized only after Spring context is initialized
             // so use System.out.println to log the info.
-            System.out.println(url);
+            System.out.println("Original fount jdbc url is: " + fdsc.getUrl());
+            System.out.println("Updated jdbc url is: " + url);
             System.out.println(fdsc.getUser() + "/" + fdsc.getPassword());
 
             properties.put("spring.datasource.url", url.toString());
