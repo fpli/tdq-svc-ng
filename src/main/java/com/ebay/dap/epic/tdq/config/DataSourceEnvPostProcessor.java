@@ -58,11 +58,14 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
 
             StringBuilder url = new StringBuilder(fdsc.getUrl());
             if (url.toString().contains("?")) {
-                url.append("&");
+                if (!url.toString().contains("useSSL=")) {
+                    url.append("&useSSL=false");
+                }
             } else {
-                url.append("?");
+                // if no parameter set, add below parameters to url
+                url.append("?useSSL=false");
             }
-            url.append("useSSL=False");
+
 
             // Spring managed logging system initialized only after Spring context is initialized
             // so use System.out.println to log the info.

@@ -33,7 +33,7 @@ public class ElasticSearchConfig {
     @Value("${proxy.user:'fangpli'}")
     private String proxyUsername;
 
-    @Value("${proxy.password:'202104vvvvccnkllljckiitjjdgufluknndbrucerhudfvlbbi'}")
+    @Value("${proxy.password:'202104vvvvccnkllljfvblbfebkfhufjdtidvcekgttnuvicee'}")
     private String proxyPassword;
 
     @Autowired
