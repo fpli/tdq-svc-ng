@@ -1,6 +1,5 @@
 package com.ebay.dap.epic.tdq.config;
 
-import com.ebay.tdq.svc.ServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -42,14 +41,14 @@ public class ElasticSearchConfig {
     @Bean
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
         RestHighLevelClient restHighLevelClient;
+        HttpHost httpHost = new HttpHost("estdq-datalvs.vip.ebay.com", 443, "https");
+        RestClientBuilder builder = RestClient.builder(httpHost);
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
 //        if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
         if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
-//            HttpHost httpHost = new HttpHost("10.123.170.35", 9200, "http");
-            HttpHost httpHost = new HttpHost("estdq-datalvs.vip.ebay.com", 443, "https");
-            RestClientBuilder builder = RestClient.builder(httpHost);
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
                 HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxyUsername, proxyPassword));
                 credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
 
@@ -57,10 +56,10 @@ public class ElasticSearchConfig {
             }
             restHighLevelClient = new RestHighLevelClient(builder);
         } else {
-            restHighLevelClient = ServiceFactory.getRestHighLevelClient();
+            credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
+            builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            restHighLevelClient = new RestHighLevelClient(builder);
         }
-
-        log.info("RestHighLevelClient is initialized.");
 
         return restHighLevelClient;
     }

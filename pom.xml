@@ -29,7 +29,7 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <fount.client.version>0.2.16</fount.client.version>
         <mysql.connector.version>8.0.28</mysql.connector.version>
-        <mybatis-plus.version>3.5.2</mybatis-plus.version>
+        <mybatis-plus.version>3.5.3</mybatis-plus.version>
     </properties>
 
     <dependencies>
@@ -185,10 +185,10 @@
 
         <!-- Data Store -->
         <!-- ElasticSearch -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.data</groupId>-->
-<!--            <artifactId>spring-data-elasticsearch</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-elasticsearch</artifactId>
+        </dependency>
         <!-- MySQL -->
         <dependency>
             <groupId>com.ebay.fount</groupId>
@@ -229,7 +229,7 @@
         <dependency>
             <groupId>com.ebay.keystone</groupId>
             <artifactId>spring-boot-starter-keystone</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.2</version>
         </dependency>
 
         <!-- Swagger -->
@@ -254,12 +254,6 @@
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>4.0.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ebay.tdq</groupId>
-            <artifactId>tdq-svc-lib</artifactId>
-            <version>3.2.5-SNAPSHOT</version>
         </dependency>
 
         <!-- This is to fix error: org.xerial.snappy.SnappyError: [FAILED_TO_LOAD_NATIVE_LIBRARY]
@@ -290,6 +284,12 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter-test</artifactId>
+            <version>${mybatis-plus.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- JUnit 5 -->
@@ -359,49 +359,23 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
-            <!--      <plugin>-->
-            <!--        <groupId>com.github.spotbugs</groupId>-->
-            <!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
-            <!--        <version>4.0.0</version>-->
-            <!--      </plugin>-->
+            <!--  sonar   -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.7.0.1746</version>
             </plugin>
-            <!--      <plugin>-->
-            <!--        <groupId>org.apache.maven.plugins</groupId>-->
-            <!--        <artifactId>maven-surefire-plugin</artifactId>-->
-            <!--        <version>3.0.0-M5</version>-->
-            <!--        <configuration>-->
-            <!--          <includes>-->
-            <!--            <include>**/Test*.java</include>-->
-            <!--            <include>**/*Test.java</include>-->
-            <!--            <include>**/*Tests.java</include>-->
-            <!--            <include>**/*TestCase.java</include>-->
-            <!--            <include>**/*Suite.java</include>-->
-            <!--          </includes>-->
-            <!--          <failIfNoTests>false</failIfNoTests>-->
-            <!--          &lt;!&ndash;<forkCount>2C</forkCount>&ndash;&gt;-->
-            <!--          &lt;!&ndash;<reuseForks>false</reuseForks>&ndash;&gt;-->
-            <!--          &lt;!&ndash;<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>&ndash;&gt;-->
-            <!--          <systemPropertyVariables>-->
-            <!--            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>-->
-            <!--          </systemPropertyVariables>-->
-            <!--        </configuration>-->
-            <!--      </plugin>-->
+            <!--  checkstyle: skip for now  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
-    <!--  <reporting>-->
-    <!--    <plugins>-->
-    <!--      <plugin>-->
-    <!--        <groupId>com.github.spotbugs</groupId>-->
-    <!--        <artifactId>spotbugs-maven-plugin</artifactId>-->
-    <!--        <version>4.0.0</version>-->
-    <!--      </plugin>-->
-    <!--    </plugins>-->
-    <!--  </reporting>-->
 
     <profiles>
         <profile>

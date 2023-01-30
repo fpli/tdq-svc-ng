@@ -2,8 +2,8 @@ package com.ebay.dap.epic.tdq.security;
 
 import com.ebay.dap.epic.tdq.security.model.User;
 import com.ebay.keystone.KeystoneClient;
-import com.ebay.keystone.KeystoneResponse;
 import com.ebay.keystone.exception.KeystoneAuthFailureException;
+import com.ebay.keystone.response.KeystoneResponse;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
