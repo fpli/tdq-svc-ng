@@ -10,7 +10,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @TableName("profiling_page_count_bot")
-public class BotPageCountEntity extends AuditableEntity {
+public class BotPageCountEntity extends BaseEntity {
 
     @TableField("page_id")
     private Integer pageId;
