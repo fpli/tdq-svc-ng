@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("profiling_page_family")
-public class ProfilingPageFamilyConfigInfo extends AuditableEntity {
+public class ProfilingPageFamilyConfigInfo extends BaseEntity {
 
     String name;
 
