@@ -29,10 +29,10 @@ public class ElasticSearchConfig {
     @Value("${proxy.port:8080}")
     private int proxyPort;
 
-    @Value("${proxy.user:'fangpli'}")
+    @Value("${proxy.user:-}")
     private String proxyUsername;
 
-    @Value("${proxy.password:'202104vvvvccnkllljfvblbfebkfhufjdtidvcekgttnuvicee'}")
+    @Value("${proxy.password:-}")
     private String proxyPassword;
 
     @Autowired

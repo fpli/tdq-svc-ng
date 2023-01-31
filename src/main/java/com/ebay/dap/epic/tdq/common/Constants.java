@@ -7,12 +7,6 @@ public class Constants {
     public static final String UTF_8 = "utf-8";
     public static final String APPLICATION_JSON = "application/json";
 
-    public static final String QA_PROFILE = "QA";
-    public static final String PRODUCTION_PROFILE = "Production";
-    public static final String INTEGRATION_TEST_PROFILE = "it";
-
-    public static final String C2S_PROXY_PROFILE = "c2sproxy";
-
     public static final String ROLE_API_USER = "API_USER";
     public static final String ROLE_USER = "USER";
     public static final String ROLE_ADMIN = "ADMIN";
