@@ -11,7 +11,7 @@ import java.util.List;
 public interface PageLookUpInfoMapper extends BaseMapper<PageLookUpInfo> {
     default List<PageLookUpInfo> findAllByPageIdIn(List<Integer> pageIds) {
         LambdaQueryWrapper<PageLookUpInfo> lambdaQueryWrapper = Wrappers.lambdaQuery();
-        if (pageIds.isEmpty()){
+        if (pageIds.isEmpty()) {
             pageIds = new ArrayList<>(pageIds);
             pageIds.add(-1);
         }

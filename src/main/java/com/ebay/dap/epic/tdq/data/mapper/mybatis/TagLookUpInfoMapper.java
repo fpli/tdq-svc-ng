@@ -1,28 +1,35 @@
 package com.ebay.dap.epic.tdq.data.mapper.mybatis;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.TagLookUpInfo;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
 
-    @Select("select * from profiling_tag_lkp where tag_name = #{tagName}")
-    List<TagLookUpInfo> findAllByTagName(@Param("tagName") String tagName);
 
-    @Select({
-            "<script>",
-            "select * from profiling_tag_lkp where tag_name in ",
-            "<foreach item='item' index='index' collection='tagNames'",
-            "open='(' separator=',' close=')'>",
-            "#{item}",
-            "</foreach>",
-            "</script>"
-    })
-    List<TagLookUpInfo> findSomeByTagName(@Param("tagNames") List<String> tagNames);
+    default List<TagLookUpInfo> findAllByTagName(String tagName) {
+        LambdaQueryWrapper<TagLookUpInfo> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(TagLookUpInfo::getName, tagName);
+        return selectList(lambdaQueryWrapper);
+    }
 
-    @Select("select distinct tag_name from profiling_tag_lkp")
-    List<String> findAllTagNames();
+    default List<TagLookUpInfo> findSomeByTagName(List<String> tagNames) {
+        LambdaQueryWrapper<TagLookUpInfo> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        if (CollectionUtils.isEmpty(tagNames)) {
+            tagNames = Collections.singletonList(null);
+        }
+        lambdaQueryWrapper.in(TagLookUpInfo::getName, tagNames);
+        return selectList(lambdaQueryWrapper);
+    }
+
+
+    default List<String> findAllTagNames() {
+        return selectList(null).stream().map(TagLookUpInfo::getName).distinct().collect(Collectors.toList());
+    }
 }

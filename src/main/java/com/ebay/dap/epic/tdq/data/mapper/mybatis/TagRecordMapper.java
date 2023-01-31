@@ -1,15 +1,20 @@
 package com.ebay.dap.epic.tdq.data.mapper.mybatis;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.TagRecord;
-import org.apache.ibatis.annotations.Delete;
 
 import java.time.LocalDate;
 
 public interface TagRecordMapper extends BaseMapper<TagRecord> {
 
-    @Delete("delete from tag_record where dt = #{date}")
-    long deleteAllByDate(LocalDate date);
+
+    default long deleteAllByDate(LocalDate date) {
+        LambdaQueryWrapper<TagRecord> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(TagRecord::getDt, date);
+        return delete(lambdaQueryWrapper);
+    }
 
     default long save(TagRecord tagRecord) {
         insert(tagRecord);
