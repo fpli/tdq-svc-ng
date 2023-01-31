@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @TableName("anomaly_item")
-public class AnomalyItemEntity extends AuditableEntity {
+public class AnomalyItemEntity extends BaseEntity {
 
     private String type;
 
