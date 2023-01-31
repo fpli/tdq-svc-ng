@@ -8,7 +8,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
 
@@ -30,6 +29,6 @@ public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
 
 
     default List<String> findAllTagNames() {
-        return selectList(null).stream().map(TagLookUpInfo::getName).distinct().collect(Collectors.toList());
+        return selectList(null).stream().map(TagLookUpInfo::getName).distinct().toList();
     }
 }
