@@ -1,13 +1,13 @@
 package com.ebay.dap.epic.tdq.config;
 
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +18,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
-@Slf4j
+@Log4j2
 @Configuration
 public class RestTemplateConfig {
 
     private final MMDCommonCfg mmdCommonCfg;
+
+    @Autowired
+    private UserProxyConfig proxyConfig;
 
     public RestTemplateConfig(MMDCommonCfg mmdCommonCfg) {
         this.mmdCommonCfg = mmdCommonCfg;
@@ -42,7 +45,8 @@ public class RestTemplateConfig {
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(
                     new AuthScope(C2S_PROXY_HOST, C2S_PROXY_PORT),
-                    new UsernamePasswordCredentials(env.getProperty("NT_USER"), env.getProperty("YUBI_KEY"))
+//                    new UsernamePasswordCredentials(env.getProperty("NT_USER"), env.getProperty("YUBI_KEY"))
+                    new UsernamePasswordCredentials(proxyConfig.getProxyUsername(), proxyConfig.getProxyPassword())
             );
             httpClientBuilder.setProxy(new HttpHost(C2S_PROXY_HOST, C2S_PROXY_PORT, "http"))
                     .setDefaultCredentialsProvider(credsProvider);
