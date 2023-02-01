@@ -8,16 +8,16 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class UserProxyConfig {
 
-    @Value("${proxy.host:c2sproxy.vip.ebay.com}")
+    @Value("${PROXY_HOST:c2sproxy.vip.ebay.com}")
     private String proxyHost;
 
-    @Value("${proxy.port:8080}")
+    @Value("${PROXY_PORT:8080}")
     private int proxyPort;
 
-    @Value("${proxy.user:-}")
+    @Value("${PROXY_USER:-}")
     private String proxyUsername;
 
-    @Value("${proxy.password:-}")
+    @Value("${PROXY_PASSWORD:-}")
     private String proxyPassword;
 
 }
