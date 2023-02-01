@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
 
-import static com.ebay.dap.epic.tdq.common.Constants.C2S_PROXY_PROFILE;
+import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
 
 @Slf4j
 @Configuration
@@ -45,21 +45,18 @@ public class ElasticSearchConfig {
         RestClientBuilder builder = RestClient.builder(httpHost);
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-//        if (env.acceptsProfiles(Profiles.of(C2S_PROXY_PROFILE))) {
-        if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
+        if (env.acceptsProfiles(Profiles.of(C2S_PROXY))) {
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
                 HttpHost proxy = new HttpHost(proxyHost, proxyPort);
                 credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxyUsername, proxyPassword));
                 credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
-
                 builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
             }
-            restHighLevelClient = new RestHighLevelClient(builder);
         } else {
             credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
             builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-            restHighLevelClient = new RestHighLevelClient(builder);
         }
+        restHighLevelClient = new RestHighLevelClient(builder);
 
         return restHighLevelClient;
     }
