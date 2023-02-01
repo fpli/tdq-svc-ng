@@ -2,6 +2,7 @@ package com.ebay.dap.epic.tdq.service.mmd;
 
 import com.ebay.dap.epic.tdq.config.AllMetricsCustParams;
 import com.ebay.dap.epic.tdq.config.MMDCommonCfg;
+import com.ebay.dap.epic.tdq.config.UserProxyConfig;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MMDRecordInfoMapper;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
@@ -36,6 +36,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
+
+import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
 
 @Log4j2
 @Service
@@ -74,14 +76,8 @@ public class MMDServiceImpl implements MMDService {
 
     private HttpClient httpClient;
 
-    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-    private String proxyUrl;
-    @Value("${proxyPort:8080}")
-    private int port;
-    @Value("${proxy.user:'fangpli'}")
-    private String username;
-    @Value("${proxy.password:'202104vvvvccnkllljfvblbfebkfhufjdtidvcekgttnuvicee'}")
-    private String password;
+    @Autowired
+    private UserProxyConfig proxyConfig;
 
     private boolean usedProxy;
 
@@ -91,8 +87,8 @@ public class MMDServiceImpl implements MMDService {
     @PostConstruct
     public void init() {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        if (env.acceptsProfiles(Profiles.of("Dev", "QA"))) {
-            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
+        if (env.acceptsProfiles(Profiles.of(C2S_PROXY))) {
+            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyConfig.getProxyHost(), proxyConfig.getProxyPort()))).build();
             usedProxy = true;
         } else {
             httpClient = HttpClient.newHttpClient();
@@ -520,7 +516,7 @@ public class MMDServiceImpl implements MMDService {
                 HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).POST(HttpRequest.BodyPublishers.ofString(jsonEntity)).setHeader("Content-Type", "application/json");
                 headParams.forEach(builder::setHeader);
                 if (usedProxy){
-                    String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
+                    String encoded = new String(Base64.getEncoder().encode((proxyConfig.getProxyUsername() + ":" + proxyConfig.getProxyPassword()).getBytes()));
                     builder.setHeader("Proxy-Authorization", "Basic " + encoded);
                 }
                 HttpRequest httpRequest = builder.build();

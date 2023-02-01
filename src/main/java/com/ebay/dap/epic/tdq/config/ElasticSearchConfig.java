@@ -1,6 +1,6 @@
 package com.ebay.dap.epic.tdq.config;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -11,7 +11,6 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -19,21 +18,12 @@ import org.springframework.core.env.Profiles;
 
 import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
 
-@Slf4j
+@Log4j2
 @Configuration
 public class ElasticSearchConfig {
 
-    @Value("${proxy.host:c2sproxy.vip.ebay.com}")
-    private String proxyHost;
-
-    @Value("${proxy.port:8080}")
-    private int proxyPort;
-
-    @Value("${proxy.user:-}")
-    private String proxyUsername;
-
-    @Value("${proxy.password:-}")
-    private String proxyPassword;
+    @Autowired
+    private UserProxyConfig proxyConfig;
 
     @Autowired
     private ProntoConfig prontoEnv;
@@ -47,8 +37,8 @@ public class ElasticSearchConfig {
 
         if (env.acceptsProfiles(Profiles.of(C2S_PROXY))) {
             if (StringUtils.isNotBlank(this.prontoEnv.getHostname())) {
-                HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxyUsername, proxyPassword));
+                HttpHost proxy = new HttpHost(proxyConfig.getProxyHost(), proxyConfig.getProxyPort());
+                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxyConfig.getProxyUsername(), proxyConfig.getProxyPassword()));
                 credentialsProvider.setCredentials(new AuthScope(httpHost), new UsernamePasswordCredentials(this.prontoEnv.getUsername(), this.prontoEnv.getPassword()));
                 builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setProxy(proxy).setDefaultCredentialsProvider(credentialsProvider));
             }
