@@ -155,6 +155,13 @@
             <artifactId>raptor-logger-starter</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>2.7.3</version>
+        </dependency>
+
         <!--  Spring Boot Components  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -225,6 +232,18 @@
             <version>1.0.2</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/net.javacrumbs.shedlock/shedlock-spring -->
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>4.42.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>4.42.0</version>
+        </dependency>
+
         <!-- Security -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -260,12 +279,6 @@
             <artifactId>groovy</artifactId>
             <version>4.0.6</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.ebay.tdq</groupId>-->
-<!--            <artifactId>tdq-svc-lib</artifactId>-->
-<!--            <version>3.2.4-SNAPSHOT</version>-->
-<!--        </dependency>-->
 
         <!-- This is to fix error: org.xerial.snappy.SnappyError: [FAILED_TO_LOAD_NATIVE_LIBRARY]
              no native library is found for os.name=Mac and os.arch=aarch64

@@ -111,6 +111,7 @@ public class ChartServiceImpl implements ChartService {
             dataSetVO.setType(datasetConfiguration.getType());
             dataSetVO.setLabel(datasetConfiguration.getLabel());
             dataSetVO.setBackgroundColor(datasetConfiguration.getBackgroundColor());
+            dataSetVO.setBarThickness(datasetConfiguration.getBarThickness());
             String expression = datasetConfiguration.getExpression();
             Script script = parseExpression(expression);
             Binding sharedData = new Binding();

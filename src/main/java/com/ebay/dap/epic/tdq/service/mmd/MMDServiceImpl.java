@@ -2,18 +2,24 @@ package com.ebay.dap.epic.tdq.service.mmd;
 
 import com.ebay.dap.epic.tdq.config.AllMetricsCustParams;
 import com.ebay.dap.epic.tdq.config.MMDCommonCfg;
+import com.ebay.dap.epic.tdq.config.UserProxyConfig;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MMDRecordInfoMapper;
 import com.ebay.dap.epic.tdq.service.impl.TagProfilingServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -23,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +37,9 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
+import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
+
+@Log4j2
 @Service
 public class MMDServiceImpl implements MMDService {
 
@@ -65,24 +74,27 @@ public class MMDServiceImpl implements MMDService {
     private static final String USTimeZone = "-07:00";
     private static final int SUCCESS_CODE = 200;
 
-    private HttpClient httpClient = HttpClient.newHttpClient();
+    private HttpClient httpClient;
 
-//    @Value("${proxyUrl:c2sproxy.vip.ebay.com}")
-//    private String proxyUrl;
-//    @Value("${proxyPort:8080}")
-//    private int port;
-//    @Value("${proxy.user}")
-//    private String username;
-//    @Value("${proxy.password}")
-//    private String password;
+    @Autowired
+    private UserProxyConfig proxyConfig;
 
-//    @PostConstruct
-//    public void init() {
-//        if (!isProd()) {
-//            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-//            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyUrl, port))).build();
-//        }
-//    }
+    private boolean usedProxy;
+
+    @Autowired
+    private ConfigurableEnvironment env;
+
+    @PostConstruct
+    public void init() {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        if (env.acceptsProfiles(Profiles.of(C2S_PROXY))) {
+            httpClient = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxyConfig.getProxyHost(), proxyConfig.getProxyPort()))).build();
+            usedProxy = true;
+        } else {
+            httpClient = HttpClient.newHttpClient();
+            usedProxy = false;
+        }
+    }
 
 //    @Override
 //    public void updateBoundByMmd(int metricId, DateTime checkDateTime, String configType) throws Exception {
@@ -503,13 +515,16 @@ public class MMDServiceImpl implements MMDService {
 //                httpResult = HttpResult.doPostWithJson(url, headParams, jsonEntity);
                 HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url)).POST(HttpRequest.BodyPublishers.ofString(jsonEntity)).setHeader("Content-Type", "application/json");
                 headParams.forEach(builder::setHeader);
-//                String encoded = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
-//                builder.setHeader("Proxy-Authorization", "Basic " + encoded);
+                if (usedProxy){
+                    String encoded = new String(Base64.getEncoder().encode((proxyConfig.getProxyUsername() + ":" + proxyConfig.getProxyPassword()).getBytes()));
+                    builder.setHeader("Proxy-Authorization", "Basic " + encoded);
+                }
                 HttpRequest httpRequest = builder.build();
                 HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 httpResult = httpResponse.body();
                 break;
             } catch (Exception e) {
+                e.printStackTrace();
                 exception = e;
                 try {
                     TimeUnit.SECONDS.sleep(intervalTime);

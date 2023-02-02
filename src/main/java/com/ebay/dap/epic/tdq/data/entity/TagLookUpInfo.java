@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 @TableName("profiling_tag_lkp")
-public class TagLookUpInfo extends AuditableEntity {
+public class TagLookUpInfo extends BaseEntity {
     String name;
     String description;
 

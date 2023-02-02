@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+      body {
+          font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .container {
+          width: 90%;
+          margin: auto;
+          /*background-color: aqua;*/
+          /* border: 1px solid gray; */
+      }
+
+      .page-alert-table {
+          border-collapse: collapse;
+          width: 90%;
+      }
+
+      .page-alert-table td, #page-alert-table th {
+          border: 1px solid #ddd;
+          padding: 8px;
+      }
+
+      .page-alert-table tr:nth-child(even) {
+          background-color: #f2f2f2;
+      }
+
+      .page-alert-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #04AA6D;
+          color: white;
+      }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="header"></div> -->
+    <div class="content">
+        <p>
+            Hi <b th:text="${alert.groupName}">TDQ</b> Team, <br/><br/>
+
+            We detected <b th:text="${alert.cnt}">5</b> multiple uid issues
+            on <b th:text="${alert.dt}">2022-04-11</b>. <br/><br/>
+
+            Details of multiple uid are listed as below. <br/>
+        </p>
+        <div>
+            <table class="page-alert-table">
+                <thead>
+                <tr>
+                    <th>All Events Metrics</th>
+                    <th>Threshold</th>
+                    <th>Value of today</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="page : ${alert.list}">
+                    <td><span th:text="${page.metricName}">name</span></td>
+                    <td><span th:text="${#numbers.formatPercent(page.threshold, 1, 2)}">-96%</span></td>
+                    <td><span th:text="${#numbers.formatPercent(page.valueOfToday, 1, 2)}">-96%</span></td>
+                    <td><span th:text="${page.description}">increase type</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <div>
+            <table class="page-alert-table">
+                <thead>
+                <tr>
+                    <!--          <th>Page ID</th>-->
+                    <th>Valid Events Metrics</th>
+                    <th>Value of T-7</th>
+                    <th>Value of today</th>
+                    <th>Increase type</th>
+                    <th>change %</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="page : ${alert.pages}">
+                    <!--          <td><a href="#" th:href="@{https://tdq.vip.ebay.com/main/page-profiling/{id}(id=${page.pageId})}"><span th:text="${page.pageId}">123</span></a></td>-->
+                    <td><span th:text="${page.metricName}">name</span></td>
+                    <!--          <td><span th:text="${page.valueOfYesterday}">1000,000</span></td>-->
+                    <!--          <td><span th:text="${page.valueOfToday}">0</span></td>-->
+                    <td><span
+                            th:text="${#numbers.formatDecimal(page.valueOfYesterday, 0, 'COMMA', 0, 'POINT')}">123,456</span>
+                    </td>
+                    <td><span
+                            th:text="${#numbers.formatDecimal(page.valueOfToday, 0, 'COMMA', 0, 'POINT')}">123,345</span>
+                    </td>
+                    <td><span th:text="${page.increaseType}">increase type</span></td>
+                    <td><span th:text="${#numbers.formatPercent(page.rate, 1, 2)}">-30%</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+
+        <p>
+            For detailed page info, please click the link: <a href="https://tdq.vip.ebay.com/">tdq-dashboard</a>
+            <br/><br/><br/>
+            Thanks, <br/>
+            DL-eBay-Tracking-Behavior-Data
+        </p>
+    </div>
+    <!--  <div class="footer"></div>-->
+</div>
+</body>
+</html>

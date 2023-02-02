@@ -1,10 +1,5 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +10,34 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("it")
 public abstract class AbstractBaseIntegrationTest {
 
-  @Autowired
-  private WebApplicationContext context;
+    @Autowired
+    private WebApplicationContext context;
 
-  protected MockMvc mvc;
+    protected MockMvc mvc;
 
-  @BeforeEach
-  void setUpMvcContext() {
-    mvc = MockMvcBuilders
-        .webAppContextSetup(context)
-        .apply(springSecurity())
-        .build();
-  }
+    @BeforeEach
+    void setUpMvcContext() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
-  protected String getJsonStr(String jsonFileName) throws IOException {
-    String filePath = "src/test/resources/it-data/" + jsonFileName;
-    FileInputStream fis = new FileInputStream(filePath);
-    return IOUtils.toString(fis, StandardCharsets.UTF_8);
-  }
+    protected String getJsonStr(String jsonFileName) throws IOException {
+        String filePath = "src/test/resources/it-data/" + jsonFileName;
+        FileInputStream fis = new FileInputStream(filePath);
+        return IOUtils.toString(fis, StandardCharsets.UTF_8);
+    }
 
 }

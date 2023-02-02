@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 @TableName("profiling_tag_usage")
-public class TagUsageInfoEntity extends AuditableEntity {
+public class TagUsageInfoEntity extends BaseEntity {
 
     String tagName;
 

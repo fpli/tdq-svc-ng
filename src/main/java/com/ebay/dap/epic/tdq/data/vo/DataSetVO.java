@@ -11,6 +11,8 @@ public class DataSetVO {
     String label;
 
     String backgroundColor;
+    int barThickness;
+
     List<Double> data = new ArrayList<>();
 
     @Override

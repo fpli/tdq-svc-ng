@@ -8,4 +8,5 @@ public class DatasetConfig {
     String label;
     String expression;
     String backgroundColor;
+    Integer barThickness = 20;
 }
