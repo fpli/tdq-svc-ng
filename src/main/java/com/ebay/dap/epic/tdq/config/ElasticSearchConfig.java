@@ -1,6 +1,6 @@
 package com.ebay.dap.epic.tdq.config;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -18,7 +18,7 @@ import org.springframework.core.env.Profiles;
 
 import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
 
-@Log4j2
+@Slf4j
 @Configuration
 public class ElasticSearchConfig {
 
@@ -31,6 +31,7 @@ public class ElasticSearchConfig {
     @Bean
     public RestHighLevelClient restHighLevelClient(ConfigurableEnvironment env) {
         RestHighLevelClient restHighLevelClient;
+        //FIXME: remove the hard-coded url endpoint
         HttpHost httpHost = new HttpHost("estdq-datalvs.vip.ebay.com", 443, "https");
         RestClientBuilder builder = RestClient.builder(httpHost);
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();

@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/report")
+@RequestMapping(value = "/api/report")
 @Api(value = "ReportController", tags = {"Report APIs"})
 public class ReportController {
 

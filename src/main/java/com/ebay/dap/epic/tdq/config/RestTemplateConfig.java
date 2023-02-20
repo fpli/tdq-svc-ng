@@ -1,6 +1,6 @@
 package com.ebay.dap.epic.tdq.config;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -18,7 +18,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
-@Log4j2
+//FIXME: Spring RestTemplate is deprecated, use other alternatives
+@Slf4j
 @Configuration
 public class RestTemplateConfig {
 

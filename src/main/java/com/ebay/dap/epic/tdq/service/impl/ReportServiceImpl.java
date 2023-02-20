@@ -10,6 +10,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.MetadataSummaryMapper;
 import com.ebay.dap.epic.tdq.data.vo.report.MetadataDetailVo;
 import com.ebay.dap.epic.tdq.data.vo.report.MetadataSummaryVo;
 import com.ebay.dap.epic.tdq.service.ReportService;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -36,7 +37,7 @@ public class ReportServiceImpl implements ReportService {
 
     @PostConstruct
     public void init() {
-        // TODO(yxiao6): remove hardcoded metrics look-up
+        // TODO(yxiao6): remove hard-coded metrics look-up
         // click metrics
         metrics.put(1, "Total click traffic");
         metrics.put(2, "Click traffic without Click ID");
@@ -70,11 +71,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<MetadataDetailVo> getClickDetail(String domain, Integer metricId, LocalDate dt) {
-        log.info("Get Click metadata coverage detail report for domain {}, metricId {}", domain, metricId);
-        if (dt == null) {
-            dt = getLatestDtOfDetail();
-        }
-        log.info("Click metadata detail source dt is {}", dt);
+        Preconditions.checkNotNull(domain);
+        Preconditions.checkNotNull(metricId);
+        Preconditions.checkNotNull(dt);
+
+        log.info("Get Click metadata coverage detail report of date {} for {} domain, metricId is {}", dt, domain, metricId);
+
         final String metadataType = "Click";
 
         LambdaQueryWrapper<MetadataDetailEntity> queryWrapper = Wrappers.<MetadataDetailEntity>lambdaQuery()
@@ -95,11 +97,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<MetadataDetailVo> getModuleDetail(String domain, Integer metricId, LocalDate dt) {
-        log.info("Get Module metadata detail report for domain {}, metricId {}", domain, metricId);
-        if (dt == null) {
-            dt = getLatestDtOfDetail();
-        }
-        log.info("Module metadata detail source dt is {}", dt);
+        Preconditions.checkNotNull(domain);
+        Preconditions.checkNotNull(metricId);
+        Preconditions.checkNotNull(dt);
+
+        log.info("Get Module metadata coverage detail report of date {} for {} domain, metricId is {}", dt, domain, metricId);
+
         final String metadataType = "Module";
 
         LambdaQueryWrapper<MetadataDetailEntity> queryWrapper = Wrappers.<MetadataDetailEntity>lambdaQuery()
@@ -120,14 +123,14 @@ public class ReportServiceImpl implements ReportService {
     private List<MetadataSummaryVo> getSummaryReportVoList(String metadataType, LocalDate dt) {
         if (dt == null) {
             dt = getLatestDtOfSummary();
-            log.info("Latest source dt for metadata summary is {}", dt);
+            log.info("No date provided, use the latest source date {} to get the metadata summary.", dt);
         }
 
         LambdaQueryWrapper<MetadataSummaryEntity> queryWrapper = Wrappers.<MetadataSummaryEntity>lambdaQuery()
                                                                          .eq(MetadataSummaryEntity::getDt, dt)
                                                                          .eq(MetadataSummaryEntity::getMetadataType, metadataType);
 
-        log.info("Retrieve {} metadata summary report of {} from database.", metadataType, dt);
+        log.info("Retrieve {} metadata coverage summary report of date {} from database.", metadataType, dt);
 
         List<MetadataSummaryEntity> entities = metadataSummaryMapper.selectList(queryWrapper);
         return entities.stream().map(e -> {
@@ -146,10 +149,4 @@ public class ReportServiceImpl implements ReportService {
         return entity.getDt();
     }
 
-    private LocalDate getLatestDtOfDetail() {
-        QueryWrapper<MetadataDetailEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("max(dt) as dt");
-        MetadataDetailEntity entity = metadataDetailMapper.selectOne(queryWrapper);
-        return entity.getDt();
-    }
 }

@@ -1,7 +1,7 @@
 package com.ebay.dap.epic.tdq.service.tasks;
 
 import com.ebay.dap.epic.tdq.service.AlertManager;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Log4j2
+//FIXME: 1. put package to root level with name `scheduling`
+// 2. use aspect to log status and track time
+@Slf4j
 @Component
 public class TDQSchedulerTask {
 

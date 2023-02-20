@@ -1,7 +1,7 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
 import com.ebay.dap.epic.tdq.service.AlertManager;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
-@Log4j2
+@Slf4j
 public class AlertManagerImpl implements AlertManager {
 
     @Autowired

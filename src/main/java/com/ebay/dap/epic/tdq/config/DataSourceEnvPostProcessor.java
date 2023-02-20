@@ -65,7 +65,7 @@ public class DataSourceEnvPostProcessor implements EnvironmentPostProcessor {
             }
 
 
-            // Spring managed logging system initialized only after Spring context is initialized
+            // Spring managed logging system will be initialized only after Spring context is initialized
             // so use System.out.println to log the info.
             System.out.println("Original fount jdbc url is: " + fdsc.getUrl());
             System.out.println("Updated jdbc url is: " + url);

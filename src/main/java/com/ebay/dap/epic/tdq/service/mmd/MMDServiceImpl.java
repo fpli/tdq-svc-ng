@@ -9,7 +9,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.MMDRecordInfoMapper;
 import com.ebay.dap.epic.tdq.service.impl.TagProfilingServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.ebay.dap.epic.tdq.common.Profile.C2S_PROXY;
 
-@Log4j2
+@Slf4j
 @Service
 public class MMDServiceImpl implements MMDService {
 
