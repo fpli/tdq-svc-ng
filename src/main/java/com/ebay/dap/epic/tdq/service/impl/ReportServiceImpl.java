@@ -11,51 +11,41 @@ import com.ebay.dap.epic.tdq.data.vo.report.MetadataDetailVo;
 import com.ebay.dap.epic.tdq.data.vo.report.MetadataSummaryVo;
 import com.ebay.dap.epic.tdq.service.ReportService;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ReportServiceImpl implements ReportService {
 
-    private final HashMap<Integer, String> metrics = Maps.newHashMap();
+    private static final Map<Integer, String> metrics = ImmutableMap.<Integer, String>builder()
+                                                                    .put(1, "Total click traffic")
+                                                                    .put(2, "Click traffic without Click ID")
+                                                                    .put(3, "Click traffic with Click ID but not registered in Braavos")
+                                                                    .put(4, "Click traffic with Invalid Life Cycle State Click ID")
+                                                                    .put(5, "Total click traffic")
+                                                                    .put(6, "Click traffic without Module ID")
+                                                                    .put(7, "Click traffic with Module ID but not registered in Braavos")
+                                                                    .put(8, "Click traffic with Invalid Life Cycle State Module ID")
+                                                                    .put(9, "Total module view traffic")
+                                                                    .put(10, "View traffic without Module ID")
+                                                                    .put(11, "View traffic with Module ID but not registered in Braavos")
+                                                                    .put(12, "View traffic with Invalid Life Cycle State Module ID")
+                                                                    .build();
 
     @Autowired
     private MetadataSummaryMapper metadataSummaryMapper;
 
     @Autowired
     private MetadataDetailMapper metadataDetailMapper;
-
-    @PostConstruct
-    public void init() {
-        // TODO(yxiao6): remove hard-coded metrics look-up
-        // click metrics
-        metrics.put(1, "Total click traffic");
-        metrics.put(2, "Click traffic without Click ID");
-        metrics.put(3, "Click traffic with Click ID but not registered in Braavos");
-        metrics.put(4, "Click traffic with Invalid Life Cycle State Click ID");
-
-        // module click metrics
-        metrics.put(5, "Total click traffic");
-        metrics.put(6, "Click traffic without Module ID");
-        metrics.put(7, "Click traffic with Module ID but not registered in Braavos");
-        metrics.put(8, "Click traffic with Invalid Life Cycle State Module ID");
-
-        // module view metrics
-        metrics.put(9, "Total module view traffic");
-        metrics.put(10, "View traffic without Module ID");
-        metrics.put(11, "View traffic with Module ID but not registered in Braavos");
-        metrics.put(12, "View traffic with Invalid Life Cycle State Module ID");
-    }
 
     @Override
     public List<MetadataSummaryVo> getClickSummary(LocalDate dt) {
