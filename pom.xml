@@ -24,13 +24,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <docker.image.prefix>hub.tess.io/raptorontess</docker.image.prefix>
         <lombok.version>1.18.22</lombok.version>
-        <swagger.version>2.9.2</swagger.version>
+        <springdoc.version>1.6.14</springdoc.version>
         <compiler.plugin.version>3.10.1</compiler.plugin.version>
         <esams.component.version>0.15.3-RELEASE</esams.component.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <fount.client.version>0.2.16</fount.client.version>
         <mysql.connector.version>8.0.31</mysql.connector.version>
         <mybatis-plus.version>3.5.3</mybatis-plus.version>
+        <guava.version>31.1-jre</guava.version>
+        <swagger.annotations.v3.version>2.2.7</swagger.annotations.v3.version>
     </properties>
 
     <dependencies>
@@ -44,6 +46,11 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <!-- Raptor IO Components  -->
@@ -155,11 +162,9 @@
             <groupId>com.ebay.raptorio.component</groupId>
             <artifactId>raptor-logger-starter</artifactId>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <groupId>com.ebay.raptorio.component</groupId>
+            <artifactId>raptor-globalconfig-context-starter</artifactId>
         </dependency>
 
         <!--  Spring Boot Components  -->
@@ -181,12 +186,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        
         <dependency>
-            <groupId>com.ebay.raptorio.component</groupId>
-            <artifactId>raptor-globalconfig-context-starter</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!--  Web  -->
@@ -195,7 +199,7 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!-- Data Store -->
+        <!-- Data Source -->
         <!-- ElasticSearch -->
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -256,21 +260,19 @@
             <version>0.0.2</version>
         </dependency>
 
-        <!-- Swagger -->
+        <!-- Springdoc -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
+        <!--  parent raptor.io POM also contains swagger-annotations,
+              replace the swagger-annotation version with current to
+              align with other swagger libs in springdoc-openapi-ui -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-bean-validators</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger.annotations.v3.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.groovy/groovy -->
@@ -348,6 +350,11 @@
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.github.therapi</groupId>
+                            <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+                            <version>0.15.0</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

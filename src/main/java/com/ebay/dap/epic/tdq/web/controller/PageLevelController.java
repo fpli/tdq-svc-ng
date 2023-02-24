@@ -1,15 +1,28 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
 import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
-import com.ebay.dap.epic.tdq.data.vo.pageLevel.*;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageBasicInfoVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageCardItemVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageFamilyCardQueryVo;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageFamilyItemVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageGroupVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.PageItemVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.ProductAnalyzeVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.TrafficOfPageDetailVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.UsageOfDayVO;
+import com.ebay.dap.epic.tdq.data.vo.pageLevel.UsageOfPageDetailVO;
 import com.ebay.dap.epic.tdq.service.PageProfilingService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +36,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @RestController
 @RequestMapping(value = "/api/pageLevel")
-@Api(value = "PageLevelController", tags = {"page Level"})
+@Tag(name = "Page Profiling API", description = "Page profiling related API")
 public class PageLevelController {
 
     @Autowired
@@ -39,15 +52,14 @@ public class PageLevelController {
         return LocalDate.now().minusDays(1);
     }
 
-    @ApiOperation(value = "refresh page Infos", notes = "refresh page information")
+    @Operation(summary = "refresh page Infos")
     @GetMapping("refresh")
     public void refresh() {
         pageLevelManager.cleanUp();
     }
 
-    @ApiOperation(value = "Doughnut Page Family", notes = "get Doughnut Page Family")
+    @Operation(summary = "Doughnut Page Family")
     @GetMapping(path = "getDoughnutPageFamily")
-    @ApiImplicitParam(paramType = "query", name = "date", dataType = "String", value = "yyyyMMdd")
     public List<PageFamilyItemVO> getDoughnutPageFamily(String date) {
         LocalDate localDate = null;
         if (Objects.nonNull(date)) {
@@ -57,9 +69,8 @@ public class PageLevelController {
         return pageLevelManager.getPageFamilyItemVO(localDate, 10);
     }
 
-    @ApiOperation(value = "Doughnut Page Family for PA", notes = "get Doughnut Page Family for pA")
+    @Operation(summary = "Doughnut Page Family for PA")
     @GetMapping(path = "getDoughnutPageFamilyForPA")
-    @ApiImplicitParam(paramType = "query", name = "date", dataType = "String", value = "yyyyMMdd")
     public List<PageFamilyItemVO> getDoughnutPageFamilyForPA(String date) {
         LocalDate localDate = null;
         if (Objects.nonNull(date)) {
@@ -70,9 +81,8 @@ public class PageLevelController {
         return pageLevelManager.getPageFamilyItemVOForCustomer(localDate);
     }
 
-    @ApiOperation(value = "Page family card info", notes = "getCardsByPageIds")
+    @Operation(summary = "Page family card info")
     @PostMapping(path = "/getCardsByPageIds")
-    @ApiImplicitParam(paramType = "body", dataTypeClass = PageFamilyCardQueryVo.class)
     public List<PageCardItemVO> getCardsByPageIds(@RequestBody PageFamilyCardQueryVo pageFamilyCardQueryVo) throws ExecutionException, InterruptedException {
         log.info("param:{}", pageFamilyCardQueryVo);
         LocalDate localDate = null;
@@ -86,9 +96,8 @@ public class PageLevelController {
         return pageLevelManager.getPageCardItemVO(pageFamilyCardQueryVo.getPageFamilyNameList(), pageFamilyCardQueryVo.getPageIds(), localDate);
     }
 
-    @ApiOperation(value = "Page family table info", notes = "getPageFamilyTableByPageIds")
+    @Operation(summary = "Page family table info")
     @PostMapping(path = "/getPageFamilyTableByPageIds")
-    @ApiImplicitParam(paramType = "body", dataTypeClass = PageFamilyCardQueryVo.class)
     public List<PageItemVO> getPageFamilyTableByPageIds(@RequestBody PageFamilyCardQueryVo pageFamilyCardQueryVo) {
         log.info("param:{}", pageFamilyCardQueryVo);
         LocalDate localDate = null;
@@ -99,12 +108,8 @@ public class PageLevelController {
         return pageLevelManager.getPageFamilyTableDataByPageIds(pageFamilyCardQueryVo.getPageFamilyName(), pageFamilyCardQueryVo.getPageIds(), localDate);
     }
 
-    @ApiOperation(value = "Page Basic info", notes = "Page Basic info")
+    @Operation(summary = "Page Basic info")
     @GetMapping(path = "detail/{pageId}/basicInfo")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "pageId", dataType = "int", required = true),
-            @ApiImplicitParam(paramType = "query", name = "date", dataType = "String", example = "yyyyMMdd", required = true)
-    })
     public PageBasicInfoVO getBasicInfoOfPage(@PathVariable Integer pageId, String date) {
         LocalDate localDate = null;
         if (Objects.nonNull(date)) {
@@ -114,13 +119,8 @@ public class PageLevelController {
         return pageLevelManager.getBasicInfoOfPageDetail(pageId, localDate, 30);
     }
 
-    @ApiOperation(value = "Page Traffic Data", notes = "Page Traffic Data")
+    @Operation(summary = "Page Traffic Data")
     @GetMapping(path = "detail/{pageId}/traffic", produces = APPLICATION_JSON_VALUE)
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "pageId", dataType = "int", required = true),
-            @ApiImplicitParam(paramType = "query", name = "date", dataType = "String", example = "yyyyMMdd", required = true),
-            @ApiImplicitParam(paramType = "query", name = "offsetDays", dataType = "int", required = true)
-    })
     public TrafficOfPageDetailVO getTrafficOfPageDetail(@PathVariable Integer pageId, String date, Integer offsetDays) {
         LocalDate localDate = null;
         if (Objects.nonNull(date)) {
@@ -130,13 +130,8 @@ public class PageLevelController {
         return pageLevelManager.getTrafficOfPageDetail(pageId, localDate, offsetDays);
     }
 
-    @ApiOperation(value = "Page Usage Data", notes = "Page Usage Data")
+    @Operation(summary = "Page Usage Data")
     @GetMapping(path = "detail/{pageId}/usage")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "pageId", dataType = "int", required = true),
-            @ApiImplicitParam(paramType = "query", name = "date", dataType = "String", example = "yyyyMMdd", required = true),
-            @ApiImplicitParam(paramType = "query", name = "offsetDays", dataType = "int", required = true)
-    })
     public UsageOfPageDetailVO getUsageOfPageDetail(@PathVariable Integer pageId, String date, Integer offsetDays) {
         UsageOfPageDetailVO usageOfPageDetailVO = new UsageOfPageDetailVO();
         usageOfPageDetailVO.setPageId(pageId);
@@ -150,9 +145,8 @@ public class PageLevelController {
         return usageOfPageDetailVO;
     }
 
-    @ApiOperation(value = "update Product analyze Page Family Config", notes = "updatePAPageFamilyConfig")
+    @Operation(summary = "update Product analyze Page Family Config")
     @PostMapping(path = "/updatePAPageFamilyConfig")
-    @ApiImplicitParam(paramType = "body", dataTypeClass = ProductAnalyzeVO.class)
     public String updatePAPageFamilyConfig(@RequestBody ProductAnalyzeVO productAnalyzeVO) {
         try {
             pageLevelManager.updatePAPageFamilyConfig(productAnalyzeVO);
@@ -163,9 +157,8 @@ public class PageLevelController {
         }
     }
 
-    @ApiOperation(value = "update Customer Page Group Info", notes = "updateCustomerPageGroupInfo")
+    @Operation(summary = "update Customer Page Group Info")
     @PostMapping(path = "/updateCustomerPageGroupInfo")
-    @ApiImplicitParam(paramType = "body", dataTypeClass = PageGroupVO.class)
     public String updateCustomerPageGroupInfo(@RequestHeader("Authorization") String authorization, @RequestBody PageGroupVO pageGroupVO) {
         try {
             CustomerGroupEntity customerGroupEntity = pageLevelManager.checkAuthorization(authorization);

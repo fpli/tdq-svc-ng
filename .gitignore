@@ -47,6 +47,7 @@ clientconfig
 TrustFabricHandlerConfigBean
 TrustFabricInjectionHandlerConfigBean
 raptor-upgrade-*
+OpenTelemetryConfigBean
 
 .java-version
 .env

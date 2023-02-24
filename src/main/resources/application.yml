@@ -41,6 +41,13 @@ pronto:
   username: ${PRONTO_USERNAME}
   password: ${PRONTO_PASSWORD}
 
+springdoc:
+  packagesToScan: com.ebay.dap.epic.tdq.web.controller
+  pathsToMatch: /api/**
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
+
 mmd-common-cfg:
   # url: http://10.78.235.92/mmd/find-anomaly
   #http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:8848/mmd/find-anomaly

@@ -4,9 +4,8 @@ import com.ebay.dap.epic.tdq.common.util.TDQDateUtil;
 import com.ebay.dap.epic.tdq.data.vo.ChartDataVO;
 import com.ebay.dap.epic.tdq.data.vo.ChartVO;
 import com.ebay.dap.epic.tdq.service.ChartService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,17 +19,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/chart")
 @Slf4j
+@Tag(name = "Chart API", description = "Chart related API")
 public class ChartController {
 
     @Autowired
     private ChartService chartService;
 
+    @Operation(summary = "retrieve chart data")
     @GetMapping("/retrieveChartData/{id}")
-    @ApiOperation(value = "retrieve Chart Data", notes = "retrieve Chart Data")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "id", dataType = "Long", required = true),
-            @ApiImplicitParam(paramType = "query", name = "date", dataType = "Date", example = "2022-08-07", format = "yyyy-MM-dd")
-    })
     public ChartDataVO retrieveChartData(@PathVariable Long id, LocalDate date) throws Exception {
         if (null == date || date.isAfter(TDQDateUtil.getYesterday())) {
             date = TDQDateUtil.getYesterday();
@@ -38,8 +34,8 @@ public class ChartController {
         return chartService.retrieveChartData(id, date);
     }
 
+    @Operation(summary = "list all chart info")
     @GetMapping("/listChartInfo")
-    @ApiOperation(value = "list all Chart info", notes = "list all chart info")
     public List<ChartVO> listChartInfo() {
         return chartService.listChartInfoEntities();
     }
