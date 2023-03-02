@@ -11,4 +11,10 @@
 * [Raptor.io](URL: 'http://raptor.io.corp.ebay.com/')
 * Spring Boot
 * MyBatis Plus
-* Swagger
+* MySQL
+* ElasticSearch
+
+### Build
+```bash
+mvn clean package -U -B -Pstatic-check-ng -Dstyle.color=always
+```

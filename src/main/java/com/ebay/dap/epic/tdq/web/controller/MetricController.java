@@ -3,14 +3,22 @@ package com.ebay.dap.epic.tdq.web.controller;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.vo.MetricChartVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
+import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
-import com.ebay.dap.epic.tdq.service.MetricInfoService;
+import com.ebay.dap.epic.tdq.service.MetricService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,15 +29,23 @@ import java.util.List;
 public class MetricController {
 
     @Autowired
-    private MetricInfoService metricInfoService;
+    private MetricService metricService;
     @Autowired
     private BatchMetricService batchMetricService;
+
+
+    @Operation(summary = "create a new metric")
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MetricInfoVO> create(@RequestBody @Valid MetricInfoVO metricInfoVO) {
+        MetricInfoVO saved = metricService.create(metricInfoVO);
+        return ResponseEntity.ok(saved);
+    }
 
 
     @Operation(summary = "list all metric metadata")
     @GetMapping("/listMetricAllInfo")
     public List<MetricInfoEntity> listMetricAllInfo() {
-        return metricInfoService.listMetricAllInfo();
+        return metricService.listMetricAllInfo();
     }
 
     @Operation(summary = "get metric for batch")

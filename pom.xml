@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.ebay.raptorio.platform</groupId>
         <artifactId>raptor-io-parent</artifactId>
-        <version>0.16.4-RELEASE</version>
+        <version>0.17.0-RELEASE</version>
         <relativePath></relativePath> <!-- lookup parent from repository -->
     </parent>
 
@@ -26,13 +26,13 @@
         <lombok.version>1.18.22</lombok.version>
         <springdoc.version>1.6.14</springdoc.version>
         <compiler.plugin.version>3.10.1</compiler.plugin.version>
-        <esams.component.version>0.15.3-RELEASE</esams.component.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <fount.client.version>0.2.16</fount.client.version>
-        <mysql.connector.version>8.0.31</mysql.connector.version>
+        <mysql.connector.version>8.0.32</mysql.connector.version>
         <mybatis-plus.version>3.5.3</mybatis-plus.version>
         <guava.version>31.1-jre</guava.version>
         <swagger.annotations.v3.version>2.2.7</swagger.annotations.v3.version>
+        <ep.component.version>0.16.10-RELEASE</ep.component.version>
     </properties>
 
     <dependencies>

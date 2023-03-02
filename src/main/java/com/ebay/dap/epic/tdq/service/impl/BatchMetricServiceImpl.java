@@ -5,7 +5,7 @@ import com.ebay.dap.epic.tdq.data.vo.MetricChartVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricValueItemVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
-import com.ebay.dap.epic.tdq.service.MetricInfoService;
+import com.ebay.dap.epic.tdq.service.MetricService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -55,7 +55,7 @@ public class BatchMetricServiceImpl implements BatchMetricService {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private MetricInfoService metricInfoService;
+    private MetricService metricInfoService;
 
 
     /**
