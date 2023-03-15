@@ -14,6 +14,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
 import com.ebay.dap.epic.tdq.data.repository.CategoryResultRepository;
 import com.ebay.dap.epic.tdq.data.repository.RuleResultRepository;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -31,13 +32,18 @@ import static java.util.stream.Collectors.groupingBy;
 public class SimpleExecutionEngine implements ExecutionEngine {
 
 
+    @Autowired
     private GroovyRuleDefMapper ruleDefMapper;
 
+    @Autowired
     private RuleResultRepository ruleResultRepository;
 
+    @Autowired
     private CategoryResultRepository categoryResultRepository;
 
+    @Autowired
     private RuleExecutor executor;
+
     private ProntoClient prontoClient;
 
     //FIXME(yxiao6): hard-code for now
@@ -59,12 +65,13 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
     /***
      *  below are the steps to process scorecard:
-     *  1. get scorecard rule items from db
-     *  2. covert check items to rule BO
-     *  3. get metric value for metrics in rules
-     *  4. execute rule groovy script to get score
-     *  5. get category sub-total score
-     *  6. save the scorecard results into database
+     *  1. get scorecard rule definitions from db
+     *  2. covert rule definitions to groovy rule BO
+     *  3. get metric values for metrics in rules
+     *  4. execute groovy rule scripts to get score of rule
+     *  5. get final score based on the domain specified weight
+     *  6. get category sub-total score for each domain
+     *  7. save the scorecard results into database
      *
      * @param dt
      */
@@ -77,9 +84,9 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
 
         // 2. covert rule definitions to groovy rule BO
-        List<Rule> groovyScriptRules = new ArrayList<>();
+        List<GroovyScriptRule> groovyScriptRules = new ArrayList<>();
         for (GroovyRuleDefEntity ruleDef : ruleDefEntities) {
-            Rule rule = new GroovyScriptRule();
+            GroovyScriptRule rule = new GroovyScriptRule();
             rule.setRuleId(ruleDef.getId());
             rule.setRuleName(ruleDef.getName());
             rule.setCategory(ruleDef.getCategory());
@@ -102,22 +109,22 @@ public class SimpleExecutionEngine implements ExecutionEngine {
             scorecardResult.setDt(dt);
 
             // 3. get metric values for metrics in rules
-            for (Rule groovyScriptRule : groovyScriptRules) {
-                List<String> metricValues = new ArrayList<>();
-                for (String metricKey : groovyScriptRule.getMetricKeys()) {
-                    String metricValue = prontoClient.getDailyMetric(dt, metricKey, domain);
+            for (GroovyScriptRule rule : groovyScriptRules) {
+                List<Object> metricValues = new ArrayList<>();
+                for (String metricKey : rule.getMetricKeys()) {
+                    Object metricValue = prontoClient.getDailyMetric(dt, metricKey, domain);
                     metricValues.add(metricValue);
                 }
-                groovyScriptRule.setMetricValues(metricValues);
+                rule.setMetricValues(metricValues);
             }
 
-            // 4. execute rule groovy script to get score
-            for (Rule rule : groovyScriptRules) {
-                Rule updated = executor.execute(rule);
+            // 4. execute groovy rule scripts to get score of rule
+            for (GroovyScriptRule rule : groovyScriptRules) {
+                executor.execute(rule);
             }
 
             // 5. get final score based on the domain specified weight
-            for (Rule rule : groovyScriptRules) {
+            for (GroovyScriptRule rule : groovyScriptRules) {
                 if (domainWeightLkp.containsKey(domain)) {
                     List<DomainWeightLkpEntity> domainWeightLkpEntities = domainWeightLkp.get(domain);
                     for (DomainWeightLkpEntity domainWeightLkpEntity : domainWeightLkpEntities) {
@@ -158,8 +165,7 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
         }
 
-
-        // 6. save the scorecard results into database
+        // 7. save the scorecard results into database
         List<CategoryResultEntity> categoryResultEntityList = new LinkedList<>();
         List<RuleResultEntity> ruleResultEntityList = new LinkedList<>();
 
@@ -186,6 +192,7 @@ public class SimpleExecutionEngine implements ExecutionEngine {
                 }
             }
         }
+        // FIXME: add transactional support
         // save results to database
         ruleResultRepository.saveBatch(ruleResultEntityList);
         categoryResultRepository.saveBatch(categoryResultEntityList);

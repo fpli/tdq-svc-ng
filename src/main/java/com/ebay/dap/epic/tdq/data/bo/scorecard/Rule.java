@@ -18,7 +18,7 @@ public abstract class Rule {
     protected List<String> metricKeys;
 
     // the order of metric value matters
-    protected List<String> metricValues;
+    protected List<Object> metricValues;
 
     // scorecard will be only using daily metrics
     protected LocalDate metricDt;
