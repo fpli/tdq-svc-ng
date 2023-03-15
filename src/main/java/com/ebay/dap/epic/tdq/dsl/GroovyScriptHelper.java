@@ -1,4 +1,4 @@
-package com.ebay.dap.epic.tdq.common.util;
+package com.ebay.dap.epic.tdq.dsl;
 
 import groovy.lang.GroovyShell;
 
