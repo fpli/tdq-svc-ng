@@ -12,6 +12,7 @@ logging:
     com.ebay.dap.epic.tdq: debug
     org.springframework.security: debug
     com.baomidou.mybatisplus: debug
+#    org.apache.http: debug
 
 global:
   web:

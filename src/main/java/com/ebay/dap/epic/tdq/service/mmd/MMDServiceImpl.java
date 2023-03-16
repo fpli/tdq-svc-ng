@@ -1,8 +1,8 @@
 package com.ebay.dap.epic.tdq.service.mmd;
 
 import com.ebay.dap.epic.tdq.config.AllMetricsCustParams;
+import com.ebay.dap.epic.tdq.config.C2SProxyConfig;
 import com.ebay.dap.epic.tdq.config.MMDCommonCfg;
-import com.ebay.dap.epic.tdq.config.UserProxyConfig;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MMDRecordInfoMapper;
@@ -77,7 +77,7 @@ public class MMDServiceImpl implements MMDService {
     private HttpClient httpClient;
 
     @Autowired
-    private UserProxyConfig proxyConfig;
+    private C2SProxyConfig proxyConfig;
 
     private boolean usedProxy;
 

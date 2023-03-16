@@ -26,7 +26,7 @@ public class RestTemplateConfig {
     private final MMDCommonCfg mmdCommonCfg;
 
     @Autowired
-    private UserProxyConfig proxyConfig;
+    private C2SProxyConfig proxyConfig;
 
     public RestTemplateConfig(MMDCommonCfg mmdCommonCfg) {
         this.mmdCommonCfg = mmdCommonCfg;
