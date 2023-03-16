@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "pronto")
-public class ProntoConfig {
+public class ProntoEnvConfig {
     String scheme;
     String hostname;
     Integer port;
