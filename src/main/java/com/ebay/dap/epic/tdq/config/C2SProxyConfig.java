@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Data
-public class UserProxyConfig {
+public class C2SProxyConfig {
 
     @Value("${PROXY_HOST:c2sproxy.vip.ebay.com}")
     private String proxyHost;
