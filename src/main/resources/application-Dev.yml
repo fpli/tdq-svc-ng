@@ -13,6 +13,7 @@ logging:
     org.springframework.security: debug
     com.baomidou.mybatisplus: debug
 #    org.apache.http: debug
+#    org.springframework.data.elasticsearch.client.WIRE: trace
 
 global:
   web:

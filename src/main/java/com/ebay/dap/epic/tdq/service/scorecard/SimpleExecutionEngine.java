@@ -4,15 +4,16 @@ import com.ebay.dap.epic.tdq.data.bo.scorecard.CategoryResult;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.GroovyScriptRule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.Rule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.ScorecardResult;
-import com.ebay.dap.epic.tdq.data.client.pronto.ProntoClient;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainWeightLkpEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.RuleResultEntity;
 import com.ebay.dap.epic.tdq.data.enums.Category;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
+import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.repository.CategoryResultRepository;
 import com.ebay.dap.epic.tdq.data.repository.RuleResultRepository;
+import com.ebay.dap.epic.tdq.service.MetricService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,9 @@ public class SimpleExecutionEngine implements ExecutionEngine {
     @Autowired
     private RuleExecutor executor;
 
-    private ProntoClient prontoClient;
+    @Autowired
+    private MetricService metricService;
+
 
     //FIXME(yxiao6): hard-code for now
     private List<String> domainList = Lists.newArrayList(
@@ -102,19 +105,36 @@ public class SimpleExecutionEngine implements ExecutionEngine {
         Map<String, List<DomainWeightLkpEntity>> domainWeightLkp = domainWeightList.stream()
                                                                                    .collect(groupingBy(DomainWeightLkpEntity::getDomainName));
 
+        List<MetricDoc> scorecardMetrics = metricService.getDailyMetricsByLabel(dt, "scorecard");
+        Map<String, List<MetricDoc>> domainMetricValues = scorecardMetrics.stream().collect(groupingBy(metricDoc -> metricDoc.getDimension().get("domain").toString()));
+
         // calculate scorecard for each domain
         for (String domain : domainList) {
             ScorecardResult scorecardResult = new ScorecardResult();
             scorecardResult.setDomainName(domain);
             scorecardResult.setDt(dt);
 
+            if (!domainMetricValues.containsKey(domain)) {
+                throw new RuntimeException("No metrics value for domain " + domain);
+            }
+
+            List<MetricDoc> metricDocs = domainMetricValues.get(domain);
+
             // 3. get metric values for metrics in rules
             for (GroovyScriptRule rule : groovyScriptRules) {
                 List<Object> metricValues = new ArrayList<>();
                 for (String metricKey : rule.getMetricKeys()) {
-                    Object metricValue = prontoClient.getDailyMetric(dt, metricKey, domain);
-                    metricValues.add(metricValue);
+                    for (MetricDoc metricDoc : metricDocs) {
+                        if (metricDoc.getMetricKey().equals(metricKey)) {
+                            metricValues.add(metricDoc.getValue());
+                        }
+                    }
                 }
+
+                if (metricValues.size() != rule.getMetricKeys().size()) {
+                    throw new RuntimeException("Metric values size is not equal to metric key size");
+                }
+
                 rule.setMetricValues(metricValues);
             }
 
@@ -196,7 +216,5 @@ public class SimpleExecutionEngine implements ExecutionEngine {
         // save results to database
         ruleResultRepository.saveBatch(ruleResultEntityList);
         categoryResultRepository.saveBatch(categoryResultEntityList);
-
-
     }
 }
