@@ -5,16 +5,20 @@ import com.ebay.dap.epic.tdq.data.bo.scorecard.GroovyScriptRule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.Rule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.ScorecardResult;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
-import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainWeightLkpEntity;
+import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainLkpEntity;
+import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainWeightCfgEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.RuleResultEntity;
 import com.ebay.dap.epic.tdq.data.enums.Category;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.DomainLkpMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.DomainWeightCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.repository.CategoryResultRepository;
 import com.ebay.dap.epic.tdq.data.repository.RuleResultRepository;
 import com.ebay.dap.epic.tdq.service.MetricService;
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +33,9 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Slf4j
 @Component
 public class SimpleExecutionEngine implements ExecutionEngine {
-
 
     @Autowired
     private GroovyRuleDefMapper ruleDefMapper;
@@ -43,27 +47,16 @@ public class SimpleExecutionEngine implements ExecutionEngine {
     private CategoryResultRepository categoryResultRepository;
 
     @Autowired
+    private DomainLkpMapper domainLkpMapper;
+
+    @Autowired
+    private DomainWeightCfgMapper domainWeightCfgMapper;
+
+    @Autowired
     private RuleExecutor executor;
 
     @Autowired
     private MetricService metricService;
-
-
-    //FIXME(yxiao6): hard-code for now
-    private List<String> domainList = Lists.newArrayList(
-            "ViewItem",
-            "Search",
-            "MyEbay",
-            "Notification",
-            "Checkout",
-            "SignIn"
-    );
-
-    //FIXME(yxiao6): hard-code for now
-    private List<DomainWeightLkpEntity> domainWeightList = Lists.newArrayList(
-            new DomainWeightLkpEntity("ViewItem", 1001L, new BigDecimal("0.5")),
-            new DomainWeightLkpEntity("Search", 1001L, new BigDecimal("0.7"))
-    );
 
 
     /***
@@ -80,7 +73,17 @@ public class SimpleExecutionEngine implements ExecutionEngine {
      */
     @Override
     public void process(LocalDate dt) {
-        List<ScorecardResult> domainScorecardResults = new ArrayList<>();
+        final List<ScorecardResult> domainScorecardResults = new ArrayList<>();
+
+        // prepare lkp data
+        final List<String> domainList = domainLkpMapper.findAll().stream().map(DomainLkpEntity::getName).toList();
+        if (CollectionUtils.isEmpty(domainList)) {
+            throw new RuntimeException("No domain found");
+        }
+        log.info("Domain list is: {}", domainList);
+
+        List<DomainWeightCfgEntity> domainWeightCfgEntities = domainWeightCfgMapper.findAll();
+
 
         // 1. get scorecard rule definitions from db
         List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(null);
@@ -102,14 +105,18 @@ public class SimpleExecutionEngine implements ExecutionEngine {
             groovyScriptRules.add(rule);
         }
 
-        Map<String, List<DomainWeightLkpEntity>> domainWeightLkp = domainWeightList.stream()
-                                                                                   .collect(groupingBy(DomainWeightLkpEntity::getDomainName));
+        Map<String, List<DomainWeightCfgEntity>> domainWeightCfgMap =
+                domainWeightCfgEntities.stream()
+                                       .collect(groupingBy(DomainWeightCfgEntity::getDomainName));
 
         List<MetricDoc> scorecardMetrics = metricService.getDailyMetricsByLabel(dt, "scorecard");
-        Map<String, List<MetricDoc>> domainMetricValues = scorecardMetrics.stream().collect(groupingBy(metricDoc -> metricDoc.getDimension().get("domain").toString()));
+        Map<String, List<MetricDoc>> domainMetricValues =
+                scorecardMetrics.stream()
+                                .collect(groupingBy(metricDoc -> metricDoc.getDimension().get("domain").toString()));
 
         // calculate scorecard for each domain
         for (String domain : domainList) {
+            log.info("Calculate Scorecard for domain: {}", domain);
             ScorecardResult scorecardResult = new ScorecardResult();
             scorecardResult.setDomainName(domain);
             scorecardResult.setDt(dt);
@@ -145,9 +152,9 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
             // 5. get final score based on the domain specified weight
             for (GroovyScriptRule rule : groovyScriptRules) {
-                if (domainWeightLkp.containsKey(domain)) {
-                    List<DomainWeightLkpEntity> domainWeightLkpEntities = domainWeightLkp.get(domain);
-                    for (DomainWeightLkpEntity domainWeightLkpEntity : domainWeightLkpEntities) {
+                if (domainWeightCfgMap.containsKey(domain)) {
+                    List<DomainWeightCfgEntity> domainWeightLkpEntities = domainWeightCfgMap.get(domain);
+                    for (DomainWeightCfgEntity domainWeightLkpEntity : domainWeightLkpEntities) {
                         if (domainWeightLkpEntity.getRuleId().equals(rule.getRuleId())) {
                             rule.setWeight(domainWeightLkpEntity.getWeight());
                         }
@@ -182,7 +189,12 @@ public class SimpleExecutionEngine implements ExecutionEngine {
                 categoryResults.add(result);
             }
 
+            domainScorecardResults.add(scorecardResult);
+        }
 
+        // check if results count is equal to domain counts
+        if (domainScorecardResults.size() != domainList.size()) {
+            throw new RuntimeException("Domain Scorecard results size is not equal to domain list size");
         }
 
         // 7. save the scorecard results into database
