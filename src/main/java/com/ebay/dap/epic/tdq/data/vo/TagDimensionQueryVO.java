@@ -17,5 +17,5 @@ public class TagDimensionQueryVO {
     LocalDate startDt;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate entDt;
+    LocalDate endDt;
 }

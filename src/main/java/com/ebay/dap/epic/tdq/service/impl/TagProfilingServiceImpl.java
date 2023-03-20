@@ -649,7 +649,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private List<TagDetailVO> checkTag(String tagName, LocalDate begin, LocalDate date) throws Exception {
         TagDimensionQueryVO tagDimensionQueryVO = new TagDimensionQueryVO();
         tagDimensionQueryVO.setTagName(tagName);
-        tagDimensionQueryVO.setEntDt(date);
+        tagDimensionQueryVO.setEndDt(date);
         tagDimensionQueryVO.setStartDt(begin);
         String dimensionsJSON = retrieveDimensionsOfTag(tagDimensionQueryVO);
         TypeReference<HashMap<String, Set<String>>> typeReference = new TypeReference<HashMap<String, Set<String>>>() {
@@ -735,7 +735,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             SearchSourceBuilder builder = new SearchSourceBuilder();
             BoolQueryBuilder rootBuilder = QueryBuilders.boolQuery();
             rootBuilder.must(QueryBuilders.termQuery("metric_key", "profiling_tag_size"));
-            rootBuilder.must(QueryBuilders.rangeQuery("dt").gte(dateTimeFormatter.format(tagDimensionQueryVO.getStartDt())).lte(dateTimeFormatter.format(tagDimensionQueryVO.getEntDt())));
+            rootBuilder.must(QueryBuilders.rangeQuery("dt").gte(dateTimeFormatter.format(tagDimensionQueryVO.getStartDt())).lte(dateTimeFormatter.format(tagDimensionQueryVO.getEndDt())));
             rootBuilder.filter(QueryBuilders.existsQuery("expr.tag_size_attr.tagMap." + tagDimensionQueryVO.getTagName()));
             builder.query(rootBuilder);
             builder.size(0);
@@ -744,7 +744,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
                 builder.aggregation(aggregation);
             }
             //log.info("dropdown search request {}", builder);
-            SearchRequest searchRequest = new SearchRequest(calculateIndexes(tagDimensionQueryVO.getStartDt(), tagDimensionQueryVO.getEntDt()), builder);
+            SearchRequest searchRequest = new SearchRequest(calculateIndexes(tagDimensionQueryVO.getStartDt(), tagDimensionQueryVO.getEndDt()), builder);
             searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
