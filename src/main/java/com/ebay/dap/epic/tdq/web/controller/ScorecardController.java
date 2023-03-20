@@ -13,15 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/scorecard")
 @Slf4j
 @Tag(name = "Scorecard API", description = "scorecard api")
-public class ScoreCardController {
+public class ScorecardController {
 
     @Autowired
     private ScorecardService scorecardService;
@@ -33,15 +31,6 @@ public class ScoreCardController {
             throw new IllegalArgumentException("the parameter data: " + date + " can't be later than today.");
         }
         return scorecardService.listScore(date);
-    }
-
-    @Operation(summary = "test return map")
-    @GetMapping("testMap")
-    public Map<String, Double> test(){
-        Map<String, Double> map =  new HashMap<>();
-        map.put("a", 99D);
-        map.put("b", 89D);
-        return map;
     }
 
 }
