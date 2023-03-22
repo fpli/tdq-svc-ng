@@ -80,13 +80,15 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public List<MetricDoc> getDailyMetricsByLabel(LocalDate dt, String label) {
+        log.info("Query Pronto for metric details");
         final String index = "tdq.batch.profiling.metric.prod." + dt.toString();
         IndexCoordinates idxNames = IndexCoordinates.of(index);
 
         Criteria criteria = new Criteria("metric_key").exists()
-                                                      .and("label").is("scorecard");
-        Query query = new CriteriaQuery(criteria);
+                                                      .and("dt").is(dt.toString())
+                                                      .and("labels").is(label);
 
+        Query query = new CriteriaQuery(criteria);
 
         List<MetricDoc> metricDocs = new ArrayList<>();
         SearchHits<MetricDoc> search = esOperations.search(query, MetricDoc.class, idxNames);
@@ -95,8 +97,13 @@ public class MetricServiceImpl implements MetricService {
             metricDocs.add(content);
         }
 
+        log.info("Finished querying Pronto, returned {} documents", metricDocs.size());
         return metricDocs;
     }
 
+    @Override
+    public List<MetricDoc> getScorecardMetrics(LocalDate dt) {
+        return this.getDailyMetricsByLabel(dt, "scorecard");
+    }
 
 }
