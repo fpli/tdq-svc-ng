@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.NonBotPageCountEntity;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -57,4 +58,16 @@ public interface NonBotPageCountMapper extends BaseMapper<NonBotPageCountEntity>
         queryWrapper.le(NonBotPageCountEntity::getDt, dt);
         return delete(queryWrapper);
     }
+
+    default List<Integer> findLargePageIdsOfDt(Long total, String dt){
+        LambdaQueryWrapper<NonBotPageCountEntity> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.gt(NonBotPageCountEntity::getTotal, total);
+        queryWrapper.eq(NonBotPageCountEntity::getDt, dt);
+        List<NonBotPageCountEntity> nonBotPageCountEntities = selectList(queryWrapper);
+        return nonBotPageCountEntities.stream().map(NonBotPageCountEntity::getPageId).distinct().toList();
+    }
+
+    @Select("select round(avg(t.total)) from NonBotPageCountEntity t where t.pageId = #{pageId} and t.dt between #{startDt} and #{endDt}")
+    Long findAvgByPageIdAndBetweenDt(Integer pageId, String startDt, String endDt);
+
 }

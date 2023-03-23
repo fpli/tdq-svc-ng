@@ -47,4 +47,12 @@ public interface AnomalyItemMapper extends BaseMapper<AnomalyItemEntity> {
         lambdaQueryWrapper.in(AnomalyItemEntity::getRefId, refIds);
         return selectList(lambdaQueryWrapper);
     }
+
+    default List<AnomalyItemEntity> findAllAbnormalPagesOfDt(LocalDate dt){
+        // SELECT t FROM AnomalyItemEntity t WHERE t.type='page' AND t.dt = ?1
+        LambdaQueryWrapper<AnomalyItemEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(AnomalyItemEntity::getType, "page");
+        lambdaQueryWrapper.eq(AnomalyItemEntity::getDt, dt);
+        return selectList(lambdaQueryWrapper);
+    }
 }
