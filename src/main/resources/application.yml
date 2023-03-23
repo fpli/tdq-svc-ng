@@ -11,7 +11,7 @@ spring:
       connection-timeout: 15000
       validation-timeout: 5000
   flyway:
-    enabled: false
+    enabled: true
     clean-disabled: true
     baseline-version: 0
     baseline-on-migrate: true
