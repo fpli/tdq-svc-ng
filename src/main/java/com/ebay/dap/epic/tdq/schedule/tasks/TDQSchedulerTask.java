@@ -1,4 +1,4 @@
-package com.ebay.dap.epic.tdq.service.tasks;
+package com.ebay.dap.epic.tdq.schedule.tasks;
 
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.AnomalyDetector;
@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-//FIXME: 1. put package to root level with name `scheduling`
-// 2. use aspect to log status and track time
+//FIXME: use aspect to log status and track time
 @Slf4j
 @Component
 public class TDQSchedulerTask {

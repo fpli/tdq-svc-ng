@@ -1,21 +1,30 @@
 package com.ebay.dap.epic.tdq.service.scorecard;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ebay.dap.epic.tdq.common.exception.ScorecardExecutionException;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.CategoryResult;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.GroovyScriptRule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.Rule;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.ScorecardResult;
-import com.ebay.dap.epic.tdq.data.client.pronto.ProntoClient;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
-import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainWeightLkpEntity;
+import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainLkpEntity;
+import com.ebay.dap.epic.tdq.data.entity.scorecard.DomainWeightCfgEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.RuleResultEntity;
 import com.ebay.dap.epic.tdq.data.enums.Category;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.DomainLkpMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.DomainWeightCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
+import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.repository.CategoryResultRepository;
 import com.ebay.dap.epic.tdq.data.repository.RuleResultRepository;
-import com.google.common.collect.Lists;
+import com.ebay.dap.epic.tdq.service.MetricService;
+import com.google.common.base.Preconditions;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,9 +37,9 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Slf4j
 @Component
 public class SimpleExecutionEngine implements ExecutionEngine {
-
 
     @Autowired
     private GroovyRuleDefMapper ruleDefMapper;
@@ -42,48 +51,61 @@ public class SimpleExecutionEngine implements ExecutionEngine {
     private CategoryResultRepository categoryResultRepository;
 
     @Autowired
+    private DomainLkpMapper domainLkpMapper;
+
+    @Autowired
+    private DomainWeightCfgMapper domainWeightCfgMapper;
+
+    @Autowired
     private RuleExecutor executor;
 
-    private ProntoClient prontoClient;
-
-    //FIXME(yxiao6): hard-code for now
-    private List<String> domainList = Lists.newArrayList(
-            "ViewItem",
-            "Search",
-            "MyEbay",
-            "Notification",
-            "Checkout",
-            "SignIn"
-    );
-
-    //FIXME(yxiao6): hard-code for now
-    private List<DomainWeightLkpEntity> domainWeightList = Lists.newArrayList(
-            new DomainWeightLkpEntity("ViewItem", 1001L, new BigDecimal("0.5")),
-            new DomainWeightLkpEntity("Search", 1001L, new BigDecimal("0.7"))
-    );
+    @Autowired
+    private MetricService metricService;
 
 
     /***
      *  below are the steps to process scorecard:
-     *  1. get scorecard rule definitions from db
-     *  2. covert rule definitions to groovy rule BO
-     *  3. get metric values for metrics in rules
-     *  4. execute groovy rule scripts to get score of rule
-     *  5. get final score based on the domain specified weight
-     *  6. get category sub-total score for each domain
-     *  7. save the scorecard results into database
+     *  1. load domain lkp data from database
+     *  2. get scorecard rule definitions from database
+     *  3. covert rule definition to GroovyScriptRule BO
+     *  4. get all metrics details from Pronto
+     *  5. calculate scorecard for each domain
+     *     - 5.1 parse metric values and set in rules
+     *     - 5.2. execute groovy rule script to get score
+     *     - 5.3 get rule weighted score based on the domain specified weight config
+     *     - 5.4 get category sub-total score based on rule results
+     *     - 5.5 get final score for the domain based on category sub-total
+     *  6. save the scorecard results into database
      *
      * @param dt
      */
+    @Transactional
     @Override
     public void process(LocalDate dt) {
-        List<ScorecardResult> domainScorecardResults = new ArrayList<>();
+        Preconditions.checkNotNull(dt);
 
-        // 1. get scorecard rule definitions from db
+        final List<ScorecardResult> domainScorecardResults = new ArrayList<>();
+
+        // 1. load domain lkp data from database
+        final List<String> domainList = domainLkpMapper.findAll().stream().map(DomainLkpEntity::getName).toList();
+        if (CollectionUtils.isEmpty(domainList)) {
+            throw new ScorecardExecutionException("No domain found");
+        }
+        log.info("Scorecard domain list is: {}", domainList);
+
+        List<DomainWeightCfgEntity> domainWeightCfgEntities = domainWeightCfgMapper.findAll();
+        Map<String, List<DomainWeightCfgEntity>> domainWeightCfgMap =
+                domainWeightCfgEntities.stream()
+                                       .collect(groupingBy(DomainWeightCfgEntity::getDomainName));
+
+
+        // 2. get scorecard rule definitions from database
         List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(null);
+        if (CollectionUtils.isEmpty(ruleDefEntities)) {
+            throw new ScorecardExecutionException("No scorecard rule definition found");
+        }
 
-
-        // 2. covert rule definitions to groovy rule BO
+        // 3. covert rule definition to GroovyScriptRule BO
         List<GroovyScriptRule> groovyScriptRules = new ArrayList<>();
         for (GroovyRuleDefEntity ruleDef : ruleDefEntities) {
             GroovyScriptRule rule = new GroovyScriptRule();
@@ -95,77 +117,112 @@ public class SimpleExecutionEngine implements ExecutionEngine {
             rule.setWeight(ruleDef.getDefaultWeight());
             rule.setMetricKeys(Arrays.stream(ruleDef.getMetricKeys().split(",")).collect(Collectors.toList()));
             rule.setMetricDt(dt);
+            rule.setScript(ruleDef.getGroovyScript());
 
             groovyScriptRules.add(rule);
         }
+        Map<Category, List<Rule>> categoryRules = groovyScriptRules.stream().collect(groupingBy(Rule::getCategory));
 
-        Map<String, List<DomainWeightLkpEntity>> domainWeightLkp = domainWeightList.stream()
-                                                                                   .collect(groupingBy(DomainWeightLkpEntity::getDomainName));
+        // 4. get all metrics details from Pronto
+        List<MetricDoc> scorecardMetrics = metricService.getScorecardMetrics(dt);
+        Map<String, List<MetricDoc>> domainMetricValues =
+                scorecardMetrics.stream()
+                                .collect(groupingBy(metricDoc -> metricDoc.getDimension().get("domain").toString()));
 
-        // calculate scorecard for each domain
+        // 5. calculate scorecard for each domain
         for (String domain : domainList) {
+            log.info("Calculate Scorecard for domain: {}", domain);
             ScorecardResult scorecardResult = new ScorecardResult();
             scorecardResult.setDomainName(domain);
             scorecardResult.setDt(dt);
 
-            // 3. get metric values for metrics in rules
+            if (!domainMetricValues.containsKey(domain)) {
+                throw new ScorecardExecutionException("No metrics value found for domain " + domain);
+            }
+
+            List<MetricDoc> metricDocs = domainMetricValues.get(domain);
+
+            // 5.1 parse metric values and set in rules
             for (GroovyScriptRule rule : groovyScriptRules) {
                 List<Object> metricValues = new ArrayList<>();
                 for (String metricKey : rule.getMetricKeys()) {
-                    Object metricValue = prontoClient.getDailyMetric(dt, metricKey, domain);
-                    metricValues.add(metricValue);
-                }
-                rule.setMetricValues(metricValues);
-            }
-
-            // 4. execute groovy rule scripts to get score of rule
-            for (GroovyScriptRule rule : groovyScriptRules) {
-                executor.execute(rule);
-            }
-
-            // 5. get final score based on the domain specified weight
-            for (GroovyScriptRule rule : groovyScriptRules) {
-                if (domainWeightLkp.containsKey(domain)) {
-                    List<DomainWeightLkpEntity> domainWeightLkpEntities = domainWeightLkp.get(domain);
-                    for (DomainWeightLkpEntity domainWeightLkpEntity : domainWeightLkpEntities) {
-                        if (domainWeightLkpEntity.getRuleId().equals(rule.getRuleId())) {
-                            rule.setWeight(domainWeightLkpEntity.getWeight());
+                    for (MetricDoc metricDoc : metricDocs) {
+                        if (metricDoc.getMetricKey().equals(metricKey)) {
+                            metricValues.add(metricDoc.getValue());
+                            break;
                         }
                     }
                 }
 
+                if (metricValues.size() != rule.getMetricKeys().size()) {
+                    throw new ScorecardExecutionException("Metric values size is not equal to metric key size");
+                }
+
+                rule.setMetricValues(metricValues);
+            }
+
+            // 5.2. execute groovy rule script to get score
+            for (GroovyScriptRule rule : groovyScriptRules) {
+                executor.execute(rule);
+            }
+
+            // 5.3 get rule weighted score based on the domain specified weight config
+            for (GroovyScriptRule rule : groovyScriptRules) {
+                if (domainWeightCfgMap.containsKey(domain)) {
+                    List<DomainWeightCfgEntity> domainWeightLkpEntities = domainWeightCfgMap.get(domain);
+                    for (DomainWeightCfgEntity domainWeightLkpEntity : domainWeightLkpEntities) {
+                        if (domainWeightLkpEntity.getRuleId().equals(rule.getRuleId())) {
+                            rule.setWeight(domainWeightLkpEntity.getWeight());
+                            break;
+                        }
+                    }
+                }
                 rule.setWeightedScore(rule.getWeight().multiply(new BigDecimal(rule.getScore())).intValue());
             }
 
-
-            // 6. get category sub-total score for each domain
+            // 5.4 get category sub-total score based on rule results
             List<CategoryResult> categoryResults = new ArrayList<>();
-            Map<Category, List<Rule>> categoryRules = groovyScriptRules.stream().collect(groupingBy(Rule::getCategory));
             for (Map.Entry<Category, List<Rule>> entry : categoryRules.entrySet()) {
                 Category category = entry.getKey();
                 List<Rule> rules = entry.getValue();
-                CategoryResult result = new CategoryResult();
+                CategoryResult categoryResult = new CategoryResult();
 
-                Integer asInt = rules.stream().mapToInt(Rule::getWeightedScore)
-                                     .reduce(Integer::sum)
-                                     .getAsInt();
+                int sumScore = rules.stream()
+                                    .mapToInt(Rule::getWeightedScore)
+                                    .sum();
 
-                Double asDouble = rules.stream().mapToDouble(e -> e.getWeight().doubleValue())
-                                       .reduce(Double::sum)
-                                       .getAsDouble();
+                double sumWeight = rules.stream()
+                                        .mapToDouble(e -> e.getWeight().doubleValue())
+                                        .sum();
 
-                Double v = (asInt / asDouble);
+                double subTotal = (sumScore / sumWeight);
 
-                result.setSubTotal(v.intValue());
-                result.setCategory(category);
-
-                categoryResults.add(result);
+                categoryResult.setSubTotal((int) subTotal);
+                categoryResult.setCategory(category);
+                categoryResult.setRules(rules);
+                categoryResults.add(categoryResult);
+            }
+            if (CollectionUtils.isEmpty(categoryResults)) {
+                throw new ScorecardExecutionException("No category results found");
             }
 
-
+            // 5.5 get final score for the domain based on category sub-total
+            double finalScore = categoryResults.stream()
+                                               .mapToInt(CategoryResult::getSubTotal)
+                                               .average()
+                                               .getAsDouble();
+            scorecardResult.setFinalScore((int) finalScore);
+            scorecardResult.setCategoryResults(categoryResults);
+            domainScorecardResults.add(scorecardResult);
+            log.info("Finished Scorecard calculation for domain: {}", domain);
         }
 
-        // 7. save the scorecard results into database
+        // check if results count is equal to domain counts
+        if (domainScorecardResults.size() != domainList.size()) {
+            throw new ScorecardExecutionException("Domain Scorecard results size is not equal to domain list size");
+        }
+
+        // 6. save the scorecard results into database
         List<CategoryResultEntity> categoryResultEntityList = new LinkedList<>();
         List<RuleResultEntity> ruleResultEntityList = new LinkedList<>();
 
@@ -192,11 +249,16 @@ public class SimpleExecutionEngine implements ExecutionEngine {
                 }
             }
         }
-        // FIXME: add transactional support
-        // save results to database
+
+        // save rule results to database
+        LambdaQueryWrapper<RuleResultEntity> ruleQueryWrapper = new LambdaQueryWrapper<>();
+        ruleQueryWrapper.eq(RuleResultEntity::getDt, dt.toString());
+        ruleResultRepository.remove(ruleQueryWrapper);
         ruleResultRepository.saveBatch(ruleResultEntityList);
+        // save category results to database
+        LambdaQueryWrapper<CategoryResultEntity> categoryQueryWrapper = new LambdaQueryWrapper<>();
+        categoryQueryWrapper.eq(CategoryResultEntity::getDt, dt.toString());
+        categoryResultRepository.remove(categoryQueryWrapper);
         categoryResultRepository.saveBatch(categoryResultEntityList);
-
-
     }
 }
