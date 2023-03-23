@@ -16,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
@@ -77,6 +80,7 @@ public class ScorecardServiceImpl implements ScorecardService {
                 ruleResultEntityList.forEach(ruleResultEntity -> nodeMap.put(ruleResultEntity.getDomain(), ruleResultEntity.getScore().doubleValue()));
             });
         });
+
         // replace it with a flag and a map maybe better
         fillFinalScore(scorecardItemVOList, atomicInteger.getAndIncrement(), date);
         return scorecardItemVOList;
@@ -99,4 +103,8 @@ public class ScorecardServiceImpl implements ScorecardService {
         Map<String, CategoryResultEntity> domainMap = categoryResultEntityList.stream().collect(Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young));
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
     }
+
+        return scorecardItemVOList;
+    }
+
 }

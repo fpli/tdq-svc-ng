@@ -24,16 +24,17 @@ public class ScorecardController {
     @Autowired
     private ExecutionEngine executionEngine;
 
+    @Autowired
+    private ScorecardService scorecardService;
+
     @Hidden
     @PostMapping(path = "/run")
-    public ResponseEntity<Void> run(@RequestBody LocalDate dt) {
+    public ResponseEntity<Void> run(@RequestParam("dt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dt) {
         log.info("Trigger scorecard execution using API");
-
+        executionEngine.process(dt);
         return ResponseEntity.ok().build();
     }
 
-    @Autowired
-    private ScorecardService scorecardService;
 
     @Operation(summary = "list Score items")
     @GetMapping("listScore")
