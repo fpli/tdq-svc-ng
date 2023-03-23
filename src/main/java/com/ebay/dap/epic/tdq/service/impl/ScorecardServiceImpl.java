@@ -105,4 +105,5 @@ public class ScorecardServiceImpl implements ScorecardService {
         Map<String, CategoryResultEntity> domainMap = categoryResultEntityList.stream().collect(Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young));
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
     }
+
 }
