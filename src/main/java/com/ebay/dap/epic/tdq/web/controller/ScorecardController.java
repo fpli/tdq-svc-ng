@@ -35,6 +35,7 @@ public class ScorecardController {
         return ResponseEntity.ok().build();
     }
 
+
     @Operation(summary = "list Score items")
     @GetMapping("listScore")
     public List<ScorecardItemVO> listScore(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
