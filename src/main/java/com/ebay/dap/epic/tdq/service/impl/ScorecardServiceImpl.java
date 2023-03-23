@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -102,9 +104,6 @@ public class ScorecardServiceImpl implements ScorecardService {
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<String, CategoryResultEntity> domainMap = categoryResultEntityList.stream().collect(Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young));
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
-    }
-
-        return scorecardItemVOList;
     }
 
 }
