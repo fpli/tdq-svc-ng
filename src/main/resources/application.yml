@@ -67,3 +67,9 @@ mmd-common-cfg:
   job-param:
     id: 0
     label: Here are some descriptions of your job
+
+notification:
+  email:
+    enabled: true
+    to: DL-eBay-Tracking-Data-Quality@ebay.com
+    cc: DL-eBay-Tracking-Data-Quality@ebay.com
