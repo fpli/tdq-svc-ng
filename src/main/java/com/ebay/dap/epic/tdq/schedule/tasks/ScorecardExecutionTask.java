@@ -18,7 +18,8 @@ public class ScorecardExecutionTask {
     @Autowired
     private ExecutionEngine executionEngine;
 
-    @Scheduled(cron = "0 0 12 * * *", zone = "GMT-7")
+    // use MST to schedule as all UC4 job are based on MST
+    @Scheduled(cron = "0 0 15 * * *", zone = "GMT-7")
     @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT-7"));
