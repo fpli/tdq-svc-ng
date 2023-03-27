@@ -79,17 +79,19 @@ public class ScorecardServiceImpl implements ScorecardService {
                 node.setExtMap(nodeMap);
                 ruleResultEntityList.forEach(ruleResultEntity -> nodeMap.put(ruleResultEntity.getDomain(), ruleResultEntity.getScore().doubleValue()));
             });
-            // replace it with a flag and a map maybe better
-            fillFinalScore(scorecardItemVOList, atomicInteger.getAndIncrement(), date, k);
+
         });
+
+        // replace it with a flag and a map maybe better
+        fillFinalScore(scorecardItemVOList, atomicInteger.getAndIncrement(), date);
 
         return scorecardItemVOList;
     }
 
-    private void fillFinalScore(List<ScorecardItemVO> scorecardItemVOList, int id, LocalDate date, Category k){
+    private void fillFinalScore(List<ScorecardItemVO> scorecardItemVOList, int id, LocalDate date){
         ScorecardItemVO scorecardItem = new ScorecardItemVO();
         scorecardItemVOList.add(scorecardItem);
-        scorecardItem.setKey(k.name() + "- Final Score");
+        scorecardItem.setKey("Final Score");
         scorecardItem.setId(id);
         scorecardItem.setPid(0);
         scorecardItem.setCheckedItem("");
@@ -99,7 +101,6 @@ public class ScorecardServiceImpl implements ScorecardService {
 
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
         lambdaQueryWrapper.eq(CategoryResultEntity::getDt, date);
-        lambdaQueryWrapper.eq(CategoryResultEntity::getCategory, k);
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<String, CategoryResultEntity> domainMap = categoryResultEntityList.stream().collect(Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young));
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
