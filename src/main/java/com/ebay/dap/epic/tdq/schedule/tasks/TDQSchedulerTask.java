@@ -23,7 +23,7 @@ public class TDQSchedulerTask {
     @Autowired
     private AnomalyDetector anomalyDetector;
 
-    @Scheduled(cron = "0 0 11 * * *")
+    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.multi-uid-alert}", zone = "GMT-7")
     @SchedulerLock(name = "TDQSchedulerTask_multipleUid", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void multipleUid(){
         try {
@@ -35,14 +35,14 @@ public class TDQSchedulerTask {
         }
     }
 
-    @Scheduled(cron = "0 0 10 * * *")
+    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-anomaly-detect}", zone = "GMT-7")
     @SchedulerLock(name = "TDQSchedulerTask_pageUsageAD", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
     public void pageUsageAD() {
         LocalDate dt = LocalDate.now().minusDays(1);
         anomalyDetector.findAbnormalPages(dt);
     }
 
-    @Scheduled(cron = "0 0 11 * * *")
+    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-alert}", zone = "GMT-7")
     @SchedulerLock(name = "TDQSchedulerTask_sendPageProfilingAlerts", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
     public void sendPageProfilingAlerts() throws Exception {
         LocalDate dt = LocalDate.now().minusDays(1);
