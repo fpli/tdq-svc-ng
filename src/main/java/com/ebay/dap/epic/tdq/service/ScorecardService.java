@@ -9,4 +9,5 @@ public interface ScorecardService {
 
     List<ScorecardItemVO> listScore(LocalDate date);
 
+    List<String> fetchAvailableDates();
 }

@@ -45,4 +45,10 @@ public class ScorecardController {
         return scorecardService.listScore(date);
     }
 
+    @Operation(summary = "fetch Available Dates")
+    @GetMapping("fetchAvailableDates")
+    public List<String> fetchAvailableDates(){
+        return scorecardService.fetchAvailableDates();
+    }
+
 }
