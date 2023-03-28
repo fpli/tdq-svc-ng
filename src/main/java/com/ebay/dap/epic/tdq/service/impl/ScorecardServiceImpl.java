@@ -38,12 +38,11 @@ public class ScorecardServiceImpl implements ScorecardService {
 
     @Override
     public List<ScorecardItemVO> listScore(LocalDate date) {
-        List<ScorecardItemVO> scorecardItemVOList = new ArrayList<>();
+        List<ScorecardItemVO> scorecardItemVOList = Collections.synchronizedList(new ArrayList<>());
         AtomicInteger atomicInteger = new AtomicInteger(1);
 //        List<Category> categories = ruleDefMapper.listAllCategories();
         List<Category> categories = Arrays.asList(Category.values());
-
-        categories.forEach(k -> {
+        categories.parallelStream().forEach(k -> {
             ScorecardItemVO scorecardItem = new ScorecardItemVO();
             scorecardItemVOList.add(scorecardItem);
             scorecardItem.setKey(k.name());
@@ -82,10 +81,19 @@ public class ScorecardServiceImpl implements ScorecardService {
 
         });
 
+        scorecardItemVOList.sort(Comparator.comparing(ScorecardItemVO::getCategory, Comparator.comparing(Category::valueOf)));
         // replace it with a flag and a map maybe better
         fillFinalScore(scorecardItemVOList, atomicInteger.getAndIncrement(), date);
 
         return scorecardItemVOList;
+    }
+
+    @Override
+    public List<String> fetchAvailableDates() {
+        LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.ge(CategoryResultEntity::getDt, LocalDate.now().minusMonths(3));
+        List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
+        return categoryResultEntityList.stream().map(CategoryResultEntity::getDt).distinct().map(LocalDate::toString).toList();
     }
 
     private void fillFinalScore(List<ScorecardItemVO> scorecardItemVOList, int id, LocalDate date){
