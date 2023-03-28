@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
+import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.AnomalyDetector;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,9 +23,19 @@ public class ScheduledJobTriggerController {
     @Autowired
     private AnomalyDetector anomalyDetector;
 
+    @Autowired
+    private AlertManager alertManager;
+
     @Operation(summary = "trigger abnormal page detecting")
     @GetMapping("triggerPageDetecting")
     public String triggerPageDetecting(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        anomalyDetector.findAbnormalPages(date);
+        return "done";
+    }
+
+    @Operation(summary = "send abnormal page email")
+    @GetMapping("sendAbnormalPageEmail")
+    public String triggerPageDetectingAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
         anomalyDetector.findAbnormalPages(date);
         return "done";
     }
