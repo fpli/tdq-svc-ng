@@ -91,13 +91,7 @@ public class ScorecardServiceImpl implements ScorecardService {
     @Override
     public List<String> fetchAvailableDates() {
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
-        LocalDate localDate = LocalDate.now();
-        List<LocalDate> expectedDates = new ArrayList<>();
-        for (LocalDate previousMonthDay = localDate.minusMonths(1);previousMonthDay.isBefore(localDate);) {
-            expectedDates.add(previousMonthDay);
-            previousMonthDay = previousMonthDay.plusDays(1);
-        }
-        lambdaQueryWrapper.in(CategoryResultEntity::getDt, expectedDates);
+        lambdaQueryWrapper.ge(CategoryResultEntity::getDt, LocalDate.now().minusMonths(3));
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         return categoryResultEntityList.stream().map(CategoryResultEntity::getDt).distinct().map(LocalDate::toString).toList();
     }
