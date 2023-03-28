@@ -35,8 +35,8 @@ public class ScheduledJobTriggerController {
 
     @Operation(summary = "send abnormal page email")
     @GetMapping("sendAbnormalPageEmail")
-    public String triggerPageDetectingAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-        anomalyDetector.findAbnormalPages(date);
+    public String triggerPageDetectingAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
+        alertManager.sendPageProfilingAlertEmail(date);
         return "done";
     }
 }
