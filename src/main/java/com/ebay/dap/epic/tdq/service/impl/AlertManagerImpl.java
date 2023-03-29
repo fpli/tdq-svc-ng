@@ -180,7 +180,7 @@ public class AlertManagerImpl implements AlertManager {
 
         String content = templateEngine.process("page-profiling-alert", context);
 
-        emailService.sendHtmlEmail(content, toList, List.of("fangpli@ebay.com"), emailSubject);
+        emailService.sendHtmlEmail(content, toList, null, emailSubject);
     }
 
     private List<AnomalyItemEntity> getAbnormalPagesOfCustomer(List<AnomalyItemEntity> abnormalPages, Long customerId) {
