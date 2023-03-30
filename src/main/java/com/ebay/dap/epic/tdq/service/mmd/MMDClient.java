@@ -15,6 +15,7 @@ public class MMDClient {
     private RestTemplate restTemplate;
 
     public MMDResult findAnomaly(MMDRequest mmdRequest) throws MMDRestException {
+        log.info("mmdRequest: {}", mmdRequest);
         int retryAttempt = 5;
         MMDResult result = null;
 
