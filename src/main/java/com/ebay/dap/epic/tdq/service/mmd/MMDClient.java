@@ -14,7 +14,8 @@ public class MMDClient {
     @Qualifier("mmdRestTemplate")
     private RestTemplate restTemplate;
 
-    public MMDResult findAnomaly(MMDRequest mmdRequest) {
+    public MMDResult findAnomaly(MMDRequest mmdRequest) throws MMDRestException {
+        log.info("mmdRequest: {}", mmdRequest);
         int retryAttempt = 5;
         MMDResult result = null;
 
@@ -36,6 +37,11 @@ public class MMDClient {
             }
         }
 
+        if (result == null) {
+            throw new MMDRestException("Error when calling MMD");
+        }
+
+        log.info("MMD result: {}", result);
         return result;
     }
 }
