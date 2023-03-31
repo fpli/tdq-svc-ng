@@ -71,7 +71,5 @@ mmd-common-cfg:
 notification:
   email:
     enabled: true
-#    to: DL-eBay-Tracking-Data-Quality@ebay.com
-    to: fangpli@ebay.com
-#    cc: DL-eBay-Tracking-Data-Quality@ebay.com
-    cc: fangpli@ebay.com
+    to: DL-eBay-Tracking-Data-Quality@ebay.com
+    cc: DL-eBay-Tracking-Data-Quality@ebay.com
