@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.ebay.raptorio.platform</groupId>
         <artifactId>raptor-io-parent</artifactId>
-        <version>0.17.0-RELEASE</version>
+        <version>0.17.1-RELEASE</version>
         <relativePath></relativePath> <!-- lookup parent from repository -->
     </parent>
 
@@ -32,8 +32,20 @@
         <mybatis-plus.version>3.5.3</mybatis-plus.version>
         <guava.version>31.1-jre</guava.version>
         <swagger.annotations.v3.version>2.2.7</swagger.annotations.v3.version>
-        <ep.component.version>0.16.10-RELEASE</ep.component.version>
+        
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_bom</artifactId>
+                <version>0.16.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!--  Common  -->
@@ -226,7 +238,6 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
