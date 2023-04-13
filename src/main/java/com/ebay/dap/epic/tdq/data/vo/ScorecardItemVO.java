@@ -16,6 +16,7 @@ public class ScorecardItemVO {
     String key;
     String category;
     String checkedItem;
+    String date;
 
     Map<String, Double> extMap = new HashMap<>();
 }
