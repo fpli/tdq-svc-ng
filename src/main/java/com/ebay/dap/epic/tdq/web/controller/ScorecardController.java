@@ -45,6 +45,15 @@ public class ScorecardController {
         return scorecardService.listScore(date);
     }
 
+    @Operation(summary = "list Scorecard detail")
+    @GetMapping("listScoreDetail")
+    public List<ScorecardItemVO> listScoreDetail(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, String name){
+        if (date.isAfter(LocalDate.now())){
+            throw new IllegalArgumentException("the parameter data: " + date + " can't be later than today.");
+        }
+        return scorecardService.listScoreDetail(name, date.minusMonths(1), date);
+    }
+
     @Operation(summary = "fetch Available Dates")
     @GetMapping("fetchAvailableDates")
     public List<String> fetchAvailableDates(){

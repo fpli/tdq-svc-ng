@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -84,7 +83,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         scorecardItemVOList.sort(Comparator.comparing(ScorecardItemVO::getCategory, Comparator.comparing(Category::valueOf)));
         // replace it with a flag and a map maybe better
         fillFinalScore(scorecardItemVOList, atomicInteger.getAndIncrement(), date);
-
+        scorecardItemVOList.forEach(scorecardItemVO -> scorecardItemVO.setDate(date.toString()));
         return scorecardItemVOList;
     }
 
@@ -96,7 +95,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         return categoryResultEntityList.stream().map(CategoryResultEntity::getDt).distinct().map(LocalDate::toString).toList();
     }
 
-    private void fillFinalScore(List<ScorecardItemVO> scorecardItemVOList, int id, LocalDate date){
+    private void fillFinalScore(List<ScorecardItemVO> scorecardItemVOList, int id, LocalDate date) {
         ScorecardItemVO scorecardItem = new ScorecardItemVO();
         scorecardItemVOList.add(scorecardItem);
         scorecardItem.setKey("Final Score");
@@ -114,4 +113,30 @@ public class ScorecardServiceImpl implements ScorecardService {
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
     }
 
+    @Override
+    public List<ScorecardItemVO> listScoreDetail(String name, LocalDate begin, LocalDate end) {
+        List<ScorecardItemVO> scorecardItemVOList = Collections.synchronizedList(new ArrayList<>());
+        LambdaQueryWrapper<GroovyRuleDefEntity> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(GroovyRuleDefEntity::getName, name);
+        GroovyRuleDefEntity item = ruleDefMapper.selectOne(queryWrapper);
+
+        LambdaQueryWrapper<RuleResultEntity> lambdaQuery = Wrappers.lambdaQuery();
+        lambdaQuery.eq(RuleResultEntity::getRuleId, item.getId());
+        lambdaQuery.between(RuleResultEntity::getDt, begin, end);
+        List<RuleResultEntity> ruleResultEntityList = ruleResultMapper.selectList(lambdaQuery);
+        ruleResultEntityList.stream().collect(Collectors.groupingBy(RuleResultEntity::getDt)).forEach((localDate, ruleResultEntities) -> {
+            ScorecardItemVO node = new ScorecardItemVO();
+            scorecardItemVOList.add(node);
+            node.setKey(item.getName());
+            node.setCheckedItem(item.getName());
+            node.setDate(localDate.toString());
+            node.setCategory(item.getCategory().name());
+            Map<String, Double> nodeMap = new HashMap<>();
+            node.setExtMap(nodeMap);
+            ruleResultEntities.forEach(ruleResultEntity -> nodeMap.put(ruleResultEntity.getDomain(), ruleResultEntity.getScore().doubleValue()));
+        });
+
+        scorecardItemVOList.sort(Comparator.comparing(ScorecardItemVO::getDate));
+        return scorecardItemVOList;
+    }
 }
