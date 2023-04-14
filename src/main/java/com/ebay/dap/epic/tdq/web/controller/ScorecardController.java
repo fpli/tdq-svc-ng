@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -47,10 +48,8 @@ public class ScorecardController {
 
     @Operation(summary = "list Scorecard detail")
     @GetMapping("listScoreDetail")
-    public List<ScorecardItemVO> listScoreDetail(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, String name){
-        if (date.isAfter(LocalDate.now())){
-            throw new IllegalArgumentException("the parameter data: " + date + " can't be later than today.");
-        }
+    public List<ScorecardItemVO> listScoreDetail(String name){
+        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
         return scorecardService.listScoreDetail(name, date.minusMonths(1), date);
     }
 
