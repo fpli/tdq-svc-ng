@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
+import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailItemVO;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.service.ScorecardService;
 import com.ebay.dap.epic.tdq.service.scorecard.ExecutionEngine;
@@ -56,7 +57,7 @@ public class ScorecardController {
 
     @Operation(summary = "list Scorecard detail")
     @GetMapping("listScoreDetail")
-    public List<ScorecardItemVO> listScoreDetail(String type, String name){
+    public List<ScorecardDetailItemVO> listScoreDetail(String type, String name){
         LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
         return scorecardService.listScoreDetail(type, name, date.minusMonths(1), date);
     }
