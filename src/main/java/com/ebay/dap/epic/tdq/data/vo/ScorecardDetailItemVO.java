@@ -9,15 +9,8 @@ import java.util.Map;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ScorecardItemVO {
-
-    Integer id;
-    Integer pid;
-    String key;
-    String category;
-    String checkedItem;
+public class ScorecardDetailItemVO {
     String date;
-    String type;
 
     Map<String, Double> extMap = new HashMap<>();
 }

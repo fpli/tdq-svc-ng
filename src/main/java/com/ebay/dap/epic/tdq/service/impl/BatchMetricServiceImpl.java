@@ -1,9 +1,11 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
+import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.MetricChartVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricValueItemVO;
+import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.MetricService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -155,6 +158,24 @@ public class BatchMetricServiceImpl implements BatchMetricService {
             dimension.set(d, arrayNode);
         }
         return dimension.toPrettyString();
+    }
+
+    @Override
+    public List<ScorecardItemVO> listMetric(String metricKey, LocalDate begin, LocalDate end) {
+        List<ScorecardItemVO> scorecardItemVOList = new ArrayList<>();
+        for (int i = 0; i <= Period.between(begin, end).getDays(); i++) {
+            ScorecardItemVO node = new ScorecardItemVO();
+            scorecardItemVOList.add(node);
+//            node.setKey(item.getName());
+//            node.setCheckedItem(item.getName());
+            node.setDate(begin.plusDays(i).toString());
+//            node.setCategory(item.getCategory().name());
+            Map<String, Double> nodeMap = new HashMap<>();
+            node.setExtMap(nodeMap);
+            List<MetricDoc> metricDocList = metricInfoService.getDailyMetrics(begin.plusDays(i), metricKey);
+            metricDocList.forEach(metricDoc -> nodeMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
+        }
+        return scorecardItemVOList;
     }
 
     private String[] calculateIndexes(LocalDate from, LocalDate to) {

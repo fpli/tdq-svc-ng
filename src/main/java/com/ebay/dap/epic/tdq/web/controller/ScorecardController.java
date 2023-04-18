@@ -46,17 +46,19 @@ public class ScorecardController {
         return scorecardService.listScore(date);
     }
 
-    @Operation(summary = "list Scorecard detail")
-    @GetMapping("listScoreDetail")
-    public List<ScorecardItemVO> listScoreDetail(String name){
-        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
-        return scorecardService.listScoreDetail(name, date.minusMonths(1), date);
-    }
+
 
     @Operation(summary = "fetch Available Dates")
     @GetMapping("fetchAvailableDates")
     public List<String> fetchAvailableDates(){
         return scorecardService.fetchAvailableDates();
+    }
+
+    @Operation(summary = "list Scorecard detail")
+    @GetMapping("listScoreDetail")
+    public List<ScorecardItemVO> listScoreDetail(String type, String name){
+        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
+        return scorecardService.listScoreDetail(type, name, date.minusMonths(1), date);
     }
 
 }

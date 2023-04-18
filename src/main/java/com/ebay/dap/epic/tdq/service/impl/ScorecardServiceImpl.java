@@ -10,6 +10,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.CategoryResultMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.RuleResultMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
+import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailItemVO;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.service.MetricService;
 import com.ebay.dap.epic.tdq.service.ScorecardService;
@@ -51,6 +52,7 @@ public class ScorecardServiceImpl implements ScorecardService {
             ScorecardItemVO scorecardItem = new ScorecardItemVO();
             scorecardItemVOList.add(scorecardItem);
             scorecardItem.setKey(k.name());
+            scorecardItem.setType("category");
             scorecardItem.setId(atomicInteger.getAndIncrement());
             scorecardItem.setPid(0);
             scorecardItem.setCheckedItem(k.name());
@@ -75,6 +77,7 @@ public class ScorecardServiceImpl implements ScorecardService {
                 ScorecardItemVO node = new ScorecardItemVO();
                 scorecardItemVOList.add(node);
                 node.setKey(item.getName());
+                node.setType("checkItem");
                 node.setId(atomicInteger.getAndIncrement());
                 node.setPid(scorecardItem.getId());
                 node.setCheckedItem(item.getName());
@@ -105,6 +108,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         ScorecardItemVO scorecardItem = new ScorecardItemVO();
         scorecardItemVOList.add(scorecardItem);
         scorecardItem.setKey("Final Score");
+        scorecardItem.setType("finalScore");
         scorecardItem.setId(id);
         scorecardItem.setPid(0);
         scorecardItem.setCheckedItem("");
@@ -120,46 +124,56 @@ public class ScorecardServiceImpl implements ScorecardService {
     }
 
     @Override
-    public List<ScorecardItemVO> listScoreDetail(String name, LocalDate begin, LocalDate end) {
-        List<ScorecardItemVO> scorecardItemVOList = Collections.synchronizedList(new ArrayList<>());
-        LambdaQueryWrapper<GroovyRuleDefEntity> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(GroovyRuleDefEntity::getName, name);
-        GroovyRuleDefEntity item = ruleDefMapper.selectOne(queryWrapper);
-
-        String metricKeys = item.getMetricKeys();
-        List<String> metricKeyList = Arrays.stream(metricKeys.split(",")).toList();
-        metricKeyList.forEach(metricKey -> {
-            for (int i = 0; i <= Period.between(begin, end).getDays(); i++) {
-                ScorecardItemVO node = new ScorecardItemVO();
-                scorecardItemVOList.add(node);
-                node.setKey(item.getName());
-                node.setCheckedItem(item.getName());
-                node.setDate(begin.plusDays(i).toString());
-                node.setCategory(item.getCategory().name());
-                Map<String, Double> nodeMap = new HashMap<>();
-                node.setExtMap(nodeMap);
-                List<MetricDoc> metricDocList = metricService.getDailyMetrics(begin.plusDays(i), metricKey);
-                metricDocList.forEach(metricDoc -> nodeMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
-            }
-        });
-
-//        LambdaQueryWrapper<RuleResultEntity> lambdaQuery = Wrappers.lambdaQuery();
-//        lambdaQuery.eq(RuleResultEntity::getRuleId, item.getId());
-//        lambdaQuery.between(RuleResultEntity::getDt, begin, end);
-//        List<RuleResultEntity> ruleResultEntityList = ruleResultMapper.selectList(lambdaQuery);
-//        ruleResultEntityList.stream().collect(Collectors.groupingBy(RuleResultEntity::getDt)).forEach((localDate, ruleResultEntities) -> {
-//            ScorecardItemVO node = new ScorecardItemVO();
-//            scorecardItemVOList.add(node);
-//            node.setKey(item.getName());
-//            node.setCheckedItem(item.getName());
-//            node.setDate(localDate.toString());
-//            node.setCategory(item.getCategory().name());
-//            Map<String, Double> nodeMap = new HashMap<>();
-//            node.setExtMap(nodeMap);
-//            ruleResultEntities.forEach(ruleResultEntity -> nodeMap.put(ruleResultEntity.getDomain(), ruleResultEntity.getScore().doubleValue()));
-//        });
-
-        scorecardItemVOList.sort(Comparator.comparing(ScorecardItemVO::getDate));
+    public List<ScorecardDetailItemVO> listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
+        List<ScorecardDetailItemVO> scorecardItemVOList = new ArrayList<>();
+        switch (type) {
+            case "finalScore" -> fillFinalScoreDetail(begin, end, scorecardItemVOList);
+            case "checkItem" -> fillCheckedItemDetail(name, begin, end, scorecardItemVOList);
+            case "category" -> fillCategoryDetail(name, begin, end, scorecardItemVOList);
+        }
+        scorecardItemVOList.sort(Comparator.comparing(ScorecardDetailItemVO::getDate));
         return scorecardItemVOList;
+    }
+
+    private void fillCategoryDetail(String category, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+        LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
+        lambdaQueryWrapper.eq(CategoryResultEntity::getCategory, category);
+        List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
+        Map<LocalDate, List<CategoryResultEntity>> dateListMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt));
+        dateListMap.forEach((dt, list) -> {
+            ScorecardDetailItemVO scorecardItem = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(scorecardItem);
+            scorecardItem.setDate(dt.toString());
+            Map<String, Double> map = new HashMap<>();
+            scorecardItem.setExtMap(map);
+            list.forEach(r -> map.put(r.getDomain(), r.getSubTotal().doubleValue()));
+        });
+    }
+
+    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+        for (int i = 0; i <= Period.between(begin, end).getDays(); i++) {
+            ScorecardDetailItemVO node = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(node);
+            node.setDate(begin.plusDays(i).toString());
+            Map<String, Double> nodeMap = new HashMap<>();
+            node.setExtMap(nodeMap);
+            List<MetricDoc> metricDocList = metricService.getDailyMetrics(begin.plusDays(i), metricKey);
+            metricDocList.forEach(metricDoc -> nodeMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
+        }
+    }
+
+    private void fillFinalScoreDetail(LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+        LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
+        List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
+        Map<LocalDate, Map<String, CategoryResultEntity>> localDateMapMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt, Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young)));
+        localDateMapMap.forEach((dt, domainMap) -> {
+            ScorecardDetailItemVO scorecardItem = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(scorecardItem);
+            Map<String, Double> extMap = new HashMap<>();
+            scorecardItem.setExtMap(extMap);
+            domainMap.forEach((domain, entity) -> extMap.put(domain, entity.getFinalScore().doubleValue()));
+        });
     }
 }

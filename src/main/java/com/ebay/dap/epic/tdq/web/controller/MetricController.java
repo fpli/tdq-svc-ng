@@ -3,9 +3,11 @@ package com.ebay.dap.epic.tdq.web.controller;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.vo.MetricChartVO;
 import com.ebay.dap.epic.tdq.data.vo.MetricQueryParamVO;
+import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.MetricService;
+import com.ebay.dap.epic.tdq.service.ScorecardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -32,6 +35,9 @@ public class MetricController {
     private MetricService metricService;
     @Autowired
     private BatchMetricService batchMetricService;
+
+    @Autowired
+    private ScorecardService scorecardService;
 
 
     @Operation(summary = "create a new metric")
@@ -60,4 +66,10 @@ public class MetricController {
         return batchMetricService.retrieveDimensionsByMetricKey(metricKey, date);
     }
 
+    @Operation(summary = "list metric data")
+    @GetMapping("listMetric")
+    public List<ScorecardItemVO> listMetric(String metricKey){
+        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
+        return batchMetricService.listMetric(metricKey, date.minusMonths(1), date);
+    }
 }
