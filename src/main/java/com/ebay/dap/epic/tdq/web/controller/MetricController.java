@@ -7,22 +7,16 @@ import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 import com.ebay.dap.epic.tdq.service.BatchMetricService;
 import com.ebay.dap.epic.tdq.service.MetricService;
-import com.ebay.dap.epic.tdq.service.ScorecardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -35,9 +29,6 @@ public class MetricController {
     private MetricService metricService;
     @Autowired
     private BatchMetricService batchMetricService;
-
-    @Autowired
-    private ScorecardService scorecardService;
 
 
     @Operation(summary = "create a new metric")
@@ -69,7 +60,7 @@ public class MetricController {
     @Operation(summary = "list metric data")
     @GetMapping("listMetric")
     public List<ScorecardItemVO> listMetric(String metricKey){
-        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
+        LocalDate date = LocalDate.now();
         return batchMetricService.listMetric(metricKey, date.minusMonths(1), date);
     }
 }
