@@ -155,8 +155,8 @@ public class ScorecardServiceImpl implements ScorecardService {
     }
 
     private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
-        basicInfo.put("metric_key", metricKey); // todo: fill ext info
-        //
+        basicInfo.put("metric_key", metricKey);
+        // todo: fill ext info
         for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
             scorecardItemVOList.add(scorecardDetailItemVO);
