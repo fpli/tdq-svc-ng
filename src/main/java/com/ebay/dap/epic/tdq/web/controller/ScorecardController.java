@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
+import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailVO;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.service.ScorecardService;
 import com.ebay.dap.epic.tdq.service.scorecard.ExecutionEngine;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -45,19 +47,19 @@ public class ScorecardController {
         return scorecardService.listScore(date);
     }
 
-    @Operation(summary = "list Scorecard detail")
-    @GetMapping("listScoreDetail")
-    public List<ScorecardItemVO> listScoreDetail(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, String name){
-        if (date.isAfter(LocalDate.now())){
-            throw new IllegalArgumentException("the parameter data: " + date + " can't be later than today.");
-        }
-        return scorecardService.listScoreDetail(name, date.minusMonths(1), date);
-    }
+
 
     @Operation(summary = "fetch Available Dates")
     @GetMapping("fetchAvailableDates")
     public List<String> fetchAvailableDates(){
         return scorecardService.fetchAvailableDates();
+    }
+
+    @Operation(summary = "list Scorecard detail")
+    @GetMapping("listScoreDetail")
+    public ScorecardDetailVO listScoreDetail(String type, String name){
+        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
+        return scorecardService.listScoreDetail(type, name, date.minusMonths(1), date);
     }
 
 }

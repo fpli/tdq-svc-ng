@@ -4,20 +4,14 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ScorecardItemVO {
-
-    Integer id;
-    Integer pid;
-    String key;
-    String category;
-    String checkedItem;
-    String date;
-    String type;
-
-    Map<String, Double> extMap = new HashMap<>();
+public class ScorecardDetailVO {
+    Map<String, String> basicInfo = new HashMap<>();
+    List<ScorecardDetailItemVO> list = new ArrayList<>();
 }
