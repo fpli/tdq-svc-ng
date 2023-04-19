@@ -1,6 +1,6 @@
 package com.ebay.dap.epic.tdq.service;
 
-import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailItemVO;
+import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailVO;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 
 import java.time.LocalDate;
@@ -12,5 +12,5 @@ public interface ScorecardService {
 
     List<String> fetchAvailableDates();
 
-    List<ScorecardDetailItemVO> listScoreDetail(String type, String name, LocalDate begin, LocalDate end);
+    ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end);
 }

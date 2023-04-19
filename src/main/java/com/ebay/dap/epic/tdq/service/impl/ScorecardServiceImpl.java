@@ -11,6 +11,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.RuleResultMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailItemVO;
+import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailVO;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import com.ebay.dap.epic.tdq.service.MetricService;
 import com.ebay.dap.epic.tdq.service.ScorecardService;
@@ -124,15 +125,16 @@ public class ScorecardServiceImpl implements ScorecardService {
     }
 
     @Override
-    public List<ScorecardDetailItemVO> listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
-        List<ScorecardDetailItemVO> scorecardItemVOList = new ArrayList<>();
+    public ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
+        ScorecardDetailVO scorecardDetailVO = new ScorecardDetailVO();
+        List<ScorecardDetailItemVO> scorecardItemVOList = scorecardDetailVO.getList();
         switch (type) {
             case "finalScore" -> fillFinalScoreDetail(begin, end, scorecardItemVOList);
-            case "checkItem" -> fillCheckedItemDetail(name, begin, end, scorecardItemVOList);
+            case "checkItem" -> fillCheckedItemDetail(name, begin, end, scorecardItemVOList, scorecardDetailVO.getBasicInfo());
             case "category" -> fillCategoryDetail(name, begin, end, scorecardItemVOList);
         }
         scorecardItemVOList.sort(Comparator.comparing(ScorecardDetailItemVO::getDate));
-        return scorecardItemVOList;
+        return scorecardDetailVO;
     }
 
     private void fillCategoryDetail(String category, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
@@ -151,7 +153,8 @@ public class ScorecardServiceImpl implements ScorecardService {
         });
     }
 
-    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
+        basicInfo.put("metric_key", metricKey); // todo: fill ext info
         for (int i = 0; i <= Period.between(begin, end).getDays(); i++) {
             ScorecardDetailItemVO node = new ScorecardDetailItemVO();
             scorecardItemVOList.add(node);
