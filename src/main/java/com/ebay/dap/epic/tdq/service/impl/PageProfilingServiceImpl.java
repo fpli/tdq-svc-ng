@@ -70,7 +70,7 @@ public class PageProfilingServiceImpl implements PageProfilingService {
     private final ConcurrentMap<String, List<Integer>> pageFamilyMap = new ConcurrentHashMap<>();
 
     @Override
-    @Scheduled(cron = "0 0 11 * * *")
+    @Scheduled(cron = "0 0 11 * * *", zone = "GMT-7")
     @PostConstruct
     public void cleanUp() {
         cache.clear();
