@@ -81,7 +81,7 @@ public class ScorecardServiceImpl implements ScorecardService {
                 node.setType("checkItem");
                 node.setId(atomicInteger.getAndIncrement());
                 node.setPid(scorecardItem.getId());
-                node.setCheckedItem(item.getName());
+                node.setCheckedItem(item.getMetricKeys());
                 node.setCategory(item.getCategory().name());
                 Map<String, Double> nodeMap = new HashMap<>();
                 node.setExtMap(nodeMap);
@@ -112,7 +112,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         scorecardItem.setType("finalScore");
         scorecardItem.setId(id);
         scorecardItem.setPid(0);
-        scorecardItem.setCheckedItem("");
+        scorecardItem.setCheckedItem("finalScore");
         scorecardItem.setCategory("Final Score");
         Map<String, Double> map = new HashMap<>();
         scorecardItem.setExtMap(map);
@@ -126,6 +126,7 @@ public class ScorecardServiceImpl implements ScorecardService {
 
     @Override
     public ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
+        log.info("type:{}, name: {}, begin: {}, end: {}", type, name, begin, end);
         ScorecardDetailVO scorecardDetailVO = new ScorecardDetailVO();
         List<ScorecardDetailItemVO> scorecardItemVOList = scorecardDetailVO.getList();
         switch (type) {
