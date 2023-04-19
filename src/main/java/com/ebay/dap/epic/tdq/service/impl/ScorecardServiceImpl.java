@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -145,25 +145,26 @@ public class ScorecardServiceImpl implements ScorecardService {
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<LocalDate, List<CategoryResultEntity>> dateListMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt));
         dateListMap.forEach((dt, list) -> {
-            ScorecardDetailItemVO scorecardItem = new ScorecardDetailItemVO();
-            scorecardItemVOList.add(scorecardItem);
-            scorecardItem.setDate(dt.toString());
+            ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(scorecardDetailItemVO);
+            scorecardDetailItemVO.setDate(dt.toString());
             Map<String, Double> map = new HashMap<>();
-            scorecardItem.setExtMap(map);
+            scorecardDetailItemVO.setExtMap(map);
             list.forEach(r -> map.put(r.getDomain(), r.getSubTotal().doubleValue()));
         });
     }
 
     private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
         basicInfo.put("metric_key", metricKey); // todo: fill ext info
-        for (int i = 0; i <= Period.between(begin, end).getDays(); i++) {
-            ScorecardDetailItemVO node = new ScorecardDetailItemVO();
-            scorecardItemVOList.add(node);
-            node.setDate(begin.plusDays(i).toString());
-            Map<String, Double> nodeMap = new HashMap<>();
-            node.setExtMap(nodeMap);
+        //
+        for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
+            ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(scorecardDetailItemVO);
+            scorecardDetailItemVO.setDate(begin.plusDays(i).toString());
+            Map<String, Double> extMap = new HashMap<>();
+            scorecardDetailItemVO.setExtMap(extMap);
             List<MetricDoc> metricDocList = metricService.getDailyMetrics(begin.plusDays(i), metricKey);
-            metricDocList.forEach(metricDoc -> nodeMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
+            metricDocList.forEach(metricDoc -> extMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
         }
     }
 
@@ -173,10 +174,11 @@ public class ScorecardServiceImpl implements ScorecardService {
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<LocalDate, Map<String, CategoryResultEntity>> localDateMapMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt, Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young)));
         localDateMapMap.forEach((dt, domainMap) -> {
-            ScorecardDetailItemVO scorecardItem = new ScorecardDetailItemVO();
-            scorecardItemVOList.add(scorecardItem);
+            ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
+            scorecardItemVOList.add(scorecardDetailItemVO);
+            scorecardDetailItemVO.setDate(dt.toString());
             Map<String, Double> extMap = new HashMap<>();
-            scorecardItem.setExtMap(extMap);
+            scorecardDetailItemVO.setExtMap(extMap);
             domainMap.forEach((domain, entity) -> extMap.put(domain, entity.getFinalScore().doubleValue()));
         });
     }
