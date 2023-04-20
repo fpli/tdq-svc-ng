@@ -2,12 +2,14 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.RuleResultEntity;
 import com.ebay.dap.epic.tdq.data.enums.Category;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.CategoryResultMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.MetricInfoMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.RuleResultMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.ScorecardDetailItemVO;
@@ -42,6 +44,9 @@ public class ScorecardServiceImpl implements ScorecardService {
 
     @Autowired
     private MetricService metricService;
+
+    @Autowired
+    private MetricInfoMapper metricInfoMapper;
 
     @Override
     public List<ScorecardItemVO> listScore(LocalDate date) {
@@ -165,13 +170,14 @@ public class ScorecardServiceImpl implements ScorecardService {
     }
 
     private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
-        LambdaQueryWrapper<GroovyRuleDefEntity> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(GroovyRuleDefEntity::getMetricKeys, metricKey);
-        GroovyRuleDefEntity groovyRuleDefEntity = ruleDefMapper.selectOne(queryWrapper);
-        basicInfo.put("metric_key", metricKey);
+        LambdaQueryWrapper<MetricInfoEntity> lambdaQueryWrapper =  Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(MetricInfoEntity::getMetricKey, metricKey);
+        MetricInfoEntity metricInfoEntity = metricInfoMapper.selectOne(lambdaQueryWrapper);
+
+        basicInfo.put("metric_key", metricInfoEntity.getMetricKey());
         // todo: fill ext info
-        basicInfo.put("metric_name", groovyRuleDefEntity.getName());
-        basicInfo.put("description", "description");
+        basicInfo.put("metric_name", metricInfoEntity.getMetricName());
+        basicInfo.put("description", metricInfoEntity.getDescription());
 
         for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
