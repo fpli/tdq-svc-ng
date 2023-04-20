@@ -165,8 +165,14 @@ public class ScorecardServiceImpl implements ScorecardService {
     }
 
     private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
+        LambdaQueryWrapper<GroovyRuleDefEntity> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(GroovyRuleDefEntity::getMetricKeys, metricKey);
+        GroovyRuleDefEntity groovyRuleDefEntity = ruleDefMapper.selectOne(queryWrapper);
         basicInfo.put("metric_key", metricKey);
         // todo: fill ext info
+        basicInfo.put("metric_name", groovyRuleDefEntity.getName());
+        basicInfo.put("description", "description");
+
         for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
             scorecardItemVOList.add(scorecardDetailItemVO);
