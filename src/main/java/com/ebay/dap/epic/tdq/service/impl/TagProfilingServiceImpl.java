@@ -793,13 +793,15 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         String tagName = tagDetailFilterQueryVO.getTagName();
         LocalDate dt = tagDetailFilterQueryVO.getDate();
         LocalDate begin = dt.minusMonths(1).plusDays(1);
+        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(dt.plusDays(1)).toList());
         Map<String, Set<String>> dimensions = tagDetailFilterQueryVO.getDimensions();
         Map<String, TagDetailDTO> detailDTOMap = getTagCompleteness(tagName, begin, dt, dimensions);
         List<AnomalyItemEntity> anomalyItemEntityList = anomalyItemRepository.findAllByTypeAndRefIdAndDtBetween("tag", tagName, begin, dt);
 
-        return detailDTOMap.values().stream().peek(tagDetailDTO -> tagDetailDTO.setLocalDate(LocalDate.parse(tagDetailDTO.getDt(), dateTimeFormatter))).sorted(Comparator.comparing(TagDetailDTO::getLocalDate)).map(tagDetailDTO -> {
+        List<TagDetailVO> tagDetailVOList = detailDTOMap.values().stream().peek(tagDetailDTO -> tagDetailDTO.setLocalDate(LocalDate.parse(tagDetailDTO.getDt(), dateTimeFormatter))).sorted(Comparator.comparing(TagDetailDTO::getLocalDate)).map(tagDetailDTO -> {
             TagDetailVO tagDetailVO = new TagDetailVO();
             tagDetailVO.setDt(tagDetailDTO.getDt());
+            expectedDates.remove(tagDetailDTO.getLocalDate());
             tagDetailVO.setTagCount(tagDetailDTO.getTagCount());
             tagDetailVO.setEventCount(tagDetailDTO.getEventCount());
             if (tagDetailVO.getEventCount() == 0) {
@@ -824,6 +826,15 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             }
             return tagDetailVO;
         }).collect(Collectors.toList());
+
+        if (!expectedDates.isEmpty()){
+            expectedDates.forEach(date -> {
+                TagDetailVO tagDetailVO = new TagDetailVO();
+                tagDetailVO.setDt(date.toString());
+                tagDetailVOList.add(tagDetailVO);
+            });
+        }
+        return tagDetailVOList;
     }
 
     private Map<String, TagDetailDTO> getTagCompleteness(String tagName, LocalDate begin, LocalDate dt, Map<String, Set<String>> dimensions) {
