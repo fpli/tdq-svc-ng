@@ -55,7 +55,7 @@ public class RestTemplateConfig {
 
         requestFactory.setHttpClient(httpClientBuilder.build());
         //if (ConstantDefine.CUR_ENV.equalsIgnoreCase(ConstantDefine.ENV.QA)){
-        mmdCommonCfg.setUrl("http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:80/mmd/find-anomaly");
+//        mmdCommonCfg.setUrl("http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:80/mmd/find-anomaly");
 //        }
         return restTemplateBuilder.requestFactory(() -> requestFactory)
                 .rootUri(mmdCommonCfg.getUrl())
