@@ -904,10 +904,15 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             agg = searchResponse.getAggregations().get("agg");
             for (Histogram.Bucket bucket : agg.getBuckets()) {
                 String date = bucket.getKeyAsString();
-                TagDetailDTO tagDetailDTO = detailDTOMap.get(date);
-                if (tagDetailDTO == null) continue;
-                Sum eventTotal = bucket.getAggregations().get("eventTotal");
-                tagDetailDTO.setEventCount(eventTotal.getValue());
+                detailDTOMap.compute(date, (key, tagDetailDTO) -> {
+                    if (null == tagDetailDTO){
+                        tagDetailDTO = new TagDetailDTO();
+                        tagDetailDTO.setDt(date);
+                    }
+                    Sum eventTotal = bucket.getAggregations().get("eventTotal");
+                    tagDetailDTO.setEventCount(eventTotal.getValue());
+                    return tagDetailDTO;
+                });
             }
             return detailDTOMap;
         } catch (Exception e) {
