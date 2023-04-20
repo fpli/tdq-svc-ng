@@ -127,24 +127,34 @@ public class ScorecardServiceImpl implements ScorecardService {
     @Override
     public ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
         log.info("type:{}, name: {}, begin: {}, end: {}", type, name, begin, end);
+        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(end.plusDays(1)).toList());
         ScorecardDetailVO scorecardDetailVO = new ScorecardDetailVO();
         List<ScorecardDetailItemVO> scorecardItemVOList = scorecardDetailVO.getList();
         switch (type) {
-            case "finalScore" -> fillFinalScoreDetail(begin, end, scorecardItemVOList);
-            case "checkItem" -> fillCheckedItemDetail(name, begin, end, scorecardItemVOList, scorecardDetailVO.getBasicInfo());
-            case "category" -> fillCategoryDetail(name, begin, end, scorecardItemVOList);
+            case "finalScore" -> fillFinalScoreDetail(begin, end, expectedDates, scorecardItemVOList);
+            case "checkItem" -> fillCheckedItemDetail(name, begin, end, expectedDates, scorecardItemVOList, scorecardDetailVO.getBasicInfo());
+            case "category" -> fillCategoryDetail(name, begin, end, expectedDates, scorecardItemVOList);
+        }
+        // fill absent date
+        if (!expectedDates.isEmpty()){
+            expectedDates.forEach(dt -> {
+                ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
+                scorecardItemVOList.add(scorecardDetailItemVO);
+                scorecardDetailItemVO.setDate(dt.toString());
+            });
         }
         scorecardItemVOList.sort(Comparator.comparing(ScorecardDetailItemVO::getDate));
         return scorecardDetailVO;
     }
 
-    private void fillCategoryDetail(String category, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+    private void fillCategoryDetail(String category, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
         lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
         lambdaQueryWrapper.eq(CategoryResultEntity::getCategory, category);
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<LocalDate, List<CategoryResultEntity>> dateListMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt));
         dateListMap.forEach((dt, list) -> {
+            expectedDates.remove(dt);
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
             scorecardItemVOList.add(scorecardDetailItemVO);
             scorecardDetailItemVO.setDate(dt.toString());
@@ -154,21 +164,23 @@ public class ScorecardServiceImpl implements ScorecardService {
         });
     }
 
-    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
+    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
         basicInfo.put("metric_key", metricKey);
         // todo: fill ext info
         for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
             scorecardItemVOList.add(scorecardDetailItemVO);
-            scorecardDetailItemVO.setDate(begin.plusDays(i).toString());
+            LocalDate dt = begin.plusDays(i);
+            expectedDates.remove(dt);
+            scorecardDetailItemVO.setDate(dt.toString());
             Map<String, Double> extMap = new HashMap<>();
             scorecardDetailItemVO.setExtMap(extMap);
-            List<MetricDoc> metricDocList = metricService.getDailyMetrics(begin.plusDays(i), metricKey);
+            List<MetricDoc> metricDocList = metricService.getDailyMetrics(dt, metricKey);
             metricDocList.forEach(metricDoc -> extMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
         }
     }
 
-    private void fillFinalScoreDetail(LocalDate begin, LocalDate end, List<ScorecardDetailItemVO> scorecardItemVOList) {
+    private void fillFinalScoreDetail(LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
         lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
@@ -177,6 +189,7 @@ public class ScorecardServiceImpl implements ScorecardService {
             ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
             scorecardItemVOList.add(scorecardDetailItemVO);
             scorecardDetailItemVO.setDate(dt.toString());
+            expectedDates.remove(dt);
             Map<String, Double> extMap = new HashMap<>();
             scorecardDetailItemVO.setExtMap(extMap);
             domainMap.forEach((domain, entity) -> extMap.put(domain, entity.getFinalScore().doubleValue()));

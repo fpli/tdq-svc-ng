@@ -36,7 +36,7 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         // 1. get pages of traffic > 10 million
         List<Integer> pages = nonBotPageCountRepo.findLargePageIdsOfDt(10000000L, dt.format(formatter));
-        log.info("Large volume pages cnt: {}, page list: {}", pages.size(), pages);
+        log.info("Large volume pages cnt: {}, page list: {}, dt: {}", pages.size(), pages, dt);
 
         for (List<Integer> bulkPages : Lists.partition(pages, 10)) {
             List<NonBotPageCountEntity> pageHisTraffic =
