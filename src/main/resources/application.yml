@@ -56,7 +56,7 @@ springdoc:
 mmd-common-cfg:
   # url: http://10.78.235.92/mmd/find-anomaly
   #http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:8848/mmd/find-anomaly
-  url: http://mmd-on-demand-api-svc.mmd-qa-ns.svc.57.tess.io/mmd/find-anomaly
+  url: https://mmd.dss.vip.ebay.com/api/mmd/find-anomaly
   head-params:
     BI_CLIENT_APP_ID: TDQ_hourly
     BI_CLIENT_APP_KEY: tdQ_MMD_AweS0ME
