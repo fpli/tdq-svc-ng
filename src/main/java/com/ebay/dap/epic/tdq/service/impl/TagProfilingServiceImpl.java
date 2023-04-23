@@ -991,7 +991,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
                 map.compute(date, (key, dailyTagSizeWithPercentVO) -> {
                     if (dailyTagSizeWithPercentVO == null) {
                         dailyTagSizeWithPercentVO = new DailyTagSizeWithPercentVO();
-                        dailyTagSizeWithPercentVO.setDt(date);
+                        dailyTagSizeWithPercentVO.setDt(key);
                     } else {
                         Sum totalTagSize = bucket.getAggregations().get("totalTagSize");
                         if (totalTagSize.getValue() != 0) {
