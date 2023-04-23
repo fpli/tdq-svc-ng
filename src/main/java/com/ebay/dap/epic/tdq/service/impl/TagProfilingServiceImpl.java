@@ -781,9 +781,21 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         } else {
             tagMetaDataVO.setDailyTagSizePercent(Double.toString(getPercent(tagMetaDataVO.getDailyTagSize(), totalTagSize)));
         }
-        List<UsageOfDayVO> usageOfDayVOList = getTagUsage(tagName, dt.minusMonths(1), dt);
+        LocalDate begin = dt.minusMonths(1).plusDays(1);
+        List<UsageOfDayVO> usageOfDayVOList = getTagUsage(tagName, dt.minusMonths(1).plusDays(1), dt);
         tagMetaDataVO.setUsageOfDayVOList(usageOfDayVOList);
+
+        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(dt.plusDays(1)).toList());
         List<DailyTagSizeWithPercentVO> dailyTagSizeWithPercentVOList = getDailyTagSizeWithPercentBatch(tagName, dt);
+        List<String> list = dailyTagSizeWithPercentVOList.stream().map(DailyTagSizeWithPercentVO::getDt).toList();
+        List<LocalDate> localDateList = expectedDates.stream().dropWhile(item -> list.contains(item.toString())).toList();
+        if (!localDateList.isEmpty()){
+            localDateList.forEach(localDate -> {
+                DailyTagSizeWithPercentVO dailyTagSizeWithPercentVO = new DailyTagSizeWithPercentVO();
+                dailyTagSizeWithPercentVOList.add(dailyTagSizeWithPercentVO);
+                dailyTagSizeWithPercentVO.setDt(localDateList.toString());
+            });
+        }
         tagMetaDataVO.setDailyTagSizeWithPercentVOList(dailyTagSizeWithPercentVOList);
         return tagMetaDataVO;
     }
@@ -930,7 +942,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             SearchSourceBuilder builder = new SearchSourceBuilder();
             BoolQueryBuilder rootBuilder = QueryBuilders.boolQuery();
             rootBuilder.must(QueryBuilders.termQuery("metric_key", "profiling_tag_size"));
-            LocalDate begin = dt.minusMonths(1);
+            LocalDate begin = dt.minusMonths(1).plusDays(1);
             rootBuilder.must(QueryBuilders.rangeQuery("dt").gte(dateTimeFormatter.format(begin)).lte(dateTimeFormatter.format(dt)));
             rootBuilder.filter(QueryBuilders.existsQuery("expr.tag_size_attr.tagMap." + tagName));
             builder.query(rootBuilder);
@@ -976,15 +988,21 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             agg = searchResponse.getAggregations().get("agg");
             for (Histogram.Bucket bucket : agg.getBuckets()) {
                 String date = bucket.getKeyAsString();
-                DailyTagSizeWithPercentVO dailyTagSizeWithPercentVO = map.get(date);
-                if (dailyTagSizeWithPercentVO == null) continue;
-                Sum totalTagSize = bucket.getAggregations().get("totalTagSize");
-                if (totalTagSize.getValue() != 0) {
-                    double percent = getPercent(dailyTagSizeWithPercentVO.getTagSize(), totalTagSize.getValue());
-                    dailyTagSizeWithPercentVO.setPercent(percent);
-                } else {
-                    dailyTagSizeWithPercentVO.setPercent(0);
-                }
+                map.compute(date, (key, dailyTagSizeWithPercentVO) -> {
+                    if (dailyTagSizeWithPercentVO == null) {
+                        dailyTagSizeWithPercentVO = new DailyTagSizeWithPercentVO();
+                        dailyTagSizeWithPercentVO.setDt(date);
+                    } else {
+                        Sum totalTagSize = bucket.getAggregations().get("totalTagSize");
+                        if (totalTagSize.getValue() != 0) {
+                            double percent = getPercent(dailyTagSizeWithPercentVO.getTagSize(), totalTagSize.getValue());
+                            dailyTagSizeWithPercentVO.setPercent(percent);
+                        } else {
+                            dailyTagSizeWithPercentVO.setPercent(0);
+                        }
+                    }
+                    return dailyTagSizeWithPercentVO;
+                });
             }
             return dailyTagSizeWithPercentVOList;
         } catch (IOException e) {
