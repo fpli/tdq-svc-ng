@@ -793,7 +793,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             localDateList.forEach(localDate -> {
                 DailyTagSizeWithPercentVO dailyTagSizeWithPercentVO = new DailyTagSizeWithPercentVO();
                 dailyTagSizeWithPercentVOList.add(dailyTagSizeWithPercentVO);
-                dailyTagSizeWithPercentVO.setDt(localDateList.toString());
+                dailyTagSizeWithPercentVO.setDt(localDate.toString());
             });
         }
         tagMetaDataVO.setDailyTagSizeWithPercentVOList(dailyTagSizeWithPercentVOList);
