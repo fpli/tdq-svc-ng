@@ -796,6 +796,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
                 dailyTagSizeWithPercentVO.setDt(localDate.toString());
             });
         }
+        dailyTagSizeWithPercentVOList.sort(Comparator.comparing(DailyTagSizeWithPercentVO::getDt));
         tagMetaDataVO.setDailyTagSizeWithPercentVOList(dailyTagSizeWithPercentVOList);
         return tagMetaDataVO;
     }
