@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
+import com.ebay.dap.epic.tdq.data.vo.DateVo;
 import com.ebay.dap.epic.tdq.data.vo.report.MetadataDetailVo;
 import com.ebay.dap.epic.tdq.data.vo.report.MetadataSummaryVo;
 import com.ebay.dap.epic.tdq.service.ReportService;
@@ -55,5 +56,11 @@ public class ReportController {
                                                   @RequestParam("metric_id") Integer metricId,
                                                   @RequestParam("dt") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dt) {
         return reportService.getModuleDetail(domain, metricId, dt);
+    }
+
+    @Operation(summary = "Get latest report date")
+    @GetMapping(path = "/metadata/latest_dt")
+    public ResponseEntity<DateVo> getLatestDt() {
+        return ResponseEntity.ok(new DateVo(reportService.getLatestDt()));
     }
 }

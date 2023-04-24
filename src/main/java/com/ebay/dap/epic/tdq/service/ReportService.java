@@ -43,4 +43,6 @@ public interface ReportService {
      * @return
      */
     List<MetadataDetailVo> getModuleDetail(String domain, Integer metricId, LocalDate dt);
+
+    LocalDate getLatestDt();
 }

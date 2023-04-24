@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class AnomalyDetectorImpl implements AnomalyDetector {
 
     @Autowired
-    private NonBotPageCountMapper nonBotPageCountRepo;
+    private NonBotPageCountMapper nonBotPageCountMapper;
 
     @Autowired
     private MMDService mmdService;
@@ -34,13 +34,13 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
     @Override
     public void findAbnormalPages(LocalDate dt) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        // 1. get pages of traffic > 10 million
-        List<Integer> pages = nonBotPageCountRepo.findLargePageIdsOfDt(10000000L, dt.format(formatter));
-        log.info("Large volume pages cnt: {}, page list: {}, dt: {}", pages.size(), pages, dt);
+        // 1. get pages id list with traffic > 10 million and first seen date is past 3 months
+        List<Integer> pages = nonBotPageCountMapper.findPageIdsForMMD(dt);
+        log.info("PageId list for sending to MMD: {}, count: {}, dt: {}", pages, pages.size(), dt);
 
         for (List<Integer> bulkPages : Lists.partition(pages, 10)) {
             List<NonBotPageCountEntity> pageHisTraffic =
-                    nonBotPageCountRepo.findAllByPageIdInAndDtGreaterThanEqualAndDtLessThanEqual(bulkPages,
+                    nonBotPageCountMapper.findAllByPageIdInAndDtGreaterThanEqualAndDtLessThanEqual(bulkPages,
                             dt.minusDays(90).format(formatter),
                             dt.format(formatter));
 

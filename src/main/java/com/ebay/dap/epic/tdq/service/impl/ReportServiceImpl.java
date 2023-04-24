@@ -110,9 +110,17 @@ public class ReportServiceImpl implements ReportService {
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public LocalDate getLatestDt() {
+        QueryWrapper<MetadataSummaryEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("max(dt) as dt");
+        MetadataSummaryEntity entity = metadataSummaryMapper.selectOne(queryWrapper);
+        return entity.getDt();
+    }
+
     private List<MetadataSummaryVo> getSummaryReportVoList(String metadataType, LocalDate dt) {
         if (dt == null) {
-            dt = getLatestDtOfSummary();
+            dt = getLatestDt();
             log.info("No date provided, use the latest source date {} to get the metadata summary.", dt);
         }
 
@@ -130,13 +138,6 @@ public class ReportServiceImpl implements ReportService {
             vo.setAll(e.getAllExp());
             return vo;
         }).collect(Collectors.toList());
-    }
-
-    private LocalDate getLatestDtOfSummary() {
-        QueryWrapper<MetadataSummaryEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("max(dt) as dt");
-        MetadataSummaryEntity entity = metadataSummaryMapper.selectOne(queryWrapper);
-        return entity.getDt();
     }
 
 }
