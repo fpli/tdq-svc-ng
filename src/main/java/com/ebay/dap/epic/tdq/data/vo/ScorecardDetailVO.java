@@ -13,5 +13,14 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ScorecardDetailVO {
     Map<String, String> basicInfo = new HashMap<>();
+    List<DateRangeItem> dateRangeItemList = new ArrayList<>();
     List<ScorecardDetailItemVO> list = new ArrayList<>();
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class DateRangeItem {
+        String label;
+        String value;
+        boolean disabled;
+    }
+
 }

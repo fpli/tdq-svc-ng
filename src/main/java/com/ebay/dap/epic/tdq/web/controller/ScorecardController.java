@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/scorecard")
@@ -47,8 +47,6 @@ public class ScorecardController {
         return scorecardService.listScore(date);
     }
 
-
-
     @Operation(summary = "fetch Available Dates")
     @GetMapping("fetchAvailableDates")
     public List<String> fetchAvailableDates(){
@@ -57,9 +55,9 @@ public class ScorecardController {
 
     @Operation(summary = "list Scorecard detail")
     @GetMapping("listScoreDetail")
-    public ScorecardDetailVO listScoreDetail(String type, String name){
-        LocalDate date = LocalDate.parse(Collections.max(scorecardService.fetchAvailableDates()));
-        return scorecardService.listScoreDetail(type, name, date.minusMonths(1), date);
+    public ScorecardDetailVO listScoreDetail(String type, String name, @RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin){
+        LocalDate date = LocalDate.now().minusDays(1);
+        return scorecardService.listScoreDetail(type, name, Objects.requireNonNullElseGet(begin, () -> date.minusMonths(1)), date);
     }
 
 }
