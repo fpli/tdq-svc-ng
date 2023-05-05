@@ -167,90 +167,95 @@ public class ScorecardServiceImpl implements ScorecardService {
         ScorecardDetailVO.DateRangeItem lastOneYear = new ScorecardDetailVO.DateRangeItem();
         lastOneYear.setValue(pos.minusYears(1).toString());
         lastOneYear.setLabel("last one year");
-        LocalDate first = categoryResultMapper.getMinDt();
-        LocalDate last = categoryResultMapper.getMaxDt();
-        if (pos.minusYears(1).isBefore(first)){
-            if (first.isAfter(pos.minusMonths(1))){
-                lastOneMonth.setDisabled(false);
-                dateRangeItemList.add(lastOneMonth);
-                lastThreeMonths.setDisabled(true);
-                dateRangeItemList.add(lastThreeMonths);
-                lastSixMonths.setDisabled(true);
-                dateRangeItemList.add(lastSixMonths);
-                lastOneYear.setDisabled(true);
-                dateRangeItemList.add(lastOneYear);
-            } else {
-                if (first.isAfter(pos.minusMonths(3))){
-                    lastThreeMonths.setDisabled(false);
-                    dateRangeItemList.add(lastThreeMonths);
-                    lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-                    dateRangeItemList.add(lastOneMonth);
-                    lastSixMonths.setDisabled(true);
-                    dateRangeItemList.add(lastSixMonths);
-                    lastOneYear.setDisabled(true);
-                    dateRangeItemList.add(lastOneYear);
-                } else {
-                    if (first.isAfter(pos.minusMonths(6))){
-                        lastSixMonths.setDisabled(false);
-                        dateRangeItemList.add(lastSixMonths);
-                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-                        dateRangeItemList.add(lastOneMonth);
-                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
-                        dateRangeItemList.add(lastThreeMonths);
-                    } else {
-                        lastOneYear.setDisabled(false);
-                        dateRangeItemList.add(lastOneYear);
-                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-                        dateRangeItemList.add(lastOneMonth);
-                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
-                        dateRangeItemList.add(lastThreeMonths);
-                        lastSixMonths.setDisabled(!last.isAfter(pos.minusMonths(6)));
-                        dateRangeItemList.add(lastSixMonths);
-                    }
-                }
-            }
-        } else {
-            if (last.isBefore(pos.minusYears(1))){
-                lastOneYear.setDisabled(true);
-                dateRangeItemList.add(lastOneYear);
-                lastSixMonths.setDisabled(true);
-                dateRangeItemList.add(lastSixMonths);
-                lastThreeMonths.setDisabled(true);
-                dateRangeItemList.add(lastThreeMonths);
-                lastOneMonth.setDisabled(true);
-                dateRangeItemList.add(lastOneMonth);
-            } else {
-                lastOneYear.setDisabled(false);
-                dateRangeItemList.add(lastOneYear);
-                if (last.isBefore(pos.minusMonths(6))){
-                    lastSixMonths.setDisabled(true);
-                    dateRangeItemList.add(lastSixMonths);
-                    lastThreeMonths.setDisabled(true);
-                    dateRangeItemList.add(lastThreeMonths);
-                    lastOneMonth.setDisabled(true);
-                    dateRangeItemList.add(lastOneMonth);
-                } else {
-                    lastSixMonths.setDisabled(false);
-                    dateRangeItemList.add(lastSixMonths);
-                    if (last.isBefore(pos.minusMonths(3))){
-                        lastThreeMonths.setDisabled(true);
-                        dateRangeItemList.add(lastThreeMonths);
-                        lastOneMonth.setDisabled(true);
-                        dateRangeItemList.add(lastOneMonth);
-                    } else {
-                        lastThreeMonths.setDisabled(false);
-                        dateRangeItemList.add(lastThreeMonths);
-                        if (last.isBefore(pos.minusMonths(1))){
-                            lastOneMonth.setDisabled(true);
-                            dateRangeItemList.add(lastOneMonth);
-                        } else {
-                            lastOneMonth.setDisabled(false);
-                            dateRangeItemList.add(lastOneMonth);
-                        }
-                    }
-                }
-            }
-        }
+
+        dateRangeItemList.add(lastOneYear);
+        dateRangeItemList.add(lastSixMonths);
+        dateRangeItemList.add(lastThreeMonths);
+        dateRangeItemList.add(lastOneMonth);
+//        LocalDate first = categoryResultMapper.getMinDt();
+//        LocalDate last = categoryResultMapper.getMaxDt();
+//        if (pos.minusYears(1).isBefore(first)){
+//            if (first.isAfter(pos.minusMonths(1))){
+//                lastOneMonth.setDisabled(false);
+//                dateRangeItemList.add(lastOneMonth);
+//                lastThreeMonths.setDisabled(true);
+//                dateRangeItemList.add(lastThreeMonths);
+//                lastSixMonths.setDisabled(true);
+//                dateRangeItemList.add(lastSixMonths);
+//                lastOneYear.setDisabled(true);
+//                dateRangeItemList.add(lastOneYear);
+//            } else {
+//                if (first.isAfter(pos.minusMonths(3))){
+//                    lastThreeMonths.setDisabled(false);
+//                    dateRangeItemList.add(lastThreeMonths);
+//                    lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
+//                    dateRangeItemList.add(lastOneMonth);
+//                    lastSixMonths.setDisabled(true);
+//                    dateRangeItemList.add(lastSixMonths);
+//                    lastOneYear.setDisabled(true);
+//                    dateRangeItemList.add(lastOneYear);
+//                } else {
+//                    if (first.isAfter(pos.minusMonths(6))){
+//                        lastSixMonths.setDisabled(false);
+//                        dateRangeItemList.add(lastSixMonths);
+//                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
+//                        dateRangeItemList.add(lastOneMonth);
+//                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
+//                        dateRangeItemList.add(lastThreeMonths);
+//                    } else {
+//                        lastOneYear.setDisabled(false);
+//                        dateRangeItemList.add(lastOneYear);
+//                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
+//                        dateRangeItemList.add(lastOneMonth);
+//                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
+//                        dateRangeItemList.add(lastThreeMonths);
+//                        lastSixMonths.setDisabled(!last.isAfter(pos.minusMonths(6)));
+//                        dateRangeItemList.add(lastSixMonths);
+//                    }
+//                }
+//            }
+//        } else {
+//            if (last.isBefore(pos.minusYears(1))){
+//                lastOneYear.setDisabled(true);
+//                dateRangeItemList.add(lastOneYear);
+//                lastSixMonths.setDisabled(true);
+//                dateRangeItemList.add(lastSixMonths);
+//                lastThreeMonths.setDisabled(true);
+//                dateRangeItemList.add(lastThreeMonths);
+//                lastOneMonth.setDisabled(true);
+//                dateRangeItemList.add(lastOneMonth);
+//            } else {
+//                lastOneYear.setDisabled(false);
+//                dateRangeItemList.add(lastOneYear);
+//                if (last.isBefore(pos.minusMonths(6))){
+//                    lastSixMonths.setDisabled(true);
+//                    dateRangeItemList.add(lastSixMonths);
+//                    lastThreeMonths.setDisabled(true);
+//                    dateRangeItemList.add(lastThreeMonths);
+//                    lastOneMonth.setDisabled(true);
+//                    dateRangeItemList.add(lastOneMonth);
+//                } else {
+//                    lastSixMonths.setDisabled(false);
+//                    dateRangeItemList.add(lastSixMonths);
+//                    if (last.isBefore(pos.minusMonths(3))){
+//                        lastThreeMonths.setDisabled(true);
+//                        dateRangeItemList.add(lastThreeMonths);
+//                        lastOneMonth.setDisabled(true);
+//                        dateRangeItemList.add(lastOneMonth);
+//                    } else {
+//                        lastThreeMonths.setDisabled(false);
+//                        dateRangeItemList.add(lastThreeMonths);
+//                        if (last.isBefore(pos.minusMonths(1))){
+//                            lastOneMonth.setDisabled(true);
+//                            dateRangeItemList.add(lastOneMonth);
+//                        } else {
+//                            lastOneMonth.setDisabled(false);
+//                            dateRangeItemList.add(lastOneMonth);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         dateRangeItemList.sort(Comparator.comparing(ScorecardDetailVO.DateRangeItem::getValue).reversed());
     }
 
