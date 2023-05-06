@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,7 +57,12 @@ public class ScorecardController {
     @Operation(summary = "list Scorecard detail")
     @GetMapping("listScoreDetail")
     public ScorecardDetailVO listScoreDetail(String type, String name, @RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin){
-        LocalDate date = LocalDate.now().minusDays(1);
+        LocalDate date;
+        if (LocalDateTime.now().getHour() < 15){
+            date = LocalDate.now().minusDays(2);
+        } else {
+            date = LocalDate.now().minusDays(1);
+        }
         return scorecardService.listScoreDetail(type, name, Objects.requireNonNullElseGet(begin, () -> date.minusMonths(1)), date);
     }
 
