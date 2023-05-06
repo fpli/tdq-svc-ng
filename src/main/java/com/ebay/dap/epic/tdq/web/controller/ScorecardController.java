@@ -14,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +59,7 @@ public class ScorecardController {
     @GetMapping("listScoreDetail")
     public ScorecardDetailVO listScoreDetail(String type, String name, @RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin){
         LocalDate date;
-        if (LocalDateTime.now().getHour() < 15){
+        if (ZonedDateTime.now(ZoneId.of("GMT-7")).getHour() < 15){
             date = LocalDate.now().minusDays(2);
         } else {
             date = LocalDate.now().minusDays(1);
