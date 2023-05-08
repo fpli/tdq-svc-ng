@@ -117,7 +117,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         scorecardItem.setType("finalScore");
         scorecardItem.setId(id);
         scorecardItem.setPid(0);
-        scorecardItem.setCheckedItem("finalScore");
+        scorecardItem.setCheckedItem("FINAL SCORE");
         scorecardItem.setCategory("FINAL SCORE");
         Map<String, Double> map = new HashMap<>();
         scorecardItem.setExtMap(map);
