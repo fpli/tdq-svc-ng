@@ -758,7 +758,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
                 dimension.set(tag, arrayNode);
             }
             return dimension.toPrettyString();
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("retrieveDimensionsOfTag {}", e.getMessage());
             throw new RuntimeException(e);
         }
@@ -1092,7 +1092,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private String[] calculateIndexes(LocalDate from, LocalDate to) {
         Set<String> results = new HashSet<>();
         LocalDate date = from;
-        String env = "qa";
+        String env = "prod";
         while (!date.isAfter(to)) {
             String dt = dateTimeFormatter.format(date);
             String index = String.format(TDQ_PROFILING_METRIC_S_S, env, dt);
