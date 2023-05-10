@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -29,28 +27,27 @@ class DateUtilTest {
         long amountToSubtract = 1;
         List<LocalDate> localDates = DateUtil.datesStepBackBetween(lastYear, endDate, 1, ChronoUnit.MONTHS);
         System.out.println(localDates);
+        Assertions.assertThat(localDates).isNotEmpty();
+        Assertions.assertThat(localDates).contains(endDate.minusMonths(1));
+
         System.out.println(sixMonthsAgo + "---sixMonthsAgo---");
-        System.out.println(DateUtil.datesStepBackBetween(sixMonthsAgo, endDate, 2, ChronoUnit.WEEKS));
+        Assertions.assertThat(DateUtil.datesStepBackBetween(sixMonthsAgo, endDate, 2, ChronoUnit.WEEKS)).contains(endDate.minusWeeks(2));
         System.out.println(threeMonthsAgo + "--threeMonthsAgo---");
-        System.out.println(DateUtil.datesStepBackBetween(threeMonthsAgo, endDate, 1, ChronoUnit.WEEKS));
-        System.out.println(DateUtil.datesStepBackBetween(endDate.minusMonths(1), endDate, 1, ChronoUnit.DAYS));
+        Assertions.assertThat(DateUtil.datesStepBackBetween(threeMonthsAgo, endDate, 1, ChronoUnit.WEEKS)).contains(endDate.minusWeeks(3));
+        Assertions.assertThat(DateUtil.datesStepBackBetween(endDate.minusMonths(1), endDate, 1, ChronoUnit.DAYS)).contains(endDate.minusDays(10));
 
         System.out.println();
         System.out.println();
         Stream<LocalDate> localDateStream = DateUtil.datesStepBackBetween(lastYear, endDate, Period.ofMonths(1));
         System.out.println(localDateStream.toList());
-        System.out.println(DateUtil.datesStepBackBetween(sixMonthsAgo, endDate, Period.ofWeeks(2)).toList());
-        System.out.println(DateUtil.datesStepBackBetween(threeMonthsAgo, endDate, Period.ofWeeks(1)).toList());
+        Assertions.assertThat(DateUtil.datesStepBackBetween(sixMonthsAgo, endDate, Period.ofWeeks(2)).toList()).contains(endDate.minusWeeks(2));
+
+        Assertions.assertThat(DateUtil.datesStepBackBetween(threeMonthsAgo, endDate, Period.ofWeeks(1)).toList()).contains(endDate.minusWeeks(1));
         System.out.println("***************");
         List<LocalDate> localDateList = DateUtil.datesStepBackBetween(endDate.minusMonths(1), endDate, Period.ofDays(1)).toList();
 
-        ArrayList<LocalDate> localDates1 = new ArrayList<>(localDateList);
-        Iterator<LocalDate> listIterator = localDates1.iterator();
-        while(listIterator.hasNext()){
-            System.out.println(listIterator.next());
-            listIterator.remove();
-        }
-        System.out.println(localDates1);
+        Assertions.assertThat(localDateList).isNotEmpty();
+        Assertions.assertThat(localDateList).size().isGreaterThanOrEqualTo(30);
     }
 
 }
