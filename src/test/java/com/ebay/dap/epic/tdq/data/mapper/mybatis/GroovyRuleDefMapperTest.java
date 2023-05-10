@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +18,17 @@ class GroovyRuleDefMapperTest extends AbstractMapperTest {
 
     @Autowired
     private GroovyRuleDefMapper mapper;
+
+    @Autowired
+    private CategoryResultMapper categoryResultMapper;
+
+    @Test
+    public void t1(){
+        LocalDate maxDt = categoryResultMapper.getMaxDt();
+        System.out.println(maxDt);
+        LocalDate minDt = categoryResultMapper.getMinDt();
+        System.out.println(minDt);
+    }
 
     @Test
     void testInsert() {
