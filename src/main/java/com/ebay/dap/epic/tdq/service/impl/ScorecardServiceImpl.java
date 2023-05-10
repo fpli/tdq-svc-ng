@@ -2,6 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.common.util.TDQDateUtil;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
@@ -22,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.Period;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -129,17 +130,29 @@ public class ScorecardServiceImpl implements ScorecardService {
         domainMap.forEach((domain, entity) -> map.put(domain, entity.getFinalScore().doubleValue()));
     }
 
+    private Period getAvailablePeriod(String label) {
+        return switch (label){
+            case "last month" -> Period.ofDays(1);
+            case "last three months" -> Period.ofWeeks(1);
+            case "last six months" -> Period.ofWeeks(2);
+            case "last year" -> Period.ofMonths(1);
+            default -> throw new IllegalStateException("Unexpected value: " + label);
+        };
+    }
+
     @Override
-    public ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end) {
-        log.info("type:{}, name: {}, begin: {}, end: {}", type, name, begin, end);
-        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(end.plusDays(1)).toList());
+    public ScorecardDetailVO listScoreDetail(String type, String name, String label, LocalDate begin, LocalDate end) {
+        log.info("type:{}, name: {}, label: {}, begin: {}, end: {}", type, name, label, begin, end);
+        Period period = getAvailablePeriod(label);
+        List<LocalDate> expectedDates = new ArrayList<>(TDQDateUtil.datesStepBackBetween(begin, end, period).toList());
+//        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(end.plusDays(1)).toList());
         ScorecardDetailVO scorecardDetailVO = new ScorecardDetailVO();
         fillDateRange(scorecardDetailVO.getDateRangeItemList());
         List<ScorecardDetailItemVO> scorecardItemVOList = scorecardDetailVO.getList();
         switch (type) {
-            case "finalScore" -> fillFinalScoreDetail(begin, end, expectedDates, scorecardItemVOList);
-            case "checkItem" -> fillCheckedItemDetail(name, begin, end, expectedDates, scorecardItemVOList, scorecardDetailVO.getBasicInfo());
-            case "category" -> fillCategoryDetail(name, begin, end, expectedDates, scorecardItemVOList);
+            case "finalScore" -> fillFinalScoreDetail(expectedDates, scorecardItemVOList);
+            case "checkItem" -> fillCheckedItemDetail(name, expectedDates, scorecardItemVOList, scorecardDetailVO.getBasicInfo());
+            case "category" -> fillCategoryDetail(name, expectedDates, scorecardItemVOList);
         }
         // fill absent date
         if (!expectedDates.isEmpty()){
@@ -157,7 +170,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         LocalDate pos = LocalDate.now().minusDays(1);
         ScorecardDetailVO.DateRangeItem lastOneMonth = new ScorecardDetailVO.DateRangeItem();
         lastOneMonth.setValue(pos.minusMonths(1).toString());
-        lastOneMonth.setLabel("last one month");
+        lastOneMonth.setLabel("last month");
         ScorecardDetailVO.DateRangeItem lastThreeMonths = new ScorecardDetailVO.DateRangeItem();
         lastThreeMonths.setValue(pos.minusMonths(3).toString());
         lastThreeMonths.setLabel("last three months");
@@ -166,102 +179,18 @@ public class ScorecardServiceImpl implements ScorecardService {
         lastSixMonths.setLabel("last six months");
         ScorecardDetailVO.DateRangeItem lastOneYear = new ScorecardDetailVO.DateRangeItem();
         lastOneYear.setValue(pos.minusYears(1).toString());
-        lastOneYear.setLabel("last one year");
+        lastOneYear.setLabel("last year");
 
         dateRangeItemList.add(lastOneYear);
         dateRangeItemList.add(lastSixMonths);
         dateRangeItemList.add(lastThreeMonths);
         dateRangeItemList.add(lastOneMonth);
-//        LocalDate first = categoryResultMapper.getMinDt();
-//        LocalDate last = categoryResultMapper.getMaxDt();
-//        if (pos.minusYears(1).isBefore(first)){
-//            if (first.isAfter(pos.minusMonths(1))){
-//                lastOneMonth.setDisabled(false);
-//                dateRangeItemList.add(lastOneMonth);
-//                lastThreeMonths.setDisabled(true);
-//                dateRangeItemList.add(lastThreeMonths);
-//                lastSixMonths.setDisabled(true);
-//                dateRangeItemList.add(lastSixMonths);
-//                lastOneYear.setDisabled(true);
-//                dateRangeItemList.add(lastOneYear);
-//            } else {
-//                if (first.isAfter(pos.minusMonths(3))){
-//                    lastThreeMonths.setDisabled(false);
-//                    dateRangeItemList.add(lastThreeMonths);
-//                    lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-//                    dateRangeItemList.add(lastOneMonth);
-//                    lastSixMonths.setDisabled(true);
-//                    dateRangeItemList.add(lastSixMonths);
-//                    lastOneYear.setDisabled(true);
-//                    dateRangeItemList.add(lastOneYear);
-//                } else {
-//                    if (first.isAfter(pos.minusMonths(6))){
-//                        lastSixMonths.setDisabled(false);
-//                        dateRangeItemList.add(lastSixMonths);
-//                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-//                        dateRangeItemList.add(lastOneMonth);
-//                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
-//                        dateRangeItemList.add(lastThreeMonths);
-//                    } else {
-//                        lastOneYear.setDisabled(false);
-//                        dateRangeItemList.add(lastOneYear);
-//                        lastOneMonth.setDisabled(!last.isAfter(pos.minusMonths(1)));
-//                        dateRangeItemList.add(lastOneMonth);
-//                        lastThreeMonths.setDisabled(!last.isAfter(pos.minusMonths(3)));
-//                        dateRangeItemList.add(lastThreeMonths);
-//                        lastSixMonths.setDisabled(!last.isAfter(pos.minusMonths(6)));
-//                        dateRangeItemList.add(lastSixMonths);
-//                    }
-//                }
-//            }
-//        } else {
-//            if (last.isBefore(pos.minusYears(1))){
-//                lastOneYear.setDisabled(true);
-//                dateRangeItemList.add(lastOneYear);
-//                lastSixMonths.setDisabled(true);
-//                dateRangeItemList.add(lastSixMonths);
-//                lastThreeMonths.setDisabled(true);
-//                dateRangeItemList.add(lastThreeMonths);
-//                lastOneMonth.setDisabled(true);
-//                dateRangeItemList.add(lastOneMonth);
-//            } else {
-//                lastOneYear.setDisabled(false);
-//                dateRangeItemList.add(lastOneYear);
-//                if (last.isBefore(pos.minusMonths(6))){
-//                    lastSixMonths.setDisabled(true);
-//                    dateRangeItemList.add(lastSixMonths);
-//                    lastThreeMonths.setDisabled(true);
-//                    dateRangeItemList.add(lastThreeMonths);
-//                    lastOneMonth.setDisabled(true);
-//                    dateRangeItemList.add(lastOneMonth);
-//                } else {
-//                    lastSixMonths.setDisabled(false);
-//                    dateRangeItemList.add(lastSixMonths);
-//                    if (last.isBefore(pos.minusMonths(3))){
-//                        lastThreeMonths.setDisabled(true);
-//                        dateRangeItemList.add(lastThreeMonths);
-//                        lastOneMonth.setDisabled(true);
-//                        dateRangeItemList.add(lastOneMonth);
-//                    } else {
-//                        lastThreeMonths.setDisabled(false);
-//                        dateRangeItemList.add(lastThreeMonths);
-//                        if (last.isBefore(pos.minusMonths(1))){
-//                            lastOneMonth.setDisabled(true);
-//                            dateRangeItemList.add(lastOneMonth);
-//                        } else {
-//                            lastOneMonth.setDisabled(false);
-//                            dateRangeItemList.add(lastOneMonth);
-//                        }
-//                    }
-//                }
-//            }
-//        }
         dateRangeItemList.sort(Comparator.comparing(ScorecardDetailVO.DateRangeItem::getValue).reversed());
     }
 
-    private void fillCategoryDetail(String category, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
+    private void fillCategoryDetail(String category, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
-        lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
+        lambdaQueryWrapper.in(CategoryResultEntity::getDt, expectedDates);
         lambdaQueryWrapper.eq(CategoryResultEntity::getCategory, category);
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<LocalDate, List<CategoryResultEntity>> dateListMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt));
@@ -276,7 +205,7 @@ public class ScorecardServiceImpl implements ScorecardService {
         });
     }
 
-    private void fillCheckedItemDetail(String metricKey, LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
+    private void fillCheckedItemDetail(String metricKey, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList, Map<String, String> basicInfo) {
         LambdaQueryWrapper<MetricInfoEntity> lambdaQueryWrapper =  Wrappers.lambdaQuery();
         lambdaQueryWrapper.eq(MetricInfoEntity::getMetricKey, metricKey);
         MetricInfoEntity metricInfoEntity = metricInfoMapper.selectOne(lambdaQueryWrapper);
@@ -288,23 +217,27 @@ public class ScorecardServiceImpl implements ScorecardService {
 //        basicInfo.put("metric_name", "metricInfoEntity.getMetricName()");
         basicInfo.put("description", metricInfoEntity.getDescription());
 //        basicInfo.put("description", "metricInfoEntity.getDescription()");
-
-        for (int i = 0; i <= ChronoUnit.DAYS.between(begin, end); i++) {
-            ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
-            scorecardItemVOList.add(scorecardDetailItemVO);
-            LocalDate dt = begin.plusDays(i);
-            expectedDates.remove(dt);
-            scorecardDetailItemVO.setDate(dt.toString());
-            Map<String, Double> extMap = new HashMap<>();
-            scorecardDetailItemVO.setExtMap(extMap);
-            List<MetricDoc> metricDocList = metricService.getDailyMetrics(dt, metricKey);
-            metricDocList.forEach(metricDoc -> extMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
+        ListIterator<LocalDate> listIterator = expectedDates.listIterator();
+        while (listIterator.hasNext()){
+            LocalDate dt = listIterator.next();
+            try {
+                List<MetricDoc> metricDocList = metricService.getDailyMetrics(dt, metricKey);
+                ScorecardDetailItemVO scorecardDetailItemVO = new ScorecardDetailItemVO();
+                scorecardItemVOList.add(scorecardDetailItemVO);
+                scorecardDetailItemVO.setDate(dt.toString());
+                Map<String, Double> extMap = new HashMap<>();
+                scorecardDetailItemVO.setExtMap(extMap);
+                metricDocList.forEach(metricDoc -> extMap.put(metricDoc.getDimension().get("domain").toString(), metricDoc.getValue().doubleValue()));
+                listIterator.remove();
+            } catch (Exception e){
+                log.error("some errors occurred while querying metric ", e);
+            }
         }
     }
 
-    private void fillFinalScoreDetail(LocalDate begin, LocalDate end, List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
+    private void fillFinalScoreDetail(List<LocalDate> expectedDates, List<ScorecardDetailItemVO> scorecardItemVOList) {
         LambdaQueryWrapper<CategoryResultEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
-        lambdaQueryWrapper.between(CategoryResultEntity::getDt, begin, end);
+        lambdaQueryWrapper.in(CategoryResultEntity::getDt, expectedDates);
         List<CategoryResultEntity> categoryResultEntityList = categoryResultMapper.selectList(lambdaQueryWrapper);
         Map<LocalDate, Map<String, CategoryResultEntity>> localDateMapMap = categoryResultEntityList.stream().collect(Collectors.groupingBy(CategoryResultEntity::getDt, Collectors.toMap(CategoryResultEntity::getDomain, Function.identity(), (old, young) -> young)));
         localDateMapMap.forEach((dt, domainMap) -> {

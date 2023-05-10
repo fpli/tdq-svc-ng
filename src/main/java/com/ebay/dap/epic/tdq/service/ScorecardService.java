@@ -12,5 +12,5 @@ public interface ScorecardService {
 
     List<String> fetchAvailableDates();
 
-    ScorecardDetailVO listScoreDetail(String type, String name, LocalDate begin, LocalDate end);
+    ScorecardDetailVO listScoreDetail(String type, String name, String label, LocalDate begin, LocalDate end);
 }

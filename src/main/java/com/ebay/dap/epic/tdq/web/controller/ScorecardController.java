@@ -56,14 +56,14 @@ public class ScorecardController {
 
     @Operation(summary = "list Scorecard detail")
     @GetMapping("listScoreDetail")
-    public ScorecardDetailVO listScoreDetail(String type, String name, @RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin){
+    public ScorecardDetailVO listScoreDetail(String type, String name, String label, @RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin){
         LocalDate date;
         if (LocalDateTime.now().getHour() < 22){
             date = LocalDate.now().minusDays(2);
         } else {
             date = LocalDate.now().minusDays(1);
         }
-        return scorecardService.listScoreDetail(type, name, Objects.requireNonNullElseGet(begin, () -> date.minusMonths(1)), date);
+        return scorecardService.listScoreDetail(type, name, label, Objects.requireNonNullElseGet(begin, () -> date.minusMonths(1)), date);
     }
 
 }
