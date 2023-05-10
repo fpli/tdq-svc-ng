@@ -10,16 +10,16 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
-public interface TDQDateUtil {
+public class DateUtil {
 
-    static LocalDate getYesterday() {
+    public static LocalDate getYesterday() {
         return LocalDate.now().minusDays(1);
     }
 
-    static List<LocalDate> datesStepBackBetween(LocalDate startInclusive, LocalDate endInclusive, long amountToSubtract, ChronoUnit unit){
+    public static List<LocalDate> datesStepBackBetween(LocalDate startInclusive, LocalDate endInclusive, long amountToSubtract, ChronoUnit unit){
         long end = endInclusive.toEpochDay();
         long start = startInclusive.toEpochDay();
-        if (end - start == 0) {
+        if (end - start <= 0) {
             return List.of();
         }
         LocalDate temp = endInclusive;
@@ -64,7 +64,7 @@ public interface TDQDateUtil {
         return dates;
     }
 
-    static Stream<LocalDate> datesStepBackBetween(LocalDate startInclusive, LocalDate endExclusive, Period step){
+    public static Stream<LocalDate> datesStepBackBetween(LocalDate startInclusive, LocalDate endExclusive, Period step){
         if (step.isZero()) {
             throw new IllegalArgumentException("step is zero");
         }

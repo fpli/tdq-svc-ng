@@ -2,7 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.ebay.dap.epic.tdq.common.util.TDQDateUtil;
+import com.ebay.dap.epic.tdq.common.util.DateUtil;
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.CategoryResultEntity;
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
@@ -144,7 +144,7 @@ public class ScorecardServiceImpl implements ScorecardService {
     public ScorecardDetailVO listScoreDetail(String type, String name, String label, LocalDate begin, LocalDate end) {
         log.info("type:{}, name: {}, label: {}, begin: {}, end: {}", type, name, label, begin, end);
         Period period = getAvailablePeriod(label);
-        List<LocalDate> expectedDates = new ArrayList<>(TDQDateUtil.datesStepBackBetween(begin, end, period).toList());
+        List<LocalDate> expectedDates = new ArrayList<>(DateUtil.datesStepBackBetween(begin, end, period).toList());
 //        List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(end.plusDays(1)).toList());
         ScorecardDetailVO scorecardDetailVO = new ScorecardDetailVO();
         fillDateRange(scorecardDetailVO.getDateRangeItemList());
