@@ -1,6 +1,6 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
-import com.ebay.dap.epic.tdq.common.util.TDQDateUtil;
+import com.ebay.dap.epic.tdq.common.util.DateUtil;
 import com.ebay.dap.epic.tdq.data.vo.ChartDataVO;
 import com.ebay.dap.epic.tdq.data.vo.ChartVO;
 import com.ebay.dap.epic.tdq.service.ChartService;
@@ -28,8 +28,8 @@ public class ChartController {
     @Operation(summary = "retrieve chart data")
     @GetMapping("/retrieveChartData/{id}")
     public ChartDataVO retrieveChartData(@PathVariable Long id, LocalDate date) throws Exception {
-        if (null == date || date.isAfter(TDQDateUtil.getYesterday())) {
-            date = TDQDateUtil.getYesterday();
+        if (null == date || date.isAfter(DateUtil.getYesterday())) {
+            date = DateUtil.getYesterday();
         }
         return chartService.retrieveChartData(id, date);
     }
