@@ -1,9 +1,7 @@
-package com.ebay.dap.epic.tdq.dsl;
+package com.ebay.dap.epic.tdq.data.mapper.mybatis;
 
 import com.ebay.dap.epic.tdq.data.entity.scorecard.GroovyRuleDefEntity;
 import com.ebay.dap.epic.tdq.data.enums.Category;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.AbstractMapperTest;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.GroovyRuleDefMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
