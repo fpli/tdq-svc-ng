@@ -788,7 +788,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         List<LocalDate> expectedDates = new ArrayList<>(begin.datesUntil(dt.plusDays(1)).toList());
         List<DailyTagSizeWithPercentVO> dailyTagSizeWithPercentVOList = getDailyTagSizeWithPercentBatch(tagName, dt);
         List<String> list = dailyTagSizeWithPercentVOList.stream().map(DailyTagSizeWithPercentVO::getDt).toList();
-        List<LocalDate> localDateList = expectedDates.stream().dropWhile(item -> list.contains(item.toString())).toList();
+        List<LocalDate> localDateList = expectedDates.stream().filter(item -> !list.contains(item.toString())).toList();
         if (!localDateList.isEmpty()){
             localDateList.forEach(localDate -> {
                 DailyTagSizeWithPercentVO dailyTagSizeWithPercentVO = new DailyTagSizeWithPercentVO();
@@ -811,7 +811,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         Map<String, TagDetailDTO> detailDTOMap = getTagCompleteness(tagName, begin, dt, dimensions);
         List<AnomalyItemEntity> anomalyItemEntityList = anomalyItemRepository.findAllByTypeAndRefIdAndDtBetween("tag", tagName, begin, dt);
 
-        List<TagDetailVO> tagDetailVOList = detailDTOMap.values().stream().peek(tagDetailDTO -> tagDetailDTO.setLocalDate(LocalDate.parse(tagDetailDTO.getDt(), dateTimeFormatter))).sorted(Comparator.comparing(TagDetailDTO::getLocalDate)).map(tagDetailDTO -> {
+        List<TagDetailVO> tagDetailVOList = detailDTOMap.values().stream().peek(tagDetailDTO -> tagDetailDTO.setLocalDate(LocalDate.parse(tagDetailDTO.getDt(), dateTimeFormatter))).map(tagDetailDTO -> {
             TagDetailVO tagDetailVO = new TagDetailVO();
             tagDetailVO.setDt(tagDetailDTO.getDt());
             expectedDates.remove(tagDetailDTO.getLocalDate());
@@ -847,6 +847,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
                 tagDetailVOList.add(tagDetailVO);
             });
         }
+        tagDetailVOList.sort(Comparator.comparing(TagDetailVO::getDt));
         return tagDetailVOList;
     }
 
