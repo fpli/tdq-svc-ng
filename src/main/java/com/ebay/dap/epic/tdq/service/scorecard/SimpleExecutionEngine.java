@@ -1,6 +1,7 @@
 package com.ebay.dap.epic.tdq.service.scorecard;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.common.exception.ScorecardExecutionException;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.CategoryResult;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.GroovyScriptRule;
@@ -100,7 +101,9 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
 
         // 2. get scorecard rule definitions from database
-        List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(null);
+        LambdaQueryWrapper<GroovyRuleDefEntity> lambdaQuery = Wrappers.lambdaQuery();
+        lambdaQuery.le(GroovyRuleDefEntity::getCreateTime, dt);
+        List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(lambdaQuery);
         if (CollectionUtils.isEmpty(ruleDefEntities)) {
             throw new ScorecardExecutionException("No scorecard rule definition found");
         }
