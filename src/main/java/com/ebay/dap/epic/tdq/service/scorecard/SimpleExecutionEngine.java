@@ -103,7 +103,6 @@ public class SimpleExecutionEngine implements ExecutionEngine {
         // 2. get scorecard rule definitions from database
         LambdaQueryWrapper<GroovyRuleDefEntity> lambdaQuery = Wrappers.lambdaQuery();
         lambdaQuery.le(GroovyRuleDefEntity::getCreateTime, dt);
-        lambdaQuery.eq(GroovyRuleDefEntity::getCategory, "[scorecard]");
         List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(lambdaQuery);
         if (CollectionUtils.isEmpty(ruleDefEntities)) {
             throw new ScorecardExecutionException("No scorecard rule definition found");
