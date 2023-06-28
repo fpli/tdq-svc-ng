@@ -7,8 +7,10 @@ import com.ebay.dap.epic.tdq.data.mapper.mystruct.MetricMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 import com.ebay.dap.epic.tdq.service.MetricService;
+import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -106,4 +108,62 @@ public class MetricServiceImpl implements MetricService {
         return this.getDailyMetricsByLabel(dt, "scorecard");
     }
 
+    /***
+     * get metric from es, if date is not specified, default behavior is to get last 30 days metrics
+     *
+     * @param metricKey
+     * @return
+     */
+    @Override
+    public List<MetricDoc> getDailyMetricSeries(String metricKey, LocalDate endDt, int size) {
+        Preconditions.checkNotNull(metricKey);
+        String indexNames = "tdq.batch.profiling.metric.prod.*";
+        IndexCoordinates indexCoordinates = IndexCoordinates.of(indexNames);
+
+        // FIXME: handle errors: metrics data missing
+        LocalDate startDt = endDt.minusDays(size);
+        Criteria criteria = new Criteria("metric_key").is(metricKey)
+                                                      .and("dimension").exists().not()
+                                                      .and("dt").greaterThan(startDt.toString())
+                                                      .and("dt").lessThanEqual(endDt.toString());
+
+        Sort sort = Sort.by("dt").ascending();
+        Query query = new CriteriaQuery(criteria).addSort(sort);
+        SearchHits<MetricDoc> searchResults = esOperations.search(query, MetricDoc.class, indexCoordinates);
+        List<MetricDoc> metricDocs = convertSearchHitsToMetricDocs(searchResults.getSearchHits());
+        log.info("Retrieved {} documents from ES for metric: {}", metricDocs.size(), metricKey);
+
+        return metricDocs;
+    }
+
+    @Override
+    public List<MetricDoc> getDailyMetricDimensionSeries(String metricKey, LocalDate endDt, int size) {
+        Preconditions.checkNotNull(metricKey);
+        String indexNames = "tdq.batch.profiling.metric.prod.*";
+        IndexCoordinates indexCoordinates = IndexCoordinates.of(indexNames);
+
+        // FIXME: handle errors: metrics data missing
+        LocalDate startDt = endDt.minusDays(size);
+        Criteria criteria = new Criteria("metric_key").is(metricKey)
+                                                      .and("dimension").exists()
+                                                      .and("dt").greaterThan(startDt.toString())
+                                                      .and("dt").lessThanEqual(endDt.toString());
+
+        Sort sort = Sort.by("dt").ascending();
+        Query query = new CriteriaQuery(criteria).addSort(sort);
+        SearchHits<MetricDoc> searchResults = esOperations.search(query, MetricDoc.class, indexCoordinates);
+        List<MetricDoc> metricDocs = convertSearchHitsToMetricDocs(searchResults.getSearchHits());
+        log.info("Retrieved {} documents from ES for metric: {}", metricDocs.size(), metricKey);
+
+        return metricDocs;
+    }
+
+    private List<MetricDoc> convertSearchHitsToMetricDocs(List<SearchHit<MetricDoc>> searchHits) {
+        List<MetricDoc> metricDocs = new ArrayList<>();
+        for (SearchHit<MetricDoc> searchHit : searchHits) {
+            MetricDoc content = searchHit.getContent();
+            metricDocs.add(content);
+        }
+        return metricDocs;
+    }
 }

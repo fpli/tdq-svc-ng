@@ -10,9 +10,14 @@ public enum ChartMode {
 
     SINGLE(1, "single"),
 
-    COMPOSE(2, "compose"),
+    MULTIPLE(2, "multiple"),
 
-    DIFF(3, "diff");
+    COMPOSE(3, "compose"),
+
+    DIFF(4, "diff"),
+
+    BY_DIMENSION(5, "by_dimension");
+
 
     @EnumValue
     private final int code;

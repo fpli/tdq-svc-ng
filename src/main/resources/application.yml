@@ -52,6 +52,7 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
     doc-expansion: none
+  show-actuator: true
 
 mmd-common-cfg:
   # url: http://10.78.235.92/mmd/find-anomaly
@@ -73,3 +74,9 @@ notification:
     enabled: true
     to: DL-eBay-Tracking-Data-Quality@ebay.com
     cc: DL-eBay-Tracking-Data-Quality@ebay.com
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: env

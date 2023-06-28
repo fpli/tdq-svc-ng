@@ -2,12 +2,14 @@ package com.ebay.dap.epic.tdq.web.controller;
 
 import com.ebay.dap.epic.tdq.common.util.DateUtil;
 import com.ebay.dap.epic.tdq.data.vo.ChartDataVO;
+import com.ebay.dap.epic.tdq.data.vo.ChartPreviewDataVO;
 import com.ebay.dap.epic.tdq.data.vo.ChartVO;
 import com.ebay.dap.epic.tdq.service.ChartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,4 +41,10 @@ public class ChartController {
     public List<ChartVO> listChartInfo() {
         return chartService.listChartInfoEntities();
     }
+
+    @GetMapping("/{id}/data")
+    public ResponseEntity<ChartPreviewDataVO> getChartData(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(chartService.getChartData(id));
+    }
+
 }

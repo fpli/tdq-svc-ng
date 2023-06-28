@@ -20,4 +20,9 @@ public interface MetricService {
     List<MetricDoc> getDailyMetricsByLabel(LocalDate dt, String label);
 
     List<MetricDoc> getScorecardMetrics(LocalDate dt);
+
+    List<MetricDoc> getDailyMetricSeries(String metricKey, LocalDate endDt, int size);
+
+    List<MetricDoc> getDailyMetricDimensionSeries(String metricKey, LocalDate endDt, int size);
+
 }

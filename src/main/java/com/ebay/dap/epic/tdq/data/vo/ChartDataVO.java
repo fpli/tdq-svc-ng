@@ -10,6 +10,7 @@ public class ChartDataVO {
 
     List<String> labels;
     List<DataSetVO> datasets = new ArrayList<>();
+
 }
 
 
