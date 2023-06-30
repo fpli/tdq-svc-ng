@@ -24,7 +24,9 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,6 +37,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -53,6 +57,9 @@ public class ChartServiceImpl implements ChartService {
 
     @Autowired
     private MetricService metricService;
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
 
     private static Script parseExpression(String expression) {
         GroovyShell groovyShell = new GroovyShell();
@@ -160,11 +167,10 @@ public class ChartServiceImpl implements ChartService {
     }
 
     private Map<String, List<ChartValueVO>> getDatasets(ChartMode mode, List<String> metricKeys) {
-        Map<String, List<ChartValueVO>> datasets = new HashMap<>();
         return switch (mode) {
             case SINGLE, MULTIPLE -> getMetric(metricKeys);
             case BY_DIMENSION -> getMetricWithDimension(metricKeys);
-            default -> throw new RuntimeException("Not Support");
+            default -> throw new RuntimeException("ChartMode " + mode + " is not supported");
         };
     }
 
@@ -192,21 +198,46 @@ public class ChartServiceImpl implements ChartService {
         return datasets;
     }
 
+    // TODO: currently it only supports Batch case
     private Map<String, List<ChartValueVO>> getMetric(List<String> metricKeys) {
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(metricKeys), "metricKey cannot be empty");
+
         Map<String, List<ChartValueVO>> datasets = new HashMap<>();
-        // FIXME: get metric series data concurrently
+
         // FIXME: remove hard-coded endDt
         LocalDate endDt = LocalDateTime.now(ZoneId.of("GMT-7")).minusHours(17 + 24).toLocalDate();
+
+        // fetch metrics from ES concurrently
+        CountDownLatch latch = new CountDownLatch(metricKeys.size());
+        Map<String, Future<List<MetricDoc>>> futures = new HashMap<>();
         for (String metricKey : metricKeys) {
-            List<MetricDoc> metricSeries = metricService.getDailyMetricSeries(metricKey, endDt, 30);
-            List<ChartValueVO> list = metricSeries.stream().map(e -> {
-                ChartValueVO valueVO = new ChartValueVO();
-                valueVO.setLabel(e.getDt().toString());
-                valueVO.setValue(e.getValue().toString());
-                return valueVO;
-            }).toList();
-            datasets.put(metricKey, list);
+            Future<List<MetricDoc>> future = taskExecutor.submit(() -> {
+                log.info("Fetch daily metric series from ES for metric: {}", metricKey);
+                List<MetricDoc> results = metricService.getDailyMetricSeries(metricKey, endDt, 30);
+                latch.countDown();
+                return results;
+            });
+            futures.put(metricKey, future);
         }
+
+        try {
+            latch.await();
+            for (Map.Entry<String, Future<List<MetricDoc>>> entry : futures.entrySet()) {
+                String metricKey = entry.getKey();
+                List<MetricDoc> metricDocs;
+                metricDocs = entry.getValue().get();
+                List<ChartValueVO> list = metricDocs.stream().map(e -> {
+                    ChartValueVO valueVO = new ChartValueVO();
+                    valueVO.setLabel(e.getDt().toString());
+                    valueVO.setValue(e.getValue().toString());
+                    return valueVO;
+                }).toList();
+                datasets.put(metricKey, list);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         return datasets;
     }
 
