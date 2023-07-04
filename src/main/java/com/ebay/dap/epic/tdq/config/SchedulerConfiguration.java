@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import javax.sql.DataSource;
 
 /***
- * Only enable scheduling in Production
+ * NOTE: Only enable scheduling in Production env
  */
 @Profile("Production")
 @EnableScheduling

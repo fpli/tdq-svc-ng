@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      #alert-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      #alert-table td, #alert-table th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+
+      #alert-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      #alert-table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4a86e8;
+        color: white;
+      }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="content">
+        <p>
+            Hi Team, <br/><br/>
+
+            We detected that there are <b th:text="${#lists.size(emailAlert.items)}">5</b> abnormal point(s)
+            on <b th:text="${emailAlert.dt}">2022-04-11</b>. <br/><br/>
+
+            Issue details are listed as below: <br/>
+        </p>
+        <div>
+            <table id="alert-table">
+                <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Channel Type</th>
+                    <th>Threshold</th>
+                    <th>Current Value</th>
+                    <th>Diff %</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="alertItem : ${emailAlert.items}">
+                    <td>Marketing click channel volume</td>
+                    <td><span th:text="${alertItem.title}">ABC</span></td>
+                    <td><span th:text="${alertItem.threshold}">2,234</span></td>
+                    <td><span th:text="${alertItem.currentValue}">1,122</span></td>
+                    <td><span th:text="${alertItem.diffPct}">-23.12%</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/><br/>
+        <p>
+            Thanks, <br/>
+            Tracking Data Quality Team
+        </p>
+    </div>
+</div>
+</body>
+</html>
