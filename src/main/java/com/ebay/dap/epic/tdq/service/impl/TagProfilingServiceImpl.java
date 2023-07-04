@@ -99,8 +99,8 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private int tagByVolumeTopN = 3000;
     public static double score = 0.9995;
 
-//    @Scheduled(cron = "0 0 11 * * *", zone = "GMT-7")
-//    @PostConstruct
+    @Scheduled(cron = "0 0 11 * * *", zone = "GMT-7")
+    @PostConstruct
     public void init() {
         CompletableFuture.runAsync(() -> {
             Instant begin = Instant.now();
