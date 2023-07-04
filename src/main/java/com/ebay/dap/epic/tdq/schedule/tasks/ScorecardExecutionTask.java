@@ -4,6 +4,7 @@ import com.ebay.dap.epic.tdq.service.scorecard.ExecutionEngine;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.time.ZonedDateTime;
 
 @Slf4j
 @Component
+@Lazy(false)
 public class ScorecardExecutionTask {
 
     @Autowired

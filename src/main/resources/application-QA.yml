@@ -1,0 +1,4 @@
+spring:
+  mail:
+    host: atom.corp.ebay.com
+    port: 25

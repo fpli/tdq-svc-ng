@@ -1,8 +1,9 @@
 package com.ebay.dap.epic.tdq.config;
 
 import com.sun.mail.smtp.SMTPTransport;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.mail.DefaultAuthenticator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,14 +13,20 @@ import javax.mail.Session;
 import java.util.Properties;
 
 @Configuration
-@Log4j2
+@Slf4j
 public class EmailConfig {
 
-    @Bean("javaMailSender")
+    @Value("${spring.mail.host}")
+    private String host;
+
+    @Value("${spring.mail.port}")
+    private Integer port;
+
+    @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost("mx.vip.lvs.ebay.com");
-        javaMailSender.setPort(25);
+        javaMailSender.setHost(host);
+        javaMailSender.setPort(port);
         Properties javaMailProperties = javaMailSender.getJavaMailProperties();
         Properties props = new Properties();
         props.put("mail.transport.protocol", "smtp");
@@ -30,7 +37,7 @@ public class EmailConfig {
             SMTPTransport smtpTransport = (SMTPTransport) session.getTransport("smtp");
             smtpTransport.setReportSuccess(Boolean.TRUE);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to send email", e);
         }
         javaMailSender.setSession(session);
         return javaMailSender;

@@ -17,6 +17,16 @@ spring:
     baseline-on-migrate: true
     out-of-order: false
     validate-on-migrate: true
+  mail:
+    host: mxrc.vip.ebay.com
+    port: 25
+  task:
+    scheduling:
+      pool:
+        size: 10
+      shutdown:
+        await-termination: true
+        await-termination-period: 10m
 
 mybatis-plus:
   #  typeEnumsPackage: com.ebay.dap.epic.tdq.data.enums
