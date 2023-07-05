@@ -6,7 +6,11 @@ import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
 import com.ebay.dap.epic.tdq.data.entity.PageLookUpInfo;
 import com.ebay.dap.epic.tdq.data.entity.ProfilingCustomerPageRel;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.CustomerGroupMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.PageLookUpInfoMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.ProfilingCustomerPageRelMapper;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import com.google.common.collect.Lists;
@@ -33,7 +37,7 @@ public class AlertManagerImpl implements AlertManager {
     private TemplateEngine templateEngine;
 
     @Autowired
-    private AnomalyItemMapper anomalyItemRepository;
+    private AnomalyItemMapper anomalyItemMapper;
 
     @Autowired
     private PageLookUpInfoMapper pageLookUpInfoRepo;
@@ -60,7 +64,7 @@ public class AlertManagerImpl implements AlertManager {
 
     @Override
     public void sendPageProfilingAlertEmail(LocalDate dt) throws Exception {
-        List<AnomalyItemEntity> abnormalPages = anomalyItemRepository.findAllAbnormalPagesOfDt(dt);
+        List<AnomalyItemEntity> abnormalPages = anomalyItemMapper.findAllAbnormalPagesOfDt(dt);
         log.info("There are {} abnormal pages detected on {}", abnormalPages.size(), dt);
         // only send alerts if there are abnormal pages detected
         if (CollectionUtils.isNotEmpty(abnormalPages)) {
@@ -69,7 +73,7 @@ public class AlertManagerImpl implements AlertManager {
 
             List<CustomerGroupEntity> customers = customerGroupRepo.findAll();
 
-            // only send alerts when customer list is not empty
+            // only send alerts when the customer list is not empty
             for (CustomerGroupEntity customer : customers) {
                 final String to = customer.getEmailDl();
                 final Long customerId = customer.getId();
@@ -78,7 +82,7 @@ public class AlertManagerImpl implements AlertManager {
                 // get abnormal pages for customer
                 List<AnomalyItemEntity> abnormalPagesOfCustomer = getAbnormalPagesOfCustomer(abnormalPages, customerId);
                 log.info("There are {} abnormal pages detected for {} team on {}", abnormalPagesOfCustomer.size(), customer.getName(), dt);
-                // only send alerts if abnormal pages list is not empty
+                // only send alerts if an abnormal pages list is not empty
                 if (CollectionUtils.isNotEmpty(abnormalPagesOfCustomer)) {
                     PageAlertDto<PageAlertItemDto> pageAlertDto = new PageAlertDto<>();
                     pageAlertDto.setDt(dt.toString());

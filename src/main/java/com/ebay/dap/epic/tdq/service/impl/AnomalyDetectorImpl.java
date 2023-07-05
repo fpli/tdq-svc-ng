@@ -1,19 +1,22 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.entity.NonBotPageCountEntity;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
 import com.ebay.dap.epic.tdq.service.AnomalyDetector;
-import com.ebay.dap.epic.tdq.service.mmd.MMDRestException;
+import com.ebay.dap.epic.tdq.service.mmd.MMDException;
 import com.ebay.dap.epic.tdq.service.mmd.MMDService;
 import com.ebay.dap.epic.tdq.service.mmd.Series;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +34,24 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
     @Autowired
     private MMDService mmdService;
 
+    @Autowired
+    private AnomalyItemMapper anomalyItemMapper;
+
+    /***
+     * 1. get pageId list with traffic > 10 million and first seen date is past 3 months
+     * 2. assemble MMD request and bulk request to get alert results
+     * 3. save alerts to db
+     *
+     * @param dt
+     */
     @Override
-    public void findAbnormalPages(LocalDate dt) {
+    public void findAbnormalPages(LocalDate dt) throws MMDException {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         // 1. get pages id list with traffic > 10 million and first seen date is past 3 months
         List<Integer> pages = nonBotPageCountMapper.findPageIdsForMMD(dt);
         log.info("PageId list for sending to MMD: {}, count: {}, dt: {}", pages, pages.size(), dt);
+
+        List<AnomalyItemEntity> allAnomalyItems = new ArrayList<>();
 
         for (List<Integer> bulkPages : Lists.partition(pages, 10)) {
             List<NonBotPageCountEntity> pageHisTraffic =
@@ -59,15 +74,16 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
                 mmdSeries.put(String.valueOf(entry.getKey()), series);
             }
 
-            // 3. get bulk result and save to db
-            try {
-                mmdService.bulkFindAnomalyDaily("page_profiling_daily", mmdSeries);
-            } catch (MMDRestException e) {
-                log.error("error: {}", e.getMessage());
-            }
+            // 2. bulk request to MMD
+            List<AnomalyItemEntity> anomalyItems = mmdService.bulkFindAnomalyDaily("page_profiling_daily", mmdSeries);
+            allAnomalyItems.addAll(anomalyItems);
         }
 
-        // 4. done
-        log.info("Run find abnormal pages task successfully");
+        log.info("Found {} abnormal pages from MMD", allAnomalyItems.size());
+        // 3. save alerts into db
+        if (CollectionUtils.isNotEmpty(allAnomalyItems)) {
+            log.info("Save {} abnormal pages into database", allAnomalyItems.size());
+            anomalyItemMapper.saveAll(allAnomalyItems);
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.ebay.dap.epic.tdq.schedule.tasks;
 
 import com.ebay.dap.epic.tdq.service.scorecard.ExecutionEngine;
-import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -10,9 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
-@Slf4j
 @Component
 @Lazy(false)
 public class ScorecardExecutionTask {
@@ -20,15 +17,13 @@ public class ScorecardExecutionTask {
     @Autowired
     private ExecutionEngine executionEngine;
 
-    // use MST to schedule as all UC4 job are based on MST
+    // use MST(UTC-7) to schedule as all UC4 job are based on MST(UTC-7)
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.scorecard-execution}", zone = "GMT-7")
-    @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
+    @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
     public void run() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT-7"));
-        LocalDate dt = now.toLocalDate().minusDays(1);
-        log.info("Start to run Scorecard execution task for date: {}", dt);
+        // T-1 as dt
+        LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         executionEngine.process(dt);
-        log.info("Finished Scorecard execution task for date: {}", dt);
     }
 
 }

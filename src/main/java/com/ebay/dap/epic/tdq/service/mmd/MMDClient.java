@@ -19,11 +19,11 @@ public class MMDClient {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public MMDResult findAnomaly(MMDRequest mmdRequest) throws MMDRestException {
+    public MMDResult findAnomaly(MMDRequest mmdRequest) throws MMDException {
         try {
             log.info("mmdRequest: {}",  objectMapper.writeValueAsString(mmdRequest));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new MMDException(e);
         }
         int retryAttempt = 5;
         MMDResult result = null;
@@ -36,7 +36,7 @@ public class MMDClient {
                 }
                 result = restTemplate.postForObject("/", mmdRequest, MMDResult.class);
                 if (result != null && result.getCode() == 200) {
-                    // success get result
+                    // success get results
                     break;
                 }
                 retryAttempt--;
@@ -47,7 +47,7 @@ public class MMDClient {
         }
 
         if (result == null) {
-            throw new MMDRestException("Error when calling MMD");
+            throw new MMDException("Error when calling MMD");
         }
 
         log.info("MMD result: {}", result);

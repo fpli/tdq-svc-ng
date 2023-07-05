@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
-//FIXME: use aspect to log status and track time
 @Slf4j
 @Component
 @Lazy(false)
@@ -38,21 +38,16 @@ public class TDQSchedulerTask {
     }
 
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-anomaly-detect}", zone = "GMT-7")
-    @SchedulerLock(name = "TDQSchedulerTask_pageUsageAD", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
-    public void pageUsageAD() {
-        LocalDate dt = LocalDate.now().minusDays(1);
+    @SchedulerLock(name = "TDQSchedulerTask_pageProfilingAD", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
+    public void pageProfilingAD() throws Exception {
+        LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         anomalyDetector.findAbnormalPages(dt);
     }
 
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-alert}", zone = "GMT-7")
-    @SchedulerLock(name = "TDQSchedulerTask_sendPageProfilingAlerts", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    @SchedulerLock(name = "TDQSchedulerTask_sendPageProfilingAlerts", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void sendPageProfilingAlerts() throws Exception {
-        LocalDate dt = LocalDate.now().minusDays(1);
-        //TODO(yxiao6): add job status track in the future
-
-        //FIXME(yxiao6): this should be replaced with profile management
-        //only send email in prod
-        log.info("Sending Page-Profiling Abnormal Pages Alerts");
+        LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         alertManager.sendPageProfilingAlertEmail(dt);
     }
 

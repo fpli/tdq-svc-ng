@@ -33,7 +33,7 @@ public class ScheduledJobTriggerController {
 
     @Operation(summary = "trigger abnormal page detecting")
     @GetMapping("triggerPageDetecting")
-    public String triggerPageDetecting(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+    public String triggerPageDetecting(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
         anomalyDetector.findAbnormalPages(date);
         return "done";
     }
