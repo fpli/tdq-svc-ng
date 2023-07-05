@@ -17,7 +17,6 @@ import org.thymeleaf.context.Context;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,7 +42,7 @@ public class UTPDailyAlertTask {
     @SchedulerLock(name = "Alert_UTP_Click_by_channel", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as endDt
-        LocalDate endDt = LocalDateTime.now(ZoneId.of("GMT-7")).minusHours(17 + 24).toLocalDate();
+        LocalDate endDt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         log.info("Evaluate alert - utp daily click event volume by channel");
 
         List<MetricDoc> metricDocs = metricService.getDailyMetricDimensionSeries("utp_click_daily_cnt", endDt, 31);

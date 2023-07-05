@@ -1,5 +1,6 @@
 package com.ebay.dap.epic.tdq.config;
 
+import com.ebay.dap.epic.tdq.common.Profile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 //FIXME: Spring RestTemplate is deprecated, use other alternatives
+@Deprecated
 @Slf4j
 @Configuration
 public class RestTemplateConfig {
@@ -39,14 +41,13 @@ public class RestTemplateConfig {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().disableCookieManagement();
 
-        // local profile enable c2sproxy
-        if (env.acceptsProfiles(Profiles.of("c2sproxy"))) {
-            final String C2S_PROXY_HOST = "c2syubi.vip.ebay.com";
-            final int C2S_PROXY_PORT = 8080;
+        // set proxy if the 'c2sproxy' profile is enabled
+        if (env.acceptsProfiles(Profiles.of(Profile.C2S_PROXY))) {
+            final String C2S_PROXY_HOST = proxyConfig.getProxyHost();
+            final int C2S_PROXY_PORT = proxyConfig.getProxyPort();
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(
                     new AuthScope(C2S_PROXY_HOST, C2S_PROXY_PORT),
-//                    new UsernamePasswordCredentials(env.getProperty("NT_USER"), env.getProperty("YUBI_KEY"))
                     new UsernamePasswordCredentials(proxyConfig.getProxyUsername(), proxyConfig.getProxyPassword())
             );
             httpClientBuilder.setProxy(new HttpHost(C2S_PROXY_HOST, C2S_PROXY_PORT, "http"))
@@ -54,14 +55,11 @@ public class RestTemplateConfig {
         }
 
         requestFactory.setHttpClient(httpClientBuilder.build());
-        //if (ConstantDefine.CUR_ENV.equalsIgnoreCase(ConstantDefine.ENV.QA)){
-//        mmdCommonCfg.setUrl("http://mmd-ng-pp-svc.mmd-prod-ns.svc.25.tess.io:80/mmd/find-anomaly");
-//        }
         return restTemplateBuilder.requestFactory(() -> requestFactory)
                 .rootUri(mmdCommonCfg.getUrl())
                 .defaultHeader("BI_CLIENT_APP_ID", "TDQ_hourly")
                 .defaultHeader("BI_CLIENT_APP_KEY", "tdQ_MMD_AweS0ME")
-                .setConnectTimeout(Duration.ofSeconds(5))
+                .setConnectTimeout(Duration.ofSeconds(15))
                 .setReadTimeout(Duration.ofSeconds(30))
                 .build();
     }
