@@ -10,6 +10,7 @@ import com.ebay.dap.epic.tdq.service.MetricService;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -156,6 +157,21 @@ public class MetricServiceImpl implements MetricService {
         log.info("Retrieved {} documents from ES for metric: {}", metricDocs.size(), metricKey);
 
         return metricDocs;
+    }
+
+    @Override
+    public Boolean dailyMetricExists(String metricKey, LocalDate dt) {
+        Preconditions.checkNotNull(metricKey);
+        Preconditions.checkNotNull(dt);
+
+        String indexName = "tdq.batch.profiling.metric.prod." + dt;
+        IndexCoordinates indexCoordinates = IndexCoordinates.of(indexName);
+
+        Criteria criteria = new Criteria("metric_key").is(metricKey);
+        Query query = new CriteriaQuery(criteria).setPageable(Pageable.ofSize(1));
+
+        SearchHits<MetricDoc> search = esOperations.search(query, MetricDoc.class, indexCoordinates);
+        return search.getTotalHits() > 0;
     }
 
     private List<MetricDoc> convertSearchHitsToMetricDocs(List<SearchHit<MetricDoc>> searchHits) {

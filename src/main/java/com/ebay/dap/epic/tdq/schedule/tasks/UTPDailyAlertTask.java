@@ -37,6 +37,8 @@ public class UTPDailyAlertTask {
     @Autowired
     private EmailService emailService;
 
+    private static final String METRIC_KEY = "utp_click_daily_cnt";
+
 
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.alert.utp-daily-click:-}", zone = "GMT-7")
     @SchedulerLock(name = "Alert_UTP_Click_by_channel", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
@@ -45,7 +47,12 @@ public class UTPDailyAlertTask {
         LocalDate endDt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         log.info("Evaluate alert - utp daily click event volume by channel");
 
-        List<MetricDoc> metricDocs = metricService.getDailyMetricDimensionSeries("utp_click_daily_cnt", endDt, 31);
+        // check if metric exists
+        if (!metricService.dailyMetricExists(METRIC_KEY, endDt)) {
+            throw new IllegalStateException("metric: " + METRIC_KEY + " does not exist in ES");
+        }
+
+        List<MetricDoc> metricDocs = metricService.getDailyMetricDimensionSeries(METRIC_KEY, endDt, 31);
 
         Map<String, List<MetricDoc>> channelCntMap = metricDocs.stream().collect(groupingBy(e -> e.getDimension().values().toArray()[0].toString()));
 
