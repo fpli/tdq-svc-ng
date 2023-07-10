@@ -35,6 +35,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -152,13 +153,12 @@ public class ChartServiceImpl implements ChartService {
         LocalDate end = LocalDateTime.now(ZoneId.of("GMT-7")).minusHours(17 + 24).toLocalDate();
         LocalDate start = end.minusDays(30);
         List<String> labels = new ArrayList<>();
-        vo.setLabels(labels);
-
         for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
             labels.add(date.plusDays(1).toString());
         }
+        vo.setLabels(labels);
 
-        List<String> metricKeys = Arrays.stream(entity.getMetricKeys().split(",")).map(String::trim).toList();
+        List<String> metricKeys = Arrays.asList(entity.getMetricKeys().split("\\s*,\\s*"));;
         Map<String, List<ChartValueVO>> datasets = getDatasets(entity.getMode(), metricKeys);
 
         vo.setDatasets(datasets);
@@ -170,6 +170,7 @@ public class ChartServiceImpl implements ChartService {
         return switch (mode) {
             case SINGLE, MULTIPLE -> getMetric(metricKeys);
             case BY_DIMENSION -> getMetricWithDimension(metricKeys);
+            case DIFF -> getDiffChartMetricValues(metricKeys);
             default -> throw new RuntimeException("ChartMode " + mode + " is not supported");
         };
     }
@@ -201,8 +202,8 @@ public class ChartServiceImpl implements ChartService {
     // TODO: currently it only supports Batch case
     private Map<String, List<ChartValueVO>> getMetric(List<String> metricKeys) {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(metricKeys), "metricKey cannot be empty");
-
-        Map<String, List<ChartValueVO>> datasets = new HashMap<>();
+        // use LinkedHashMap to guarantee the order
+        Map<String, List<ChartValueVO>> datasets = new LinkedHashMap<>();
 
         // FIXME: remove hard-coded endDt
         LocalDate endDt = LocalDateTime.now(ZoneId.of("GMT-7")).minusHours(17 + 24).toLocalDate();
@@ -222,10 +223,9 @@ public class ChartServiceImpl implements ChartService {
 
         try {
             latch.await();
-            for (Map.Entry<String, Future<List<MetricDoc>>> entry : futures.entrySet()) {
-                String metricKey = entry.getKey();
-                List<MetricDoc> metricDocs;
-                metricDocs = entry.getValue().get();
+            for (String metricKey : metricKeys) {
+                Future<List<MetricDoc>> futureResult = futures.get(metricKey);
+                List<MetricDoc> metricDocs = futureResult.get();
                 List<ChartValueVO> list = metricDocs.stream().map(e -> {
                     ChartValueVO valueVO = new ChartValueVO();
                     valueVO.setLabel(e.getDt().toString());
@@ -239,6 +239,13 @@ public class ChartServiceImpl implements ChartService {
         }
 
         return datasets;
+    }
+
+    private Map<String, List<ChartValueVO>> getDiffChartMetricValues(List<String> metricKeys) {
+        Preconditions.checkNotNull(metricKeys);
+        Preconditions.checkArgument(metricKeys.size() == 2, "Wrong metric_key count for DIFF chart");
+
+        return getMetric(metricKeys);
     }
 
 

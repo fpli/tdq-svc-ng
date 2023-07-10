@@ -25,4 +25,6 @@ public interface MetricService {
 
     List<MetricDoc> getDailyMetricDimensionSeries(String metricKey, LocalDate endDt, int size);
 
+    Boolean dailyMetricExists(String metricKey, LocalDate dt);
+
 }
