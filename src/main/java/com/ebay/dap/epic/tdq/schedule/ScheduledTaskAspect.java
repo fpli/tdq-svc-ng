@@ -25,7 +25,8 @@ public class ScheduledTaskAspect {
 
     @Around("@annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void doIt(ProceedingJoinPoint pjp) {
-        LocalDateTime startTime = LocalDateTime.now(ZoneId.of("UTC"));
+        // use GMT-7 timezone to track job time
+        LocalDateTime startTime = LocalDateTime.now(ZoneId.of("GMT-7"));
         ScheduledTaskHistory taskHistory = new ScheduledTaskHistory();
 
         String taskName = getTaskName(pjp);
@@ -49,7 +50,8 @@ public class ScheduledTaskAspect {
         try {
             pjp.proceed();
 
-            LocalDateTime endTime = LocalDateTime.now(ZoneId.of("UTC"));
+            // use GMT-7 timezone to track job time
+            LocalDateTime endTime = LocalDateTime.now(ZoneId.of("GMT-7"));
             long runningSec = ChronoUnit.SECONDS.between(startTime, endTime);
 
             taskHistory.setEndTime(endTime);
