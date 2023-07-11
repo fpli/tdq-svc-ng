@@ -18,6 +18,8 @@ public class ChartInfoEntity extends AuditableEntity {
 
     private String exp;
 
+    private Integer dispOrder;
+
     private String viewCfg;
 
 }

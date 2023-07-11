@@ -261,6 +261,7 @@ public class ChartServiceImpl implements ChartService {
             dto.setMetricKeys(Arrays.stream(entity.getMetricKeys().split(",")).map(String::trim).toList());
             dto.setMode(entity.getMode());
             dto.setExp(entity.getExp());
+            dto.setDispOrder(entity.getDispOrder());
             dto.setViewCfg(entity.getViewCfg());
             chartInfoDTOList.add(dto);
         }

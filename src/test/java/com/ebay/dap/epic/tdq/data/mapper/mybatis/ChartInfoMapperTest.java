@@ -23,6 +23,7 @@ class ChartInfoMapperTest extends AbstractMapperTest {
 
         assertThat(entity.getId()).isNotNull();
         assertThat(entity.getName()).isEqualTo("My Chart");
+        assertThat(entity.getDispOrder()).isEqualTo(1);
         assertThat(entity.getMetricKeys()).isEqualTo("my_key");
 
     }

@@ -8,6 +8,7 @@ public class ChartPreviewVO {
     private Long chartId;
     private String title;
     private String description;
+    private Integer displayOrder;
     private Long updateTime;
 
 }
