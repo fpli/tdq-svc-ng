@@ -28,6 +28,7 @@ public class DashboardServiceImpl implements DashboardService {
             chartPreviewVO.setChartId(chartInfoDTO.getChartId());
             chartPreviewVO.setTitle(chartInfoDTO.getTitle());
             chartPreviewVO.setDescription(chartInfoDTO.getDescription());
+            chartPreviewVO.setDisplayOrder(chartInfoDTO.getDispOrder());
             chartPreviewVO.setUpdateTime(ts);
             vo.getChartList().add(chartPreviewVO);
         }

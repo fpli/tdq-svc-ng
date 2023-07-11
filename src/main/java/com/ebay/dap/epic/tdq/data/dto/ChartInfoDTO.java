@@ -20,6 +20,8 @@ public class ChartInfoDTO {
 
     private String exp;
 
+    private Integer dispOrder;
+
     // json string
     private String viewCfg;
 
