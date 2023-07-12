@@ -147,7 +147,7 @@ public class AlertManagerImpl implements AlertManager {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         PageAlertDto<PageAlertItemDto> pageAlertDto = new PageAlertDto<>();
         pageAlertDto.setDt(dt.toString());
-        pageAlertDto.setGroupName("TDQ Admin");
+        pageAlertDto.setGroupName("TDQ");
 
         // abnormal pageIds
         List<Integer> pageIds = abnormalPages.stream()
@@ -184,7 +184,12 @@ public class AlertManagerImpl implements AlertManager {
 
         String content = templateEngine.process("page-profiling-alert", context);
 
-        emailService.sendHtmlEmail(content, toList, List.of("fangpli@ebay.com"), emailSubject);
+        // send page profiling alerts to DL-eBay-Tracking-Data-Quality-Alert-Notify
+        final List<String> to = List.of(
+                "DL-eBay-Tracking-Data-Quality@ebay.com",
+                "DL-eBay-Tracking-Data-Quality-Alert-Notify@ebay.com"
+        );
+        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com"), emailSubject);
     }
 
     private List<AnomalyItemEntity> getAbnormalPagesOfCustomer(List<AnomalyItemEntity> abnormalPages, Long customerId) {
