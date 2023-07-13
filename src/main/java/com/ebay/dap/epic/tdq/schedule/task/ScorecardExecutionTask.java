@@ -1,4 +1,4 @@
-package com.ebay.dap.epic.tdq.schedule.tasks;
+package com.ebay.dap.epic.tdq.schedule.task;
 
 import com.ebay.dap.epic.tdq.service.scorecard.ExecutionEngine;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -20,7 +20,7 @@ public class ScorecardExecutionTask {
     // use MST(UTC-7) to schedule as all UC4 job are based on MST(UTC-7)
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.scorecard-execution}", zone = "GMT-7")
     @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
-    public void run() {
+    public void run() throws Exception {
         // T-1 as dt
         LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
         executionEngine.process(dt);

@@ -4,6 +4,7 @@ import com.ebay.dap.epic.tdq.config.AllMetricsCustParams;
 import com.ebay.dap.epic.tdq.config.C2SProxyConfig;
 import com.ebay.dap.epic.tdq.config.MMDCommonCfg;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
+import com.ebay.dap.epic.tdq.data.entity.MMDRecordInfo;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MMDRecordInfoMapper;
 import com.ebay.dap.epic.tdq.service.impl.TagProfilingServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,7 +53,7 @@ public class MMDServiceImpl implements MMDService {
     private MMDClient mmdClient;
 
     @Autowired
-    private MMDRecordInfoMapper mmdRecordInfoRepo;
+    private MMDRecordInfoMapper mmdRecordInfoMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -114,6 +115,20 @@ public class MMDServiceImpl implements MMDService {
 
         // call MMD api to get alert results
         MMDResult mmdResult = mmdClient.findAnomaly(mmdRequest);
+
+        // log mmd request and response
+        MMDRecordInfo mmdRecordInfo = new MMDRecordInfo();
+        try {
+            mmdRecordInfo.setPayload(objectMapper.writeValueAsString(mmdRequest));
+            mmdRecordInfo.setResponse(objectMapper.writeValueAsString(mmdResult));
+            mmdRecordInfo.setAnomalyType(1);
+            mmdRecordInfo.setTimeInterval(1);
+            mmdRecordInfo.setUid("page");
+            mmdRecordInfoMapper.insert(mmdRecordInfo);
+        } catch (Exception e) {
+            throw new MMDException(e);
+        }
+
         List<JobResult> mmdJobResults = mmdResult.getJobs();
         List<AnomalyItemEntity> anomalyItems = new ArrayList<>();
         for (JobResult mmdJobResult : mmdJobResults) {

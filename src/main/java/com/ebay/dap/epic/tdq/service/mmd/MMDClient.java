@@ -25,18 +25,20 @@ public class MMDClient {
         } catch (JsonProcessingException e) {
             throw new MMDException(e);
         }
-        int retryAttempt = 5;
+
         MMDResult result = null;
 
+        // retry 5 times for http api call
+        int retryAttempt = 5;
         while (retryAttempt > 0) {
             try {
                 // sleep 5s between every retry
                 if (retryAttempt < 5) {
-                    Thread.sleep(5000);
+                    Thread.sleep(5000L);
                 }
                 result = restTemplate.postForObject("/", mmdRequest, MMDResult.class);
                 if (result != null && result.getCode() == 200) {
-                    // success get results
+                    // success get results, exit loop
                     break;
                 }
                 retryAttempt--;
@@ -46,6 +48,7 @@ public class MMDClient {
             }
         }
 
+        // throw exception if there is still no success response after 5 attempts
         if (result == null) {
             throw new MMDException("Error when calling MMD");
         }
