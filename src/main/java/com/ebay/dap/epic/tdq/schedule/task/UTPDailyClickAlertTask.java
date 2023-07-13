@@ -1,4 +1,4 @@
-package com.ebay.dap.epic.tdq.schedule.tasks;
+package com.ebay.dap.epic.tdq.schedule.task;
 
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.alert.AlertItem;
@@ -29,7 +29,7 @@ import static java.util.stream.Collectors.groupingBy;
 @Slf4j
 @Component
 @Lazy(false)
-public class UTPDailyAlertTask {
+public class UTPDailyClickAlertTask {
 
     @Autowired
     private MetricService metricService;
@@ -40,8 +40,8 @@ public class UTPDailyAlertTask {
     private static final String METRIC_KEY = "utp_click_daily_cnt";
 
 
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.alert.utp-daily-click:-}", zone = "GMT-7")
-    @SchedulerLock(name = "Alert_UTP_Click_by_channel", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
+    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.utp-daily-click-alert:-}", zone = "GMT-7")
+    @SchedulerLock(name = "UTPDailyClickAlertTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as endDt
         LocalDate endDt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);

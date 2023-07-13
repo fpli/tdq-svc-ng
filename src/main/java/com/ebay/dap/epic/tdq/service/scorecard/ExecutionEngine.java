@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public interface ExecutionEngine {
 
     /***
-     * Process the selected date's scorecard and save the results to database
+     * Process the selected date's scorecard and save the results to the database
      *
      * @param dt
      */

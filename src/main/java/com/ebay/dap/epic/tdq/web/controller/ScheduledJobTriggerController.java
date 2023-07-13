@@ -1,6 +1,5 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
-import com.ebay.dap.epic.tdq.schedule.tasks.UTPDailyAlertTask;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.AnomalyDetector;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,9 +26,6 @@ public class ScheduledJobTriggerController {
     @Autowired
     private AlertManager alertManager;
 
-    @Autowired
-    private UTPDailyAlertTask utpDailyAlertTask;
-
     @Operation(summary = "trigger abnormal page detecting")
     @GetMapping("triggerPageDetecting")
     public String triggerPageDetecting(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
@@ -45,9 +40,4 @@ public class ScheduledJobTriggerController {
         return "done";
     }
 
-    @PostMapping("/utpDailyAlertTask")
-    public String utpDailyAlertTask() throws Exception {
-        utpDailyAlertTask.run();
-        return "OK";
-    }
 }

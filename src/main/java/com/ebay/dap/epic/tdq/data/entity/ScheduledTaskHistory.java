@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("scheduled_task_history")
-public class ScheduledTaskHistory extends BaseEntity {
+public class ScheduledTaskHistory extends TimestampEntity {
 
     private String task;
 
@@ -27,9 +27,5 @@ public class ScheduledTaskHistory extends BaseEntity {
     private String errorMsg;
 
     private String errorDetails;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 
 }
