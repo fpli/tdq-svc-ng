@@ -8,6 +8,7 @@ import com.ebay.dap.epic.tdq.service.AnomalyDetector;
 import com.ebay.dap.epic.tdq.service.mmd.MMDException;
 import com.ebay.dap.epic.tdq.service.mmd.MMDService;
 import com.ebay.dap.epic.tdq.service.mmd.Series;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -16,10 +17,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -37,6 +41,8 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
     @Autowired
     private AnomalyItemMapper anomalyItemMapper;
 
+    final DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+
     /***
      * 1. get pageId list with traffic > 10 million and first seen date is past 3 months
      * 2. assemble MMD request and bulk request to get alert results
@@ -46,33 +52,33 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
      */
     @Override
     public void findAbnormalPages(LocalDate dt) throws MMDException {
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        Preconditions.checkNotNull(dt);
+
         // 1. get pages id list with traffic > 10 million and first seen date is past 3 months
         List<Integer> pages = nonBotPageCountMapper.findPageIdsForMMD(dt);
+
+        if (CollectionUtils.isEmpty(pages)) {
+            log.info("No PageId is qualified to be sent to MMD for anomaly detection");
+            return;
+        }
+
         log.info("PageId list for sending to MMD: {}, count: {}, dt: {}", pages, pages.size(), dt);
 
         List<AnomalyItemEntity> allAnomalyItems = new ArrayList<>();
 
-        for (List<Integer> bulkPages : Lists.partition(pages, 10)) {
-            List<NonBotPageCountEntity> pageHisTraffic =
-                    nonBotPageCountMapper.findAllByPageIdInAndDtGreaterThanEqualAndDtLessThanEqual(bulkPages,
-                            dt.minusDays(90).format(formatter),
-                            dt.format(formatter));
+        final LocalDate startDt = dt.minusDays(90);
 
-            Map<Integer, List<NonBotPageCountEntity>> map = pageHisTraffic.stream()
-                    .collect(groupingBy(NonBotPageCountEntity::getPageId));
-            Map<String, List<Series>> mmdSeries = new HashMap<>();
-            for (Map.Entry<Integer, List<NonBotPageCountEntity>> entry : map.entrySet()) {
-                List<Series> series = entry.getValue().stream()
-                        .map(e -> {
-                            Series s = new Series();
-                            s.setTimestamp(DateTimeFormatter.ISO_LOCAL_DATE.format(formatter.parse(e.getDt())));
-                            s.setValue(e.getTotal().doubleValue());
-                            return s;
-                        })
-                        .collect(Collectors.toList());
-                mmdSeries.put(String.valueOf(entry.getKey()), series);
-            }
+        // process 10 pages as a batch at once
+        for (List<Integer> bulkPages : Lists.partition(pages, 10)) {
+            List<NonBotPageCountEntity> pageCountList =
+                    nonBotPageCountMapper.findAllByPageIdInAndDtGreaterThanEqualAndDtLessThanEqual(bulkPages,
+                            startDt.format(dtFmt),
+                            dt.format(dtFmt));
+
+            Map<Integer, List<NonBotPageCountEntity>> map = pageCountList.stream()
+                                                                         .collect(groupingBy(NonBotPageCountEntity::getPageId));
+
+            Map<String, List<Series>> mmdSeries = covertToMMDSeries(map, startDt, dt);
 
             // 2. bulk request to MMD
             List<AnomalyItemEntity> anomalyItems = mmdService.bulkFindAnomalyDaily("page_profiling_daily", mmdSeries);
@@ -84,6 +90,49 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
         if (CollectionUtils.isNotEmpty(allAnomalyItems)) {
             log.info("Save {} abnormal pages into database", allAnomalyItems.size());
             anomalyItemMapper.saveAll(allAnomalyItems);
+        }
+    }
+
+    private Map<String, List<Series>> covertToMMDSeries(Map<Integer, List<NonBotPageCountEntity>> map, LocalDate startDt, LocalDate endDt) {
+        Map<String, List<Series>> mmdSeries = new HashMap<>();
+        long days = ChronoUnit.DAYS.between(startDt, endDt) + 1;
+        for (Map.Entry<Integer, List<NonBotPageCountEntity>> entry : map.entrySet()) {
+            final Integer pageId = entry.getKey();
+            List<NonBotPageCountEntity> pageCntList = entry.getValue();
+            if (pageCntList.size() < days) {
+                fillNullPageCount(pageCntList, startDt, endDt);
+            }
+
+            List<Series> series = pageCntList.stream()
+                                             .map(e -> {
+                                                 Series s = new Series();
+                                                 s.setTimestamp(DateTimeFormatter.ISO_LOCAL_DATE.format(dtFmt.parse(e.getDt())));
+                                                 s.setValue(e.getTotal().doubleValue());
+                                                 return s;
+                                             }).sorted(Comparator.comparing(Series::getTimestamp).reversed())
+                                             .collect(Collectors.toList());
+
+            mmdSeries.put(String.valueOf(pageId), series);
+        }
+        return mmdSeries;
+    }
+
+    private void fillNullPageCount(List<NonBotPageCountEntity> pageCntList, LocalDate startDt, LocalDate endDt) {
+        if (CollectionUtils.isEmpty(pageCntList)) {
+            throw new IllegalArgumentException();
+        }
+        final Integer pageId = pageCntList.get(0).getPageId();
+        Set<String> dates = pageCntList.stream().map(NonBotPageCountEntity::getDt).collect(Collectors.toSet());
+        LocalDate dt = startDt;
+        while (dt.isBefore(endDt)) {
+            if (!dates.contains(dt.format(dtFmt))) {
+                NonBotPageCountEntity entity = new NonBotPageCountEntity();
+                entity.setPageId(pageId);
+                entity.setTotal(0L);
+                entity.setDt(dt.format(dtFmt));
+                pageCntList.add(entity);
+            }
+            dt = dt.plusDays(1);
         }
     }
 }

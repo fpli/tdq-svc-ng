@@ -71,7 +71,7 @@ public interface NonBotPageCountMapper extends MPJBaseMapper<NonBotPageCountEnti
                             .select(NonBotPageCountEntity::getPageId)
                             .leftJoin(PageLookUpInfo.class, PageLookUpInfo::getPageId, NonBotPageCountEntity::getPageId)
                             .eq(NonBotPageCountEntity::getDt, dt.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-                            .gt(NonBotPageCountEntity::getTotal, 10000000L)
+                            .gt(NonBotPageCountEntity::getTotal, 5_000_000L)
                             .lt(PageLookUpInfo::getFirstSeenDt, dt.minusMonths(3));
 
         List<NonBotPageCountEntity> entities = selectJoinList(NonBotPageCountEntity.class, wrapper);

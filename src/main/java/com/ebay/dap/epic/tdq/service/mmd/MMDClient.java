@@ -21,7 +21,7 @@ public class MMDClient {
 
     public MMDResult findAnomaly(MMDRequest mmdRequest) throws MMDException {
         try {
-            log.info("mmdRequest: {}",  objectMapper.writeValueAsString(mmdRequest));
+            log.info("MMD request payload json: {}",  objectMapper.writeValueAsString(mmdRequest));
         } catch (JsonProcessingException e) {
             throw new MMDException(e);
         }
