@@ -1,7 +1,6 @@
 package com.ebay.dap.epic.tdq.service.scorecard;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.common.exception.ScorecardExecutionException;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.CategoryResult;
 import com.ebay.dap.epic.tdq.data.bo.scorecard.GroovyScriptRule;
@@ -76,7 +75,7 @@ public class SimpleExecutionEngine implements ExecutionEngine {
      *     - 4.4 get rule weighted score based on the domain specified weight config
      *     - 4.5 get category sub-total score based on rule results
      *     - 4.6 get final score for the domain based on category sub-total
-     *  5. save the scorecard results into database
+     *  5. save the scorecard results into the database
      *
      * @param dt
      */
@@ -101,9 +100,7 @@ public class SimpleExecutionEngine implements ExecutionEngine {
 
 
         // 2. get scorecard rule definitions from database
-        LambdaQueryWrapper<GroovyRuleDefEntity> lambdaQuery = Wrappers.lambdaQuery();
-        lambdaQuery.le(GroovyRuleDefEntity::getCreateTime, dt);
-        List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(lambdaQuery);
+        List<GroovyRuleDefEntity> ruleDefEntities = ruleDefMapper.selectList(null);
         if (CollectionUtils.isEmpty(ruleDefEntities)) {
             throw new ScorecardExecutionException("No scorecard rule definition found");
         }
@@ -158,7 +155,9 @@ public class SimpleExecutionEngine implements ExecutionEngine {
                 }
 
                 if (metricValues.size() != rule.getMetricKeys().size()) {
-                    throw new ScorecardExecutionException("Metric values size is not equal to metric key size");
+                    log.error("Metric values size is {}, which is not equal to metric keys size {}, the metric keys are: {}",
+                            metricValues.size(), rule.getMetricKeys().size(), rule.getMetricKeys());
+                    throw new ScorecardExecutionException("Cannot find metric values for metric keys: " + rule.getMetricKeys().toString());
                 }
 
                 rule.setMetricValues(metricValues);
@@ -220,12 +219,12 @@ public class SimpleExecutionEngine implements ExecutionEngine {
             log.info("Finished Scorecard calculation for domain: {}", domain);
         }
 
-        // check if results count is equal to domain counts
+        // check if result count is equal to domain counts
         if (domainScorecardResults.size() != domainList.size()) {
             throw new ScorecardExecutionException("Domain Scorecard results size is not equal to domain list size");
         }
 
-        // 5. save the scorecard results into database
+        // 5. save the scorecard results into the database
         List<CategoryResultEntity> categoryResultEntityList = new LinkedList<>();
         List<RuleResultEntity> ruleResultEntityList = new LinkedList<>();
 
@@ -253,12 +252,12 @@ public class SimpleExecutionEngine implements ExecutionEngine {
             }
         }
 
-        // save rule results to database
+        // save rule results to the database
         LambdaQueryWrapper<RuleResultEntity> ruleQueryWrapper = new LambdaQueryWrapper<>();
         ruleQueryWrapper.eq(RuleResultEntity::getDt, dt.toString());
         ruleResultRepository.remove(ruleQueryWrapper);
         ruleResultRepository.saveBatch(ruleResultEntityList);
-        // save category results to database
+        // save category results to the database
         LambdaQueryWrapper<CategoryResultEntity> categoryQueryWrapper = new LambdaQueryWrapper<>();
         categoryQueryWrapper.eq(CategoryResultEntity::getDt, dt.toString());
         categoryResultRepository.remove(categoryQueryWrapper);
