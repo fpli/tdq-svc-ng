@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.ebay.raptorio.platform</groupId>
         <artifactId>raptor-io-parent</artifactId>
-        <version>0.17.4-RELEASE</version>
+        <version>0.18.0-RELEASE</version>
         <relativePath></relativePath> <!-- lookup parent from repository -->
     </parent>
 
@@ -23,6 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <docker.image.prefix>hub.tess.io/raptorontess</docker.image.prefix>
+        <besconsumer.component.version>0.18.0.2-RELEASE</besconsumer.component.version>
         <lombok.version>1.18.22</lombok.version>
         <springdoc.version>1.6.14</springdoc.version>
         <compiler.plugin.version>3.10.1</compiler.plugin.version>
@@ -30,6 +31,7 @@
         <fount.client.version>0.2.16</fount.client.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <mybatis-plus-join.version>1.4.4.1</mybatis-plus-join.version>
+        <besproducer.component.version>0.18.0.2-RELEASE</besproducer.component.version>
         <guava.version>31.1-jre</guava.version>
         <swagger.annotations.v3.version>2.2.7</swagger.annotations.v3.version>
         
