@@ -186,10 +186,9 @@ public class AlertManagerImpl implements AlertManager {
 
         // send page profiling alerts to DL-eBay-Tracking-Data-Quality-Alert-Notify
         final List<String> to = List.of(
-                "DL-eBay-Tracking-Data-Quality@ebay.com",
-                "DL-eBay-Tracking-Data-Quality-Alert-Notify@ebay.com"
+                "DL-eBay-Tracking-Data-Quality@ebay.com"
         );
-        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com"), emailSubject);
+        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com", "yxiao6@ebay.com"), emailSubject);
     }
 
     private List<AnomalyItemEntity> getAbnormalPagesOfCustomer(List<AnomalyItemEntity> abnormalPages, Long customerId) {
