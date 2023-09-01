@@ -83,7 +83,7 @@ notification:
   email:
     enabled: true
     to: DL-eBay-Tracking-Data-Quality@ebay.com
-    cc: DL-eBay-Tracking-Data-Quality@ebay.com
+    cc: DL-eBay-Tracking-Behavior-Data@ebay.com
 
 management:
   endpoints:
