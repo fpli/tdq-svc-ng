@@ -10,6 +10,7 @@ import com.ebay.dap.epic.tdq.service.mmd.MMDService;
 import com.ebay.dap.epic.tdq.service.mmd.Series;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,14 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
     public void findAbnormalPages(LocalDate dt) throws MMDException {
         Preconditions.checkNotNull(dt);
 
-        // 1. get pages id list with traffic > 10 million and first seen date is past 3 months
-        List<Integer> pages = nonBotPageCountMapper.findPageIdsForMMD(dt);
+        // 1. get pages id list with traffic > 5 million and first seen date is past 3 months
+        List<Integer> pagesGte5M = nonBotPageCountMapper.findPageIdsForMMD(dt);
+        List<Integer> pagesGte5MLast7D = nonBotPageCountMapper.findPageIdsGte5MLast7D(dt);
+
+        Set<Integer> pagesSet = Sets.newHashSet(pagesGte5M);
+        pagesSet.addAll(pagesGte5MLast7D);
+
+        List<Integer> pages = new ArrayList<>(pagesSet);
 
         if (CollectionUtils.isEmpty(pages)) {
             log.info("No PageId is qualified to be sent to MMD for anomaly detection");
