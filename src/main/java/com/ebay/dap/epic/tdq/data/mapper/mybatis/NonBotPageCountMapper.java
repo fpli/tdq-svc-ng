@@ -78,6 +78,17 @@ public interface NonBotPageCountMapper extends MPJBaseMapper<NonBotPageCountEnti
         return entities.stream().map(NonBotPageCountEntity::getPageId).distinct().toList();
     }
 
+    default List<Integer> findPageIdsGte5MLast7D(LocalDate dt) {
+        QueryWrapper<NonBotPageCountEntity> wrapper = new QueryWrapper<>();
+        wrapper.select("page_id, max(total) as max_total_in_7d")
+               .gt("dt", dt.minusDays(9).format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+               .gt("total", 5_000_000L)
+               .groupBy("page_id");
+
+        List<NonBotPageCountEntity> entities = selectList(wrapper);
+        return entities.stream().map(NonBotPageCountEntity::getPageId).distinct().toList();
+    }
+
     @Select("select round(avg(t.total)) from profiling_page_count t where t.page_id = #{pageId} and t.dt between #{startDt} and #{endDt}")
     Long findAvgByPageIdAndBetweenDt(@Param("pageId") Integer pageId, @Param("startDt") String startDt, @Param("endDt") String endDt);
 
