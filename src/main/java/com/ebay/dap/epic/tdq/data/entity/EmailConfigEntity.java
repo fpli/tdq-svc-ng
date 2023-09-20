@@ -11,6 +11,8 @@ import lombok.ToString;
 @TableName("t_email_cfg")
 public class EmailConfigEntity extends AuditableEntity {
 
+    String name;
+
     String subject;
 
     String recipient;

@@ -1,5 +1,7 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
 import com.ebay.dap.epic.tdq.data.entity.*;
@@ -72,7 +74,9 @@ public class AlertManagerImpl implements AlertManager {
             List<String> ccList = List.of();
             // only send alerts when the customer list is not empty
             if (!customers.isEmpty()){
-                EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectById(1000);
+                LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+                lambdaQuery.eq(EmailConfigEntity::getName, "Page Profiling Abnormal Alert To Customer");
+                EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
                 ccList = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).toList();
             }
             for (CustomerGroupEntity customer : customers) {
@@ -184,7 +188,9 @@ public class AlertManagerImpl implements AlertManager {
         context.setVariable("pageAlert", pageAlertDto);
 
         String content = templateEngine.process("page-profiling-alert", context);
-        EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectById(1001);
+        LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+        lambdaQuery.eq(EmailConfigEntity::getName, "Page Profiling Abnormal Alert To TDQ");
+        EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
         // send page profiling alerts to DL-eBay-Tracking-Data-Quality-Alert-Notify
 //        final List<String> to = List.of(

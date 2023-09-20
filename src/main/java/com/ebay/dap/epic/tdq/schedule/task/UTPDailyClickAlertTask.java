@@ -1,5 +1,7 @@
 package com.ebay.dap.epic.tdq.schedule.task;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
@@ -108,7 +110,10 @@ public class UTPDailyClickAlertTask {
             Context context = new Context();
             context.setVariable("emailAlert", emailAlert);
 
-            EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectById(1002);
+            LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+            lambdaQuery.eq(EmailConfigEntity::getName, "UTP Daily Click Volume");
+            EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
+
             List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
 //            emailService.sendHtmlEmail("TDQ Alerts - UTP Daily Click Volume",
 //                    "utp-daily-click-alert", context,
