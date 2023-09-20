@@ -1,5 +1,9 @@
 package com.ebay.dap.epic.tdq.schedule.task;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.alert.AlertItem;
 import com.ebay.dap.epic.tdq.data.vo.alert.EmailAlert;
@@ -18,11 +22,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -38,6 +38,9 @@ public class UTPDailyClickAlertTask {
     private EmailService emailService;
 
     private static final String METRIC_KEY = "utp_click_daily_cnt";
+
+    @Autowired
+    private EmailConfigEntityMapper emailConfigEntityMapper;
 
 
     @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.utp-daily-click-alert:-}", zone = "GMT-7")
@@ -107,9 +110,17 @@ public class UTPDailyClickAlertTask {
             Context context = new Context();
             context.setVariable("emailAlert", emailAlert);
 
+            LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+            lambdaQuery.eq(EmailConfigEntity::getName, "UTP Daily Click Volume");
+            EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
+
+            List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
+//            emailService.sendHtmlEmail("TDQ Alerts - UTP Daily Click Volume",
+//                    "utp-daily-click-alert", context,
+//                    Lists.newArrayList("DL-eBay-Tracking-Data-Quality-Dev@ebay.com"));
             emailService.sendHtmlEmail("TDQ Alerts - UTP Daily Click Volume",
                     "utp-daily-click-alert", context,
-                    Lists.newArrayList("DL-eBay-Tracking-Data-Quality-Dev@ebay.com"));
+                    to);
         }
 
     }
