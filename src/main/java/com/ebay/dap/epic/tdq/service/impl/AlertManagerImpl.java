@@ -2,15 +2,8 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
-import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
-import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
-import com.ebay.dap.epic.tdq.data.entity.PageLookUpInfo;
-import com.ebay.dap.epic.tdq.data.entity.ProfilingCustomerPageRel;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.CustomerGroupMapper;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.PageLookUpInfoMapper;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.ProfilingCustomerPageRelMapper;
+import com.ebay.dap.epic.tdq.data.entity.*;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import com.google.common.collect.Lists;
@@ -25,6 +18,7 @@ import org.thymeleaf.context.Context;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,6 +56,9 @@ public class AlertManagerImpl implements AlertManager {
     @Value("#{'${notification.email.to}'.split(',')}")
     private List<String> toList;
 
+    @Autowired
+    private EmailConfigEntityMapper emailConfigEntityMapper;
+
     @Override
     public void sendPageProfilingAlertEmail(LocalDate dt) throws Exception {
         List<AnomalyItemEntity> abnormalPages = anomalyItemMapper.findAllAbnormalPagesOfDt(dt);
@@ -72,8 +69,12 @@ public class AlertManagerImpl implements AlertManager {
             sendAlertToTDQTeam(abnormalPages, dt);
 
             List<CustomerGroupEntity> customers = customerGroupRepo.findAll();
-
+            List<String> ccList = List.of();
             // only send alerts when the customer list is not empty
+            if (!customers.isEmpty()){
+                EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectById(1000);
+                ccList = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).toList();
+            }
             for (CustomerGroupEntity customer : customers) {
                 final String to = customer.getEmailDl();
                 final Long customerId = customer.getId();
@@ -183,12 +184,16 @@ public class AlertManagerImpl implements AlertManager {
         context.setVariable("pageAlert", pageAlertDto);
 
         String content = templateEngine.process("page-profiling-alert", context);
-
+        EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectById(1001);
+        List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
         // send page profiling alerts to DL-eBay-Tracking-Data-Quality-Alert-Notify
-        final List<String> to = List.of(
-                "DL-eBay-Tracking-Data-Quality@ebay.com"
-        );
-        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com", "yxiao6@ebay.com"), emailSubject);
+//        final List<String> to = List.of(
+//                "DL-eBay-Tracking-Data-Quality@ebay.com"
+//        );
+
+        List<String> cc = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).toList();
+//        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com", "yxiao6@ebay.com"), emailSubject);
+        emailService.sendHtmlEmail(content, to, cc, emailSubject);
     }
 
     private List<AnomalyItemEntity> getAbnormalPagesOfCustomer(List<AnomalyItemEntity> abnormalPages, Long customerId) {
