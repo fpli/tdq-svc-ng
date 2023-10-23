@@ -1,5 +1,9 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
 import com.ebay.dap.epic.tdq.data.vo.alert.EmailRecipient;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import lombok.NonNull;
@@ -13,6 +17,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -24,6 +29,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private EmailConfigEntityMapper emailConfigMapper;
 
     private static final String FROM_ADDRESS = "tdq-no-replay@ebay.com";
     private static final String FROM_NAME = "TDQ_AlertManager";
@@ -74,5 +82,19 @@ public class EmailServiceImpl implements EmailService {
         }
 
         mailSender.send(mimeMessage);
+    }
+
+    @Override
+    public void sendEmail(@NonNull String emailTemplate, @NonNull String title, Context context) throws Exception {
+
+        LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+        lambdaQuery.eq(EmailConfigEntity::getName, title);
+        EmailConfigEntity emailConfigEntity = emailConfigMapper.selectOne(lambdaQuery);
+        List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).toList();
+        List<String> cc = null;
+        if (emailConfigEntity.getCc() != null) {
+            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).toList();
+        }
+        this.sendHtmlEmail(title, emailTemplate, context, to, cc);
     }
 }

@@ -1,4 +1,3 @@
--- domain weight config table
 DROP TABLE IF EXISTS `t_email_cfg`;
 CREATE TABLE `t_email_cfg`
 (
@@ -6,7 +5,7 @@ CREATE TABLE `t_email_cfg`
     `name`        VARCHAR(255)  NOT NULL,
     `subject`     VARCHAR(255)  NOT NULL,
     `recipient`   VARCHAR(255)  NOT NULL,
-    `cc`          VARCHAR(255)  NOT NULL,
+    `cc`          VARCHAR(255)  NULL,
     `created_by`  VARCHAR(255)  NULL COMMENT 'Created By' DEFAULT 'sys',
     `updated_by`  VARCHAR(255)  NULL COMMENT 'Updated By' DEFAULT 'sys',
     `create_time` TIMESTAMP     NULL                      DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
@@ -14,7 +13,6 @@ CREATE TABLE `t_email_cfg`
     PRIMARY KEY (`id`)
 ) AUTO_INCREMENT = 1000;
 
--- 1000 enable 6 domains for MVP version
 INSERT INTO `t_email_cfg` (name, subject, recipient, cc)
 VALUES ('Page Profiling Abnormal Alert To Customer', 'TDQ Alerts - Page Profiling Abnormal Alert(Customer)', 'DL-eBay-PA-dev-CCOE@ebay.com', 'DL-eBay-Tracking-Behavior-Data@ebay.com');
 

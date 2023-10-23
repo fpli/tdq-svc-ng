@@ -17,6 +17,8 @@ class ChartInfoMapperTest extends AbstractMapperTest {
         ChartInfoEntity entity = new ChartInfoEntity();
         entity.setName("My Chart");
         entity.setMetricKeys("my_key");
+        //TODO: remove this line, ut will fail, check root cause
+        entity.setDispOrder(1);
         entity.setMode(ChartMode.BY_DIMENSION);
 
         mapper.insert(entity);

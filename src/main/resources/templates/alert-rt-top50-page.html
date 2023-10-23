@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      #page-alert-table {
+        border-collapse: collapse;
+        width: 90%;
+      }
+
+      #page-alert-table td, #page-alert-table th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+
+      #page-alert-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      #page-alert-table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4a86e8;
+        color: white;
+      }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="header"></div> -->
+    <div class="content">
+        <p id="alert-msg">
+            Hi Team, <br/><br/>
+
+            We detected that there are <b th:text="${#lists.size(pageAlert.items)}">5</b> abnormal page(s)
+            on <b th:text="${pageAlert.metricTime}">2022-04-11</b>. <br/><br/>
+
+            Details of abnormal pages are listed as below. <br/>
+        </p>
+        <div id="page-alert">
+            <table id="page-alert-table">
+                <thead>
+                <tr>
+                    <th>Page ID</th>
+                    <th>Page Name</th>
+                    <th>Page Family</th>
+                    <th>iFrame</th>
+                    <th>Avg of last 4 weeks</th>
+                    <th>Current</th>
+                    <th>Change</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="page : ${pageAlert.items}">
+                    <td><span th:text="${page.pageId}">123</span></td>
+                    <td><span th:text="${page.pageName}">name</span></td>
+                    <td><span th:text="${page.pageFmly}">VI</span></td>
+                    <td><span th:text="${page.iFrame}">0</span></td>
+                    <td><span th:text="${#numbers.formatDecimal(page.avgOfLast4W, 0, 'COMMA', 0, 'POINT')}">123,456</span>
+                    </td>
+                    <td><span th:text="${#numbers.formatDecimal(page.currentVal, 0, 'COMMA', 0, 'POINT')}">123,345</span>
+                    </td>
+                    <td><span
+                            th:text="${#numbers.formatPercent((page.currentVal * 1.0 - page.avgOfLast4W)/page.avgOfLast4W, 1, 2)}">-30%</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="footer">
+        <br/><br/><br/>
+        Thanks, <br/>
+        Tracking Behavior Data Team
+    </div>
+</div>
+</body>
+</html>

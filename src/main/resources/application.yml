@@ -17,6 +17,7 @@ spring:
     baseline-on-migrate: true
     out-of-order: false
     validate-on-migrate: true
+    validate-migration-naming: true
   mail:
     host: mxrc.vip.ebay.com
     port: 25
