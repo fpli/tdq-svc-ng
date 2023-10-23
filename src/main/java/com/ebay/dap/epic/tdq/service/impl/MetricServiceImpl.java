@@ -5,6 +5,7 @@ import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.MetricInfoMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mystruct.MetricMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
+import com.ebay.dap.epic.tdq.data.pronto.PageMetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 import com.ebay.dap.epic.tdq.service.MetricService;
 import com.google.common.base.Preconditions;
@@ -172,6 +173,37 @@ public class MetricServiceImpl implements MetricService {
 
         SearchHits<MetricDoc> search = esOperations.search(query, MetricDoc.class, indexCoordinates);
         return search.getTotalHits() > 0;
+    }
+
+    @Override
+    public List<PageMetricDoc> getTop50PageMetricDoc(List<Integer> pageIds, LocalDate dt, Integer hr) {
+
+        IndexCoordinates indexCoordinates = IndexCoordinates.of("my-index");
+
+        List<String> dates = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            LocalDate d = dt.minusWeeks(i);
+            dates.add(d.toString());
+        }
+
+        Criteria criteria = new Criteria("metric_key").is("hourly_event_cnt")
+                .and("dt").in(dates)
+                .and("hr").is(hr)
+                .and("page_id").in(pageIds);
+
+        Query query = new CriteriaQuery(criteria);
+
+        SearchHits<PageMetricDoc> search = esOperations.search(query, PageMetricDoc.class, indexCoordinates);
+
+        List<PageMetricDoc> results = new ArrayList<>();
+
+        for (SearchHit<PageMetricDoc> searchHit : search.getSearchHits()) {
+            PageMetricDoc content = searchHit.getContent();
+            results.add(content);
+        }
+
+        return results;
     }
 
     private List<MetricDoc> convertSearchHitsToMetricDocs(List<SearchHit<MetricDoc>> searchHits) {

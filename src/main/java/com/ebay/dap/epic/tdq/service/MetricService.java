@@ -2,6 +2,7 @@ package com.ebay.dap.epic.tdq.service;
 
 import com.ebay.dap.epic.tdq.data.entity.MetricInfoEntity;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
+import com.ebay.dap.epic.tdq.data.pronto.PageMetricDoc;
 import com.ebay.dap.epic.tdq.data.vo.metric.MetricInfoVO;
 
 import java.time.LocalDate;
@@ -26,5 +27,7 @@ public interface MetricService {
     List<MetricDoc> getDailyMetricDimensionSeries(String metricKey, LocalDate endDt, int size);
 
     Boolean dailyMetricExists(String metricKey, LocalDate dt);
+
+    List<PageMetricDoc> getTop50PageMetricDoc(List<Integer> pageIds, LocalDate dt, Integer hr);
 
 }
