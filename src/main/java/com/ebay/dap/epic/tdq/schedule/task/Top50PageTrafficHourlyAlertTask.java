@@ -50,6 +50,9 @@ public class Top50PageTrafficHourlyAlertTask {
     @Autowired
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
 
+    /**
+     *  Run every hour at :30
+     */
     @Scheduled(cron = "0 30 * * * *")
     @SchedulerLock(name = "Top50PageTrafficHourlyAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {

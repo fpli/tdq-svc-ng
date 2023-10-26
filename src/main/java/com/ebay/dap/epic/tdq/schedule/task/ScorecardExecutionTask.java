@@ -10,16 +10,18 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-@Component
+@Component("ScorecardExecutionTask")
 @Lazy(false)
 public class ScorecardExecutionTask {
 
     @Autowired
     private ExecutionEngine executionEngine;
 
-    // use MST(UTC-7) to schedule as all UC4 job are based on MST(UTC-7)
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.scorecard-execution}", zone = "GMT-7")
-    @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    /**
+     *  Run at 5:00 PM MST everyday
+     */
+    @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
+    @SchedulerLock(name = "ScorecardExecutionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as dt
         LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);

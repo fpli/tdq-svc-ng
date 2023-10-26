@@ -27,7 +27,7 @@ import java.util.*;
 import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
-@Component
+@Component("UTPDailyClickAlertTask")
 @Lazy(false)
 public class UTPDailyClickAlertTask {
 
@@ -43,8 +43,11 @@ public class UTPDailyClickAlertTask {
     private EmailConfigEntityMapper emailConfigEntityMapper;
 
 
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.utp-daily-click-alert:-}", zone = "GMT-7")
-    @SchedulerLock(name = "UTPDailyClickAlertTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    /**
+     *  Run at 5:00 PM MST everyday
+     */
+    @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
+    @SchedulerLock(name = "UTPDailyClickAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as endDt
         LocalDate endDt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);

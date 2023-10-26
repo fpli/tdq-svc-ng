@@ -9,15 +9,18 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Component
+@Component("MultipleUidAlertTask")
 @Lazy(false)
 public class MultipleUidAlertTask {
 
     @Autowired
     private AlertManager alertManager;
 
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.multi-uid-alert}", zone = "GMT-7")
-    @SchedulerLock(name = "MultipleUidAlertTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    /**
+     * Run at 11:00 AM MST everyday
+     */
+    @Scheduled(cron = "0 0 11 * * *", zone = "GMT-7")
+    @SchedulerLock(name = "MultipleUidAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         LocalDateTime localDateTime = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1);
         alertManager.multipleUidAlert(localDateTime);

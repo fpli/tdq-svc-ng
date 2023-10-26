@@ -10,15 +10,18 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-@Component
+@Component("PageProfilingAnomalyDetectionTask")
 @Lazy(false)
 public class PageProfilingAnomalyDetectionTask {
 
     @Autowired
     private AnomalyDetector anomalyDetector;
 
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-anomaly-detection}", zone = "GMT-7")
-    @SchedulerLock(name = "PageProfilingAnomalyDetectionTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    /**
+     * Run at 10:00 AM MST everyday
+     */
+    @Scheduled(cron = "0 0 10 * * *", zone = "GMT-7")
+    @SchedulerLock(name = "PageProfilingAnomalyDetectionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as dt
         LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
