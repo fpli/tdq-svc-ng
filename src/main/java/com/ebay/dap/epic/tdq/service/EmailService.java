@@ -2,7 +2,7 @@ package com.ebay.dap.epic.tdq.service;
 
 import java.util.List;
 
-import com.ebay.dap.epic.tdq.data.vo.alert.EmailRecipient;
+import com.ebay.dap.epic.tdq.data.vo.email.EmailRecipient;
 import lombok.NonNull;
 import org.thymeleaf.context.Context;
 

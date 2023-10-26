@@ -1,6 +1,10 @@
 package com.ebay.dap.epic.tdq.schedule;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.entity.ScheduledTaskCfg;
 import com.ebay.dap.epic.tdq.data.entity.ScheduledTaskHistory;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.ScheduledTaskCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ScheduledTaskHistoryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -21,7 +25,10 @@ import java.time.temporal.ChronoUnit;
 public class ScheduledTaskAspect {
 
     @Autowired
-    private ScheduledTaskHistoryMapper mapper;
+    private ScheduledTaskHistoryMapper scheduledTaskHistoryMapper;
+
+    @Autowired
+    private ScheduledTaskCfgMapper scheduledTaskCfgMapper;
 
     @Around("@annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void doIt(ProceedingJoinPoint pjp) {
@@ -45,9 +52,27 @@ public class ScheduledTaskAspect {
         taskHistory.setStartTime(startTime);
         taskHistory.setStatus(JobStatus.STARTED);
 
-        mapper.insert(taskHistory);
+        scheduledTaskHistoryMapper.insert(taskHistory);
 
         try {
+            // skip if the task is set to inactive
+            LambdaQueryWrapper<ScheduledTaskCfg> scheduledTaskCfgQuery = Wrappers.lambdaQuery();
+            scheduledTaskCfgQuery.eq(ScheduledTaskCfg::getTask, taskName);
+            ScheduledTaskCfg scheduledTaskCfg = scheduledTaskCfgMapper.selectOne(scheduledTaskCfgQuery);
+            if (scheduledTaskCfg != null && scheduledTaskCfg.getInactive()) {
+                log.info("Skipped {}", taskName);
+                // use GMT-7 timezone to track job time
+                LocalDateTime endTime = LocalDateTime.now(ZoneId.of("GMT-7"));
+                long runningSec = ChronoUnit.SECONDS.between(startTime, endTime);
+
+                taskHistory.setEndTime(endTime);
+                taskHistory.setRunningSec(runningSec);
+                taskHistory.setStatus(JobStatus.SKIPPED);
+
+                scheduledTaskHistoryMapper.updateById(taskHistory);
+                return;
+            }
+
             pjp.proceed();
 
             // use GMT-7 timezone to track job time
@@ -58,7 +83,7 @@ public class ScheduledTaskAspect {
             taskHistory.setRunningSec(runningSec);
             taskHistory.setStatus(JobStatus.SUCCESS);
 
-            mapper.updateById(taskHistory);
+            scheduledTaskHistoryMapper.updateById(taskHistory);
 
             log.info("Succeed to execute scheduled task: {}", taskName);
 
@@ -73,7 +98,7 @@ public class ScheduledTaskAspect {
             taskHistory.setErrorMsg(e.getMessage());
             taskHistory.setErrorDetails(ExceptionUtils.getStackTrace(e));
 
-            mapper.updateById(taskHistory);
+            scheduledTaskHistoryMapper.updateById(taskHistory);
         }
 
     }

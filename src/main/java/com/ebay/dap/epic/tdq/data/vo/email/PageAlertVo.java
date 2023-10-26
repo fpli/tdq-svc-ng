@@ -1,4 +1,4 @@
-package com.ebay.dap.epic.tdq.data.vo.alert;
+package com.ebay.dap.epic.tdq.data.vo.email;
 
 import lombok.Data;
 

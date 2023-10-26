@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
-import com.ebay.dap.epic.tdq.data.vo.alert.EmailRecipient;
+import com.ebay.dap.epic.tdq.data.vo.email.EmailRecipient;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
