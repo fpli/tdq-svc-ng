@@ -6,6 +6,8 @@ public enum JobStatus {
 
     SUCCESS,
 
+    SKIPPED,
+
     ERROR
 
 }

@@ -10,15 +10,18 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-@Component
+@Component("PageProfilingAlertNotificationTask")
 @Lazy(false)
 public class PageProfilingAlertNotificationTask {
 
     @Autowired
     private AlertManager alertManager;
 
-    @Scheduled(cron = "${tdqsvcngcfg.schedule.cron.page-profiling-alert-notification}", zone = "GMT-7")
-    @SchedulerLock(name = "PageProfilingAlertNotificationTask", lockAtLeastFor = "PT10M", lockAtMostFor = "PT30M")
+    /**
+     * Run at 11:00 AM MST everyday
+     */
+    @Scheduled(cron = "0 0 11 * * *", zone = "GMT-7")
+    @SchedulerLock(name = "PageProfilingAlertNotificationTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // T-1 as dt
         LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);

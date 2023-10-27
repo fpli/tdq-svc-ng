@@ -4,8 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
-import com.ebay.dap.epic.tdq.data.entity.*;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
+import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
+import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
+import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
+import com.ebay.dap.epic.tdq.data.entity.PageLookUpInfo;
+import com.ebay.dap.epic.tdq.data.entity.ProfilingCustomerPageRel;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.CustomerGroupMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.PageLookUpInfoMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.ProfilingCustomerPageRelMapper;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import com.google.common.collect.Lists;
@@ -14,7 +23,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDate;
@@ -28,9 +36,6 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class AlertManagerImpl implements AlertManager {
-
-    @Autowired
-    private TemplateEngine templateEngine;
 
     @Autowired
     private AnomalyItemMapper anomalyItemMapper;
@@ -126,12 +131,8 @@ public class AlertManagerImpl implements AlertManager {
                     Context context = new Context();
                     context.setVariable("pageAlert", pageAlertDto);
 
-                    String content = templateEngine.process("page-profiling-alert", context);
-
-                    emailService.sendHtmlEmail(content,
-                            Lists.newArrayList(to),
-                            ccList,
-                            emailSubject);
+                    emailService.sendHtmlEmail("page-profiling-alert",
+                            context, emailSubject, Lists.newArrayList(to), ccList);
                 }
             }
         }
@@ -187,19 +188,15 @@ public class AlertManagerImpl implements AlertManager {
         Context context = new Context();
         context.setVariable("pageAlert", pageAlertDto);
 
-        String content = templateEngine.process("page-profiling-alert", context);
         LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
         lambdaQuery.eq(EmailConfigEntity::getName, "Page Profiling Abnormal Alert To TDQ");
         EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
-        // send page profiling alerts to DL-eBay-Tracking-Data-Quality-Alert-Notify
-//        final List<String> to = List.of(
-//                "DL-eBay-Tracking-Data-Quality@ebay.com"
-//        );
-
-        List<String> cc = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).toList();
-//        emailService.sendHtmlEmail(content, to, List.of("fangpli@ebay.com", "yxiao6@ebay.com"), emailSubject);
-        emailService.sendHtmlEmail(content, to, cc, emailSubject);
+        List<String> cc = null;
+        if (emailConfigEntity.getCc() != null) {
+            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).toList();
+        }
+        emailService.sendHtmlEmail("page-profiling-alert", context, emailSubject, to, cc);
     }
 
     private List<AnomalyItemEntity> getAbnormalPagesOfCustomer(List<AnomalyItemEntity> abnormalPages, Long customerId) {
