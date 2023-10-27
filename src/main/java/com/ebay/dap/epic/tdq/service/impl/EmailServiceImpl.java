@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
-import com.ebay.dap.epic.tdq.data.vo.email.EmailRecipient;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -36,11 +35,19 @@ public class EmailServiceImpl implements EmailService {
     private static final String FROM_ADDRESS = "tdq-no-replay@ebay.com";
     private static final String FROM_NAME = "TDQ_AlertManager";
 
+
     @Override
-    public void sendHtmlEmail(@NonNull String content, @NonNull List<String> to, List<String> cc, @NonNull String subject) throws Exception {
-        log.info("Sending HTML Email to {} of subject {}", to, subject);
+    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to) throws Exception {
+        this.sendHtmlEmail(templateName, context, subject, to, null);
+    }
+
+    @Override
+    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> cc) throws Exception {
+        log.info("Sending HTML Email using template {} with subject {}", templateName, subject);
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
+
+        String content = templateEngine.process(templateName, context);
 
         helper.setFrom(FROM_ADDRESS, FROM_NAME);
         helper.setTo(to.toArray(new String[0]));
@@ -55,46 +62,21 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendHtmlEmail(String title, @NonNull String templateName, Context context, EmailRecipient emailRecipient) throws Exception {
-        this.sendHtmlEmail(title, templateName, context, emailRecipient.getTo(), emailRecipient.getCc());
-    }
-
-    @Override
-    public void sendHtmlEmail(String title, @NonNull String templateName, Context context, List<String> to) throws Exception {
-        this.sendHtmlEmail(title, templateName, context, to, null);
-    }
-
-    @Override
-    public void sendHtmlEmail(String title, @NonNull String templateName, Context context, List<String> to, List<String> cc) throws Exception {
-        log.info("Sending HTML Email using template {} with title {}", templateName, title);
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-
-        String content = templateEngine.process(templateName, context);
-
-        helper.setFrom(FROM_ADDRESS, FROM_NAME);
-        helper.setTo(to.toArray(new String[0]));
-        helper.setSubject(title);
-        helper.setText(content, true);
-
-        if (CollectionUtils.isNotEmpty(cc)) {
-            helper.setCc(cc.toArray(new String[0]));
-        }
-
-        mailSender.send(mimeMessage);
-    }
-
-    @Override
-    public void sendEmail(@NonNull String emailTemplate, @NonNull String title, Context context) throws Exception {
+    public void sendEmail(@NonNull String emailTemplate, Context context, @NonNull String emailCfgName) throws Exception {
 
         LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
-        lambdaQuery.eq(EmailConfigEntity::getName, title);
+        lambdaQuery.eq(EmailConfigEntity::getName, emailCfgName);
         EmailConfigEntity emailConfigEntity = emailConfigMapper.selectOne(lambdaQuery);
+
+        if (emailConfigEntity == null) {
+            throw new IllegalStateException("email config is not found");
+        }
+
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).toList();
         List<String> cc = null;
         if (emailConfigEntity.getCc() != null) {
             cc = Arrays.stream(emailConfigEntity.getCc().split(",")).toList();
         }
-        this.sendHtmlEmail(title, emailTemplate, context, to, cc);
+        this.sendHtmlEmail(emailTemplate, context, emailConfigEntity.getSubject(), to, cc);
     }
 }

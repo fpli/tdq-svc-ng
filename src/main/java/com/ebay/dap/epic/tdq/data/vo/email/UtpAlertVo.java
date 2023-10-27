@@ -4,12 +4,11 @@ import lombok.Data;
 
 import java.util.List;
 
-@Deprecated
 @Data
-public class EmailAlert {
+public class UtpAlertVo {
 
-    private String dt;
+    private String metricTime;
 
-    private List<AlertItem> items;
+    private List<UtpAlertItemVo> items;
 
 }
