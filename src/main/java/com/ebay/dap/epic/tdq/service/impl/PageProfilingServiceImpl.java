@@ -103,9 +103,9 @@ public class PageProfilingServiceImpl implements PageProfilingService {
         } catch (Exception e) {
             log.error("e: {}", e.getMessage());
         }
-        String dt = yyyyMMdd.format(date.minusDays(100));
-        nonBotPageCountRepo.deleteByDtLessThan(dt);
-        botPageCountRepo.deleteByDtLessThan(dt);
+        //String dt = yyyyMMdd.format(date.minusDays(100));
+        //nonBotPageCountRepo.deleteByDtLessThan(dt);
+        //botPageCountRepo.deleteByDtLessThan(dt);
     }
 
     @Override
