@@ -1,9 +1,6 @@
 package com.ebay.dap.epic.tdq.schedule.task;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.common.util.DateTimeUtils;
-import com.ebay.dap.epic.tdq.data.entity.AlertSuppressionPageCfgEntity;
 import com.ebay.dap.epic.tdq.data.entity.Top50PageEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.AlertSuppressionPageCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.Top50PageMapper;
@@ -51,26 +48,19 @@ public class Top50PageTrafficHourlyAlertTask {
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
 
     /**
-     *  Run every hour at :30
+     *  Run every hour at 30'
      */
     @Scheduled(cron = "0 30 * * * *")
     @SchedulerLock(name = "Top50PageTrafficHourlyAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         // TODO: add logic to detect if there is upstream delay.
 
-        QueryWrapper<AlertSuppressionPageCfgEntity> query = Wrappers.query();
-        query.select("page_id, max(suppress_util) as suppress_util")
-             .groupBy("page_id");
-        List<AlertSuppressionPageCfgEntity> alertSuppressionPageCfgEntities = alertSuppressionPageCfgMapper.selectList(query);
-
         List<Top50PageEntity> top50Pages = top50PageMapper.findAll();
 
-        if (alertSuppressionPageCfgEntities != null) {
-            for (AlertSuppressionPageCfgEntity entity : alertSuppressionPageCfgEntities) {
-                if (entity.getSuppressUtil().isAfter(LocalDateTime.now())) {
-                    top50Pages.removeIf(top50PageEntity -> top50PageEntity.getPageId().equals(entity.getPageId()));
-                }
-            }
+        // remove pages in alert_suppression_page_cfg
+        List<Integer> suppressedPageIds = alertSuppressionPageCfgMapper.listValidPageIds();
+        if (CollectionUtils.isNotEmpty(suppressedPageIds)) {
+            suppressedPageIds.forEach(page -> top50Pages.removeIf(e -> e.getPageId().equals(page)));
         }
 
         List<Integer> top50pageIds = top50Pages.stream().map(Top50PageEntity::getPageId).toList();

@@ -2,6 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.entity.NonBotPageCountEntity;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.AlertSuppressionPageCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.AnomalyItemMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
 import com.ebay.dap.epic.tdq.service.AnomalyDetector;
@@ -42,6 +43,9 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
     @Autowired
     private AnomalyItemMapper anomalyItemMapper;
 
+    @Autowired
+    private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
+
     final DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     /***
@@ -58,9 +62,11 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
         // 1. get pages id list with traffic > 5 million and first seen date is past 3 months
         List<Integer> pagesGte5M = nonBotPageCountMapper.findPageIdsForMMD(dt);
         List<Integer> pagesGte5MLast7D = nonBotPageCountMapper.findPageIdsGte5MLast7D(dt);
+        List<Integer> suppressedPages = alertSuppressionPageCfgMapper.listValidPageIds(dt);
 
         Set<Integer> pagesSet = Sets.newHashSet(pagesGte5M);
         pagesSet.addAll(pagesGte5MLast7D);
+        suppressedPages.forEach(pagesSet::remove);
 
         List<Integer> pages = new ArrayList<>(pagesSet);
 
