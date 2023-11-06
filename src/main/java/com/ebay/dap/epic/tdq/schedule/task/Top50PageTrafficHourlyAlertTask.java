@@ -48,7 +48,7 @@ public class Top50PageTrafficHourlyAlertTask {
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
 
     /**
-     *  Run every hour at 30'
+     * Run every hour at 30'
      */
     @Scheduled(cron = "0 30 * * * *")
     @SchedulerLock(name = "Top50PageTrafficHourlyAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
@@ -99,9 +99,10 @@ public class Top50PageTrafficHourlyAlertTask {
                 } else {
                     pageMetricDocs.remove(0);
                     double avgAsDouble = pageMetricDocs.stream()
-                                                    .mapToLong(PageMetricDoc::getEventCnt)
-                                                    .average()
-                                                    .getAsDouble();
+                                                       .mapToLong(PageMetricDoc::getEventCnt)
+                                                       .filter(e -> e > 1000)
+                                                       .average()
+                                                       .getAsDouble();
                     long avg = (long) avgAsDouble;
 
                     double diffPct = (pageMetricDoc.getEventCnt() - avgAsDouble) / avgAsDouble;
