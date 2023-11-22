@@ -15,4 +15,6 @@ public interface AlertManager {
 
   void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception;
 
+  void adsClickFraud(LocalDate dateTime) throws Exception;
+
 }

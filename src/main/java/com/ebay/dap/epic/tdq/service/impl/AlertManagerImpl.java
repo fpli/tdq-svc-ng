@@ -2,6 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.dto.AdsClickFraudDTO;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
@@ -15,8 +16,10 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.EmailConfigEntityMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.PageLookUpInfoMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ProfilingCustomerPageRelMapper;
+import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.EmailService;
+import com.ebay.dap.epic.tdq.service.MetricService;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,12 +28,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -65,6 +70,9 @@ public class AlertManagerImpl implements AlertManager {
 
     @Autowired
     private EmailConfigEntityMapper emailConfigEntityMapper;
+
+    @Autowired
+    private MetricService metricService;
 
     @Override
     public void sendPageProfilingAlertEmail(LocalDate dt) throws Exception {
@@ -227,5 +235,40 @@ public class AlertManagerImpl implements AlertManager {
     @Override
     public void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception {
 
+    }
+
+    @Override
+    public void adsClickFraud(LocalDate date) throws Exception {
+        List<MetricDoc> dailyMetrics = metricService.getDailyMetrics(date, "ads_click_fruad_detection");
+        if (org.springframework.util.CollectionUtils.isEmpty(dailyMetrics)){
+            return;
+        }
+        MetricDoc metricDoc = dailyMetrics.get(0);
+        BigDecimal value = metricDoc.getValue();
+        if (0.02 > value.doubleValue()){
+            return;
+        }
+        PageAlertDto<AdsClickFraudDTO> pageAlertDto = new PageAlertDto<>();
+        pageAlertDto.setDt(date.toString());
+        pageAlertDto.setGroupName("Ads");
+        AdsClickFraudDTO adsClickFraudDTO = new AdsClickFraudDTO();
+        pageAlertDto.getPages().add(adsClickFraudDTO);
+        adsClickFraudDTO.setValue(value.doubleValue());
+        adsClickFraudDTO.setThreshold(0.02);
+
+        Context context = new Context();
+        context.setVariable("pageAlert", pageAlertDto);
+
+        LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
+        lambdaQuery.eq(EmailConfigEntity::getName, "Ads Click fraud detection");
+        EmailConfigEntity emailConfigEntity = emailConfigEntityMapper.selectOne(lambdaQuery);
+        List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).map(String::strip).toList();
+        List<String> cc = null;
+        if (emailConfigEntity.getCc() != null) {
+            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).toList();
+        }
+        String subject = Objects.requireNonNullElse(emailConfigEntity.getSubject(), "TDQ Alerts - Ads vs Soj event_timestamp gap");
+
+        emailService.sendHtmlEmail("alert-ads-click-event-timestamp-gap", context, subject, to, cc);
     }
 }

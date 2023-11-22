@@ -40,4 +40,11 @@ public class ScheduledJobTriggerController {
         return "done";
     }
 
+    @Operation(summary = "send abnormal page email")
+    @GetMapping("sendAbnormalPageEmail")
+    public String triggerAdsClickFraudAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
+        alertManager.adsClickFraud(date);
+        return "done";
+    }
+
 }
