@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdsClickFraudDTO {
-
+    private String groupName;
     private double value;
     private double threshold;
+    private String dt;
 }

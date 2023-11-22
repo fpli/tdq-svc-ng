@@ -248,16 +248,14 @@ public class AlertManagerImpl implements AlertManager {
         if (0.02 > value.doubleValue()){
             return;
         }
-        PageAlertDto<AdsClickFraudDTO> pageAlertDto = new PageAlertDto<>();
-        pageAlertDto.setDt(date.toString());
-        pageAlertDto.setGroupName("Ads");
         AdsClickFraudDTO adsClickFraudDTO = new AdsClickFraudDTO();
-        pageAlertDto.getPages().add(adsClickFraudDTO);
+        adsClickFraudDTO.setDt(date.toString());
+        adsClickFraudDTO.setGroupName("Ads");
         adsClickFraudDTO.setValue(value.doubleValue());
         adsClickFraudDTO.setThreshold(0.02);
 
         Context context = new Context();
-        context.setVariable("pageAlert", pageAlertDto);
+        context.setVariable("adsAlert", adsClickFraudDTO);
 
         LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
         lambdaQuery.eq(EmailConfigEntity::getName, "Ads Click fraud detection");

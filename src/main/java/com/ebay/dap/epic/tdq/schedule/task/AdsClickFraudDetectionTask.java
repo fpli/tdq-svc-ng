@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-@Component
+@Component("AdsClickFraudDetectionTask")
 @Lazy(false)
 public class AdsClickFraudDetectionTask {
 
@@ -20,7 +20,7 @@ public class AdsClickFraudDetectionTask {
      * Run at 5:00 PM MST everyday
      */
     @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
-    @SchedulerLock(name = "UTPDailyClickAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
+    @SchedulerLock(name = "AdsClickFraudDetectionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         alertManager.adsClickFraud(LocalDate.now().minusDays(1));
     }

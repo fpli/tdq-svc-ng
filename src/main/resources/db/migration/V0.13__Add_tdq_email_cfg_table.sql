@@ -26,4 +26,4 @@ VALUES ('UTP Daily Click Volume', 'TDQ Alerts - UTP Daily Click Volume', 'DL-eBa
 
 -- 1003 TDQ Alerts - Ads vs Soj eventtimestamp gap
 INSERT INTO `t_email_cfg` (name, subject, recipient, cc)
-VALUES ('Ads Click fraud detection', 'TDQ Alerts - Ads vs Soj eventtimestamp gap', 'fangpli@ebay.com,DL-eBay-Ads-Fraud@ebay.com,genfzhang@ebay.com,shrpillai@ebay.com,pbalaswamy@ebay.com', 'anikhanna@ebay.com,dhavalpatel@ebay.com');
+VALUES ('Ads Click fraud detection', 'TDQ Alerts - Ads vs Soj eventtimestamp gap', 'fangpli@ebay.com,DL-eBay-Ads-Fraud@ebay.com,genfzhang@ebay.com,shrpillai@ebay.com,pbalaswamy@ebay.com', 'anikhanna@ebay.com,dhavalpatel@ebay.com,DL-eBay-Tracking-Behavior-Data@ebay.com');

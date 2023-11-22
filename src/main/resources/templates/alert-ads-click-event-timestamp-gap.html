@@ -43,32 +43,12 @@
   <!-- <div class="header"></div> -->
   <div class="content">
     <p>
-      Hi <b th:text="${pageAlert.groupName}">Ads</b> Team, <br/><br/>
-
-      We detected that there is <b th:text="${#lists.size(pageAlert.pages)}">5</b> abnormal gap
-      on <b th:text="${pageAlert.dt}">2022-04-11</b>. <br/><br/>
-
-      Details of abnormal pages are listed as below. <br/>
+      Hi <b th:text="${adsAlert.groupName}">Ads</b> Team, <br/><br/>
+      We’ve detected that the event timestamp gap between Sojourner and Ads(BES) on <b th:text="${adsAlert.dt}">2022-04-11</b> is <b th:text="${#numbers.formatPercent(adsAlert.value, 1, 2)}">0.0096%</b>, which is beyond the threshold <b th:text="${#numbers.formatPercent(adsAlert.threshold, 1, 2)}">0.02%</b>.
     </p>
-    <div>
-      <table id="page-alert-table">
-        <thead>
-        <tr>
-          <th>Value of today</th>
-          <th>Threshold</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="page : ${pageAlert.pages}">
-          <td><span th:text="${#numbers.formatPercent(page.value, 1, 2)}">-0.0096%</span></td>
-          <td><span th:text="${#numbers.formatPercent(page.threshold, 1, 2)}">-0.02%</span></td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
     <br/>
     <p>
-      For detailed page info, please click the link: <a href="https://tdq.vip.ebay.com/dashboard/main">tdq-dashboard</a>
+      You can visit <a href="https://tdq.vip.ebay.com/dashboard/main">tdq-dashboard</a> for more detailed information.
       <br/><br/><br/>
       Thanks, <br/>
       DL-eBay-Tracking-Behavior-Data
