@@ -23,7 +23,3 @@ VALUES ('Page Profiling Abnormal Alert To TDQ', 'TDQ Alerts - Page Profiling Abn
 -- 1002 TDQ Alerts - UTP Daily Click Volume
 INSERT INTO `t_email_cfg` (name, subject, recipient, cc)
 VALUES ('UTP Daily Click Volume', 'TDQ Alerts - UTP Daily Click Volume', 'DL-eBay-Tracking-Data-Quality-Dev@ebay.com', 'fangpli@ebay.com');
-
--- 1003 TDQ Alerts - Ads vs Soj eventtimestamp gap
-INSERT INTO `t_email_cfg` (name, subject, recipient, cc)
-VALUES ('Ads Click fraud detection', 'TDQ Alerts - Ads vs Soj eventtimestamp gap', 'fangpli@ebay.com,DL-eBay-Ads-Fraud@ebay.com,genfzhang@ebay.com,shrpillai@ebay.com,pbalaswamy@ebay.com', 'anikhanna@ebay.com,dhavalpatel@ebay.com,DL-eBay-Tracking-Behavior-Data@ebay.com');
