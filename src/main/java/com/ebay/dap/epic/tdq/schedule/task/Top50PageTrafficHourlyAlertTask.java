@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -84,9 +85,12 @@ public class Top50PageTrafficHourlyAlertTask {
             if (collect.containsKey(pageId)) {
                 List<PageMetricDoc> pageMetricDocs = collect.get(pageId);
 
-                pageMetricDocs.sort(Comparator.comparing(PageMetricDoc::getDt).reversed());
-                PageMetricDoc pageMetricDoc = pageMetricDocs.get(0);
-                if (!pageMetricDoc.getMetricTime().equals(dateTime)) {
+                // get current datetime doc
+                Optional<PageMetricDoc> currentPageMetricDocOption = pageMetricDocs.stream()
+                                                                                   .filter(p -> dateTime.equals(p.getMetricTime()))
+                                                                                   .max(Comparator.comparing(PageMetricDoc::getEventCnt));
+
+                if (currentPageMetricDocOption.isEmpty()) {
                     // cannot find metric for given datetime
                     PageAlertItemVo itemVo = new PageAlertItemVo();
                     itemVo.setPageId(pageId);
@@ -97,7 +101,11 @@ public class Top50PageTrafficHourlyAlertTask {
                     itemVo.setAvgOfLast4W(-1L);
                     vo.getItems().add(itemVo);
                 } else {
-                    pageMetricDocs.remove(0);
+                    PageMetricDoc currentPageMetricDoc = currentPageMetricDocOption.get();
+
+                    // remove current date time's data points
+                    pageMetricDocs.removeIf(p -> dateTime.equals(p.getMetricTime()));
+
                     double avgAsDouble = pageMetricDocs.stream()
                                                        .mapToLong(PageMetricDoc::getEventCnt)
                                                        .filter(e -> e > 1000)
@@ -105,7 +113,7 @@ public class Top50PageTrafficHourlyAlertTask {
                                                        .getAsDouble();
                     long avg = (long) avgAsDouble;
 
-                    double diffPct = (pageMetricDoc.getEventCnt() - avgAsDouble) / avgAsDouble;
+                    double diffPct = (currentPageMetricDoc.getEventCnt() - avgAsDouble) / avgAsDouble;
 
                     if (diffPct < -0.5) {
                         PageAlertItemVo itemVo = new PageAlertItemVo();
@@ -114,7 +122,7 @@ public class Top50PageTrafficHourlyAlertTask {
                         itemVo.setPageName(page.getPageName());
                         itemVo.setPageFmly(page.getPageFamily());
                         itemVo.setIFrame(page.getIframe());
-                        itemVo.setCurrentVal(pageMetricDoc.getEventCnt());
+                        itemVo.setCurrentVal(currentPageMetricDoc.getEventCnt());
                         itemVo.setAvgOfLast4W(avg);
                         vo.getItems().add(itemVo);
                     }
