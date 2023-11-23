@@ -22,7 +22,7 @@
   <div class="content">
     <p>
       Hi <b th:text="${adsAlert.groupName}">Ads</b> Team, <br/><br/>
-      We have detected that the event timestamp gap between Sojourner and Ads(BES) on <b th:text="${adsAlert.dt}">2022-04-11</b> is <b th:text="${#numbers.formatPercent(adsAlert.value, 1, 2)}">0.021%</b>, which exceeds the threshold <b th:text="${#numbers.formatPercent(adsAlert.threshold, 1, 2)}">0.02%</b>.
+      We have detected that the event timestamp gap between Sojourner and Ads(BES) on <b th:text="${adsAlert.dt}">2022-04-11</b> is <b th:text="${#numbers.formatPercent(adsAlert.value, 1, 3)}">0.021%</b>, which exceeds the threshold <b th:text="${#numbers.formatPercent(adsAlert.threshold, 1, 2)}">0.02%</b>.
     </p>
     <br/>
     <p>

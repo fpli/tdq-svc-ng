@@ -22,6 +22,6 @@ public class AdsClickFraudDetectionTask {
     @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
     @SchedulerLock(name = "AdsClickFraudDetectionTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
-        alertManager.adsClickFraud(LocalDate.now().minusDays(1));
+        alertManager.adsClickFraud(LocalDate.now().minusDays(2));
     }
 }
