@@ -6,6 +6,7 @@ import org.apache.commons.mail.DefaultAuthenticator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -16,17 +17,33 @@ import java.util.Properties;
 @Slf4j
 public class EmailConfig {
 
-    @Value("${spring.mail.host}")
-    private String host;
+    @Value("${smtp.internal.host}")
+    private String internalHost;
 
-    @Value("${spring.mail.port}")
-    private Integer port;
+    @Value("${smtp.internal.port}")
+    private Integer internalPort;
 
-    @Bean
+    @Value("${smtp.external.host}")
+    private String externalHost;
+
+    @Value("${smtp.external.port}")
+    private Integer externalPort;
+
+    @Bean("internalMailSender")
+    @Primary
     public JavaMailSender javaMailSender() {
+        return getJavaMailSender(internalHost, internalPort);
+    }
+
+    @Bean("externalMailSender")
+    public JavaMailSender externalMailSender() {
+        return getJavaMailSender(externalHost, externalPort);
+    }
+
+    private JavaMailSender getJavaMailSender(String internalHost, Integer internalPort) {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost(host);
-        javaMailSender.setPort(port);
+        javaMailSender.setHost(internalHost);
+        javaMailSender.setPort(internalPort);
         Properties javaMailProperties = javaMailSender.getJavaMailProperties();
         Properties props = new Properties();
         props.put("mail.transport.protocol", "smtp");

@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -20,11 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@Primary
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Autowired
     private TemplateEngine templateEngine;
@@ -35,19 +36,17 @@ public class EmailServiceImpl implements EmailService {
     private static final String FROM_ADDRESS = "tdq-no-replay@ebay.com";
     private static final String FROM_NAME = "TDQ_AlertManager";
 
-
-    @Override
-    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to) throws Exception {
-        this.sendHtmlEmail(templateName, context, subject, to, null);
+    @Autowired
+    public EmailServiceImpl(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
+
     @Override
-    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> cc) throws Exception {
-        log.info("Sending HTML Email using template {} with subject {}", templateName, subject);
+    public void sendEmail(@NonNull String content, @NonNull String subject, @NonNull List<String> to, List<String> cc) throws Exception {
+        log.info("Sending email with subject: {}, to: {}, cc: {}", subject, to, cc);
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-
-        String content = templateEngine.process(templateName, context);
 
         helper.setFrom(FROM_ADDRESS, FROM_NAME);
         helper.setTo(to.toArray(new String[0]));
@@ -59,6 +58,18 @@ public class EmailServiceImpl implements EmailService {
         }
 
         mailSender.send(mimeMessage);
+    }
+
+    @Override
+    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to) throws Exception {
+        this.sendHtmlEmail(templateName, context, subject, to, null);
+    }
+
+    @Override
+    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> cc) throws Exception {
+        log.info("Processing html email using template: {}, with subject: {}", templateName, subject);
+        String content = templateEngine.process(templateName, context);
+        sendEmail(content, subject, to, cc);
     }
 
     @Override
