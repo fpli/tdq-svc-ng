@@ -9,32 +9,10 @@
       }
 
       .container {
-          width: 90%;
+          width: 100%;
           margin: auto;
           /*background-color: aqua;*/
           /* border: 1px solid gray; */
-      }
-
-      #page-alert-table {
-          border-collapse: collapse;
-          width: 90%;
-      }
-
-      #page-alert-table td, #page-alert-table th {
-          border: 1px solid #ddd;
-          padding: 8px;
-      }
-
-      #page-alert-table tr:nth-child(even) {
-          background-color: #f2f2f2;
-      }
-
-      #page-alert-table th {
-          padding-top: 12px;
-          padding-bottom: 12px;
-          text-align: left;
-          background-color: #04AA6D;
-          color: white;
       }
   </style>
 </head>
@@ -44,7 +22,7 @@
   <div class="content">
     <p>
       Hi <b th:text="${adsAlert.groupName}">Ads</b> Team, <br/><br/>
-      We’ve detected that the event timestamp gap between Sojourner and Ads(BES) on <b th:text="${adsAlert.dt}">2022-04-11</b> is <b th:text="${#numbers.formatPercent(adsAlert.value, 1, 2)}">0.0096%</b>, which is beyond the threshold <b th:text="${#numbers.formatPercent(adsAlert.threshold, 1, 2)}">0.02%</b>.
+      We have detected that the event timestamp gap between Sojourner and Ads(BES) on <b th:text="${adsAlert.dt}">2022-04-11</b> is <b th:text="${#numbers.formatPercent(adsAlert.value, 1, 2)}">0.021%</b>, which exceeds the threshold <b th:text="${#numbers.formatPercent(adsAlert.threshold, 1, 2)}">0.02%</b>.
     </p>
     <br/>
     <p>
