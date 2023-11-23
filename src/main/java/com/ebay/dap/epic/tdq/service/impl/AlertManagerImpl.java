@@ -245,14 +245,15 @@ public class AlertManagerImpl implements AlertManager {
         }
         MetricDoc metricDoc = dailyMetrics.get(0);
         BigDecimal value = metricDoc.getValue();
-        if (0.02 > value.doubleValue()){
+        double v = value.doubleValue() / 100, threshold = 0.0002;
+        if (threshold >= v){
             return;
         }
         AdsClickFraudDTO adsClickFraudDTO = new AdsClickFraudDTO();
         adsClickFraudDTO.setDt(date.toString());
         adsClickFraudDTO.setGroupName("Ads");
-        adsClickFraudDTO.setValue(value.doubleValue());
-        adsClickFraudDTO.setThreshold(0.02);
+        adsClickFraudDTO.setValue(v);
+        adsClickFraudDTO.setThreshold(threshold);
 
         Context context = new Context();
         context.setVariable("adsAlert", adsClickFraudDTO);
