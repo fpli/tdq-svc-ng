@@ -1,4 +1,7 @@
-spring:
-  mail:
+smtp:
+  internal:
+    host: atom.corp.ebay.com
+    port: 25
+  external:
     host: atom.corp.ebay.com
     port: 25

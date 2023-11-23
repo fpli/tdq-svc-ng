@@ -5,7 +5,12 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tdq}?characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
   flyway:
     out-of-order: true
-  mail:
+
+smtp:
+  internal:
+    host: atom.corp.ebay.com
+    port: 25
+  external:
     host: atom.corp.ebay.com
     port: 25
 

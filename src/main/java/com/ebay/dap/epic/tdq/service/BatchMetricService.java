@@ -7,6 +7,7 @@ import com.ebay.dap.epic.tdq.data.vo.ScorecardItemVO;
 import java.time.LocalDate;
 import java.util.List;
 
+//TODO: refactor me
 public interface BatchMetricService {
 
     MetricChartVO retrieveBatchMetric(MetricQueryParamVO metricQueryParamVO);
