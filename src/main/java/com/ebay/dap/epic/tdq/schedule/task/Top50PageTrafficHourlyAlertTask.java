@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,7 @@ import org.thymeleaf.context.Context;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +41,11 @@ public class Top50PageTrafficHourlyAlertTask {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    @Qualifier("externalEmailService")
+//    @Resource(name = "externalEmailService")
+    private EmailService externalEmailService;
 
     @Autowired
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
@@ -147,6 +149,7 @@ public class Top50PageTrafficHourlyAlertTask {
             Context context = new Context();
             context.setVariable("pageAlert", vo);
             emailService.sendEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert");
+            externalEmailService.sendEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert - PagerDuty");
         }
 
     }
