@@ -45,16 +45,25 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendEmail(@NonNull String content, @NonNull String subject, @NonNull List<String> to, List<String> cc) throws Exception {
         log.info("Sending email with subject: {}, to: {}, cc: {}", subject, to, cc);
+        if (to.isEmpty()){
+            return;
+        }
+        List<String> list = to.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
+        if (list.isEmpty()){
+            return;
+        }
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 
         helper.setFrom(FROM_ADDRESS, FROM_NAME);
-        helper.setTo(to.toArray(new String[0]));
+        helper.setTo(list.toArray(new String[0]));
         helper.setSubject(subject);
         helper.setText(content, true);
 
         if (CollectionUtils.isNotEmpty(cc)) {
-            helper.setCc(cc.toArray(new String[0]));
+            List<String> ccList = cc.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
+            if (!ccList.isEmpty())
+                helper.setCc(ccList.toArray(new String[0]));
         }
 
         mailSender.send(mimeMessage);
@@ -85,8 +94,8 @@ public class EmailServiceImpl implements EmailService {
 
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).toList();
         List<String> cc = null;
-        if (emailConfigEntity.getCc() != null) {
-            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).toList();
+        if (emailConfigEntity.getCc() != null && !emailConfigEntity.getCc().isBlank()) {
+            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).filter(item -> !item.isBlank()).toList();
         }
         this.sendHtmlEmail(emailTemplate, context, emailConfigEntity.getSubject(), to, cc);
     }
