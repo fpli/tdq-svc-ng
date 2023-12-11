@@ -61,7 +61,9 @@ public class EmailServiceImpl implements EmailService {
         helper.setText(content, true);
 
         if (CollectionUtils.isNotEmpty(cc)) {
-            helper.setCc(cc.toArray(new String[0]));
+            List<String> ccList = cc.stream().filter(item -> !item.isBlank()).toList();
+            if (!ccList.isEmpty())
+                helper.setCc(ccList.toArray(new String[0]));
         }
 
         mailSender.send(mimeMessage);
