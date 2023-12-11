@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
         if (to.isEmpty()){
             return;
         }
-        List<String> list = to.stream().filter(item -> !item.isBlank()).toList();
+        List<String> list = to.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
         if (list.isEmpty()){
             return;
         }
@@ -61,7 +61,7 @@ public class EmailServiceImpl implements EmailService {
         helper.setText(content, true);
 
         if (CollectionUtils.isNotEmpty(cc)) {
-            List<String> ccList = cc.stream().filter(item -> !item.isBlank()).toList();
+            List<String> ccList = cc.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
             if (!ccList.isEmpty())
                 helper.setCc(ccList.toArray(new String[0]));
         }
@@ -95,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).toList();
         List<String> cc = null;
         if (emailConfigEntity.getCc() != null && !emailConfigEntity.getCc().isBlank()) {
-            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).filter(item -> !item.isBlank()).toList();
+            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).filter(item -> !item.isBlank()).toList();
         }
         this.sendHtmlEmail(emailTemplate, context, emailConfigEntity.getSubject(), to, cc);
     }
