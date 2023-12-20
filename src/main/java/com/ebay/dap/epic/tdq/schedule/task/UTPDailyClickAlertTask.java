@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -39,6 +40,10 @@ public class UTPDailyClickAlertTask {
 
     private static final String METRIC_KEY = "utp_click_daily_cnt";
 
+    private static final Set<String> TEST_CHANNELS = Set.of(
+            "MRKT_SMS", "PARTNER_EMAIL"
+    );
+
 
     /**
      * Run at 5:00 PM MST everyday
@@ -46,16 +51,16 @@ public class UTPDailyClickAlertTask {
     @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
     @SchedulerLock(name = "UTPDailyClickAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
-        // T-1 as endDt
-        LocalDate endDt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
-        log.info("Evaluate alert - utp daily click event volume by channel");
+        // T-1 as dt
+        LocalDate dt = LocalDate.now(ZoneId.of("GMT-7")).minusDays(1);
+        log.info("Run UTPDailyClickAlertTask of date: {}", dt);
 
         // check if metric exists
-        if (!metricService.dailyMetricExists(METRIC_KEY, endDt)) {
-            throw new IllegalStateException("metric: " + METRIC_KEY + " does not exist in ES");
+        if (!metricService.dailyMetricExists(METRIC_KEY, dt)) {
+            throw new IllegalStateException("metric: " + METRIC_KEY + " does not exist in Pronto Index");
         }
 
-        List<MetricDoc> metricDocs = metricService.getDailyMetricDimensionSeries(METRIC_KEY, endDt, 31);
+        List<MetricDoc> metricDocs = metricService.getDailyMetricDimensionSeries(METRIC_KEY, dt, 31);
 
         Map<String, List<MetricDoc>> channelCntMap = metricDocs.stream()
                                                                .collect(groupingBy(e -> e.getDimension()
@@ -63,14 +68,14 @@ public class UTPDailyClickAlertTask {
                                                                                          .toArray()[0].toString()));
 
         UtpAlertVo alertVo = new UtpAlertVo();
-        alertVo.setMetricTime(endDt.toString());
+        alertVo.setMetricTime(dt.toString());
         alertVo.setItems(new ArrayList<>());
 
         for (Map.Entry<String, List<MetricDoc>> entry : channelCntMap.entrySet()) {
             String channel = entry.getKey();
 
-            if (channel.equals("MRKT_SMS")) {
-                // skip MRKT_SMS as it's in test phase
+            if (TEST_CHANNELS.contains(channel)) {
+                // skip test channels
                 continue;
             }
 
@@ -81,7 +86,7 @@ public class UTPDailyClickAlertTask {
                                                                          .toList());
             MetricDoc current = sorted.get(0);
 
-            sorted.removeIf(metricDoc -> metricDoc.getDt().equals(endDt));
+            sorted.removeIf(metricDoc -> metricDoc.getDt().equals(dt));
 
             double avg = sorted.stream().mapToLong(e -> e.getValue().longValue())
                                .average()
@@ -89,8 +94,8 @@ public class UTPDailyClickAlertTask {
 
             long threshold = Math.round(avg / 2);
 
-            if (!current.getDt().equals(endDt)) {
-                // no value found on endDt, treat as 0
+            if (!current.getDt().equals(dt)) {
+                // no value found on input dt, treat as 0
                 // create alert item
                 UtpAlertItemVo item = new UtpAlertItemVo();
                 item.setChannel(channel);
