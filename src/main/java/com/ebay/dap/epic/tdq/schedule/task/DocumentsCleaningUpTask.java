@@ -18,7 +18,7 @@ public class DocumentsCleaningUpTask {
      * Run at 00:00 AM MST every sunday
      */
     @Scheduled(cron = "0 0 0 ? * 0", zone = "GMT-7")
-    @SchedulerLock(name = "MultipleUidAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
+    @SchedulerLock(name = "DocumentsCleaningUpTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT20M")
     public void run(){
         metricService.cleanUpTop50PageMetricDoc();
     }
