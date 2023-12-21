@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -44,6 +45,13 @@ public class ScheduledJobTriggerController {
     @GetMapping("triggerAdsClickFraudAlert")
     public String triggerAdsClickFraudAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
         alertManager.adsClickFraud(date);
+        return "done";
+    }
+
+    @Operation(summary = "trigger EPTeam And Famx alert")
+    @GetMapping("triggerEPTeamAndFamxAlert")
+    public String triggerEPTeamAndFamxAlert(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime date) throws Exception {
+        alertManager.alertForEPTeamAndFamx(date);
         return "done";
     }
 

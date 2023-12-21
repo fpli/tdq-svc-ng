@@ -14,4 +14,5 @@ public class LegacyItemDTO {
     Double threshold;
     String thresholdType;
     String metricKey;
+    String unit;
 }

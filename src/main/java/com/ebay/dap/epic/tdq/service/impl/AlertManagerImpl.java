@@ -235,13 +235,13 @@ public class AlertManagerImpl implements AlertManager {
     public void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception {
         LocalDate localDate = localDateTime.toLocalDate();
 
-        LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.04, ">", "guid_cnt_all_uid_is_1");
-        LegacyItemDTO legacyItemDTO_2 = new LegacyItemDTO(47, "Guids with >= 2 uids percent (All events)", "guids with 2 or more users percent of all events", 0.02, ">", "guid_cnt_all_uid_gte_2");
-        LegacyItemDTO legacyItemDTO_3 = new LegacyItemDTO(51, "Guids with 0 uid (Valid events)", "Num of guids with 0 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_0");
-        LegacyItemDTO legacyItemDTO_4 = new LegacyItemDTO(52, "Guids with 1 uid (Valid events)", "Num of guids with 1 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_1");
-        LegacyItemDTO legacyItemDTO_5 = new LegacyItemDTO(53, "Guids with >= 2 uids (Valid events)", "Num of guids with 2 or more users for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_gte_2");
-        LegacyItemDTO legacyItemDTO_6 = new LegacyItemDTO(57, "Page level multiple uid events count", "events with multiple uids on page id level", 50000.00, ">", "multi_uid_events_cnt");
-        LegacyItemDTO legacyItemDTO_7 = new LegacyItemDTO(60, "Sessions percent with >=2 uids", "Sessions percent with >=2 uids", 1.00, ">", "session_rate_valid_uid_gte_2");
+        LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.04, ">", "guid_cnt_all_uid_is_1", "%");
+        LegacyItemDTO legacyItemDTO_2 = new LegacyItemDTO(47, "Guids with >= 2 uids percent (All events)", "guids with 2 or more users percent of all events", 0.02, ">", "guid_cnt_all_uid_gte_2", "%");
+        LegacyItemDTO legacyItemDTO_3 = new LegacyItemDTO(51, "Guids with 0 uid (Valid events)", "Num of guids with 0 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_0", null);
+        LegacyItemDTO legacyItemDTO_4 = new LegacyItemDTO(52, "Guids with 1 uid (Valid events)", "Num of guids with 1 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_1", null);
+        LegacyItemDTO legacyItemDTO_5 = new LegacyItemDTO(53, "Guids with >= 2 uids (Valid events)", "Num of guids with 2 or more users for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_gte_2", null);
+        LegacyItemDTO legacyItemDTO_6 = new LegacyItemDTO(57, "Page level multiple uid events count", "events with multiple uids on page id level", 50000.00, ">", "multi_uid_events_cnt", null);
+        LegacyItemDTO legacyItemDTO_7 = new LegacyItemDTO(60, "Sessions percent with >=2 uids", "Sessions percent with >=2 uids", 1.00, ">", "session_rate_valid_uid_gte_2", null);
         List<LegacyItemDTO> list = List.of(legacyItemDTO_1, legacyItemDTO_2, legacyItemDTO_3, legacyItemDTO_4, legacyItemDTO_5, legacyItemDTO_6, legacyItemDTO_7);
 
         List<Integer> allEventMetricIds = Arrays.asList(46, 47,  57, 60);
@@ -264,21 +264,16 @@ public class AlertManagerImpl implements AlertManager {
         context.setVariable("alert", pageAlertDto);
 
         //String content = templateEngine.process("guid-x-uid-alert", context);
-        List<String> toEmailList = new ArrayList<>();
-        toEmailList.add("fangpli@ebay.com");
-        List<String> ccEmailList;
-        //if (ConstantDefine.CUR_ENV.equalsIgnoreCase(ConstantDefine.ENV.PROD)) {
-//            toEmailList.addAll(toList);
-//            toEmailList.add("jingjzhang@ebay.com");
-//            toEmailList.add("fechen@ebay.com");
-//            toEmailList.add("yzou1@ebay.com");
-//            toEmailList.add("hchen6@ebay.com");
+//        List<String> toEmailList = new ArrayList<>();
+//        toEmailList.add("fangpli@ebay.com");
+//        toEmailList.add("DL-eBay-Tracking-Data-Quality@ebay.com");
+//        toEmailList.add("jingjzhang@ebay.com");
+//        toEmailList.add("fechen@ebay.com");
+//        toEmailList.add("yzou1@ebay.com");
+//        toEmailList.add("hchen6@ebay.com");
+//        List<String> ccEmailList = List.of("DL-eBay-Marketing-Support@ebay.com");
 
-            ccEmailList = new ArrayList<>();
-            //ccEmailList.add("DL-eBay-Marketing-Support@ebay.com");
-//        }
-//        emailService.sendHtmlEmail(content, toEmailList, ccEmailList, "TDQ Alerts For Multiple guid_x_uid mapping");
-        emailService.sendHtmlEmail("guid-x-uid-alert", context, "TDQ Alerts For Multiple guid_x_uid mapping", toEmailList, ccEmailList);
+        emailService.sendEmail("guid-x-uid-alert", context, "EP and famx Alert");
     }
 
     private void detectAbnormal(LocalDate localDate, List<LegacyItemDTO> list, List<Integer> allEventMetricIds, List<Integer> validEventMetricIds, PageAlertDto<MultipleUidDTO> pageAlertDto) {
@@ -290,13 +285,17 @@ public class AlertManagerImpl implements AlertManager {
                 if (!metricDocList.isEmpty()) {
                     MetricDoc metricDoc = metricDocList.get(0);
                     double v = metricDoc.getValue().doubleValue();
-                    if (checkAlert(legacyItemDTO, v)){
+                    double realV = v;
+                    if (legacyItemDTO.getUnit() != null && "%".equals(legacyItemDTO.getUnit())) {
+                        realV = v / 100;
+                    }
+                    if (checkAlert(legacyItemDTO, realV)){
                         MultipleUidDTO multipleUidDTO = new MultipleUidDTO();
                         multipleUidDTO.setMetricName(legacyItemDTO.getName());
                         multipleUidDTO.setDescription(legacyItemDTO.getDescription());
-                        multipleUidDTO.setValueOfToday(v);
+                        multipleUidDTO.setValueOfToday(realV);
                         multipleUidDTO.setThreshold(legacyItemDTO.getThreshold());
-                        //multipleUidDTO.setUnit(legacyItemDTO.getUnit() == null ? "-" : legacyItemDTO.getUnit());
+                        multipleUidDTO.setUnit(legacyItemDTO.getUnit() == null ? "-" : legacyItemDTO.getUnit());
                         pageAlertDto.getList().add(multipleUidDTO);
                     }
                 }
