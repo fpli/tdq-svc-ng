@@ -283,20 +283,23 @@ public class AlertManagerImpl implements AlertManager {
                 LegacyItemDTO legacyItemDTO = optional.get();
                 List<MetricDoc> metricDocList = metricService.getDailyMetrics(localDate, legacyItemDTO.getMetricKey());
                 if (!metricDocList.isEmpty()) {
-                    MetricDoc metricDoc = metricDocList.get(0);
-                    double v = metricDoc.getValue().doubleValue();
-                    double realV = v;
-                    if (legacyItemDTO.getUnit() != null && "%".equals(legacyItemDTO.getUnit())) {
-                        realV = v / 100;
-                    }
-                    if (checkAlert(legacyItemDTO, realV)){
-                        MultipleUidDTO multipleUidDTO = new MultipleUidDTO();
-                        multipleUidDTO.setMetricName(legacyItemDTO.getName());
-                        multipleUidDTO.setDescription(legacyItemDTO.getDescription());
-                        multipleUidDTO.setValueOfToday(realV);
-                        multipleUidDTO.setThreshold(legacyItemDTO.getThreshold());
-                        multipleUidDTO.setUnit(legacyItemDTO.getUnit() == null ? "-" : legacyItemDTO.getUnit());
-                        pageAlertDto.getList().add(multipleUidDTO);
+                    Optional<MetricDoc> docOptional = metricDocList.stream().filter(metricDoc1 -> metricDoc1.getDimension() == null).findFirst();
+                    if (docOptional.isPresent()) {
+                        MetricDoc metricDoc = docOptional.get();
+                        double v = metricDoc.getValue().doubleValue();
+                        double realV = v;
+                        if (legacyItemDTO.getUnit() != null && "%".equals(legacyItemDTO.getUnit())) {
+                            realV = v / 100;
+                        }
+                        if (checkAlert(legacyItemDTO, realV)){
+                            MultipleUidDTO multipleUidDTO = new MultipleUidDTO();
+                            multipleUidDTO.setMetricName(legacyItemDTO.getName());
+                            multipleUidDTO.setDescription(legacyItemDTO.getDescription());
+                            multipleUidDTO.setValueOfToday(realV);
+                            multipleUidDTO.setThreshold(legacyItemDTO.getThreshold());
+                            multipleUidDTO.setUnit(legacyItemDTO.getUnit() == null ? "-" : legacyItemDTO.getUnit());
+                            pageAlertDto.getList().add(multipleUidDTO);
+                        }
                     }
                 }
             }
