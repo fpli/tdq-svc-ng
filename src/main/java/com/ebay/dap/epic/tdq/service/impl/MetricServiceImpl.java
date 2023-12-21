@@ -179,7 +179,7 @@ public class MetricServiceImpl implements MetricService {
     @Override
     public List<PageMetricDoc> getTop50PageMetricDoc(List<Integer> pageIds, LocalDate dt, Integer hr) {
 
-        IndexCoordinates indexCoordinates = IndexCoordinates.of("my-index");
+        IndexCoordinates indexCoordinates = IndexCoordinates.of("prod.metric.rt.page");
 
         List<String> dates = new ArrayList<>();
 
@@ -217,7 +217,7 @@ public class MetricServiceImpl implements MetricService {
             return;
 
         PageMetricDoc pageMetricDoc = searchHits.getSearchHits().get(0).getContent();
-        String dt = pageMetricDoc.getDt();
+        String dt = pageMetricDoc.getDt().toString();
         LocalDate localDate = LocalDate.parse(dt);
         String deadline = localDate.minusDays(90).toString();
 

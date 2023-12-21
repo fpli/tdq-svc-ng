@@ -22,8 +22,14 @@ import org.thymeleaf.context.Context;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ebay.dap.epic.tdq.common.util.DateTimeUtils.instantToLocalDateTime;
 
 /**
  * This is just a temp solution to monitor top 50 pages traffic
@@ -44,7 +50,6 @@ public class Top50PageTrafficHourlyAlertTask {
 
     @Autowired
     @Qualifier("externalEmailService")
-//    @Resource(name = "externalEmailService")
     private EmailService externalEmailService;
 
     @Autowired
@@ -89,8 +94,8 @@ public class Top50PageTrafficHourlyAlertTask {
 
                 // get current datetime doc
                 Optional<PageMetricDoc> currentPageMetricDocOption = pageMetricDocs.stream()
-                                                                                   .filter(p -> dateTime.equals(p.getMetricTime()))
-                                                                                   .max(Comparator.comparing(PageMetricDoc::getEventCnt));
+                                                                                   .filter(p -> dateTime.equals(instantToLocalDateTime(p.getMetricTime())))
+                                                                                   .max(Comparator.comparing(PageMetricDoc::getRtEventCnt));
 
                 if (currentPageMetricDocOption.isEmpty()) {
                     // cannot find metric for given datetime
@@ -106,16 +111,16 @@ public class Top50PageTrafficHourlyAlertTask {
                     PageMetricDoc currentPageMetricDoc = currentPageMetricDocOption.get();
 
                     // remove current date time's data points
-                    pageMetricDocs.removeIf(p -> dateTime.equals(p.getMetricTime()));
+                    pageMetricDocs.removeIf(p -> dateTime.equals(instantToLocalDateTime(p.getMetricTime())));
 
                     double avgAsDouble = pageMetricDocs.stream()
-                                                       .mapToLong(PageMetricDoc::getEventCnt)
+                                                       .mapToLong(PageMetricDoc::getRtEventCnt)
                                                        .filter(e -> e > 1000)
                                                        .average()
                                                        .getAsDouble();
                     long avg = (long) avgAsDouble;
 
-                    double diffPct = (currentPageMetricDoc.getEventCnt() - avgAsDouble) / avgAsDouble;
+                    double diffPct = (currentPageMetricDoc.getRtEventCnt() - avgAsDouble) / avgAsDouble;
 
                     if (diffPct < -0.5) {
                         PageAlertItemVo itemVo = new PageAlertItemVo();
@@ -124,7 +129,7 @@ public class Top50PageTrafficHourlyAlertTask {
                         itemVo.setPageName(page.getPageName());
                         itemVo.setPageFmly(page.getPageFamily());
                         itemVo.setIFrame(page.getIframe());
-                        itemVo.setCurrentVal(currentPageMetricDoc.getEventCnt());
+                        itemVo.setCurrentVal(currentPageMetricDoc.getRtEventCnt());
                         itemVo.setAvgOfLast4W(avg);
                         vo.getItems().add(itemVo);
                     }
