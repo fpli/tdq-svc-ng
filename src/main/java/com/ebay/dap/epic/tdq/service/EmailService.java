@@ -14,5 +14,5 @@ public interface EmailService {
 
     void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> cc) throws Exception;
 
-    void sendEmail(@NonNull String emailTemplate, Context context, @NonNull String emailCfgName) throws Exception;
+    void sendHtmlEmail(@NonNull String templateName, Context context, @NonNull String emailCfgName) throws Exception;
 }
