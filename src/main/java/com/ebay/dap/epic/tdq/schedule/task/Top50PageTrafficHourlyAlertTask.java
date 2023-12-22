@@ -153,8 +153,8 @@ public class Top50PageTrafficHourlyAlertTask {
         if (CollectionUtils.isNotEmpty(vo.getItems())) {
             Context context = new Context();
             context.setVariable("pageAlert", vo);
-            emailService.sendEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert");
-            externalEmailService.sendEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert - PagerDuty");
+            emailService.sendHtmlEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert");
+            externalEmailService.sendHtmlEmail("alert-rt-top50-page", context, "Top50 Page RT Abnormal Alert - PagerDuty");
         }
 
     }

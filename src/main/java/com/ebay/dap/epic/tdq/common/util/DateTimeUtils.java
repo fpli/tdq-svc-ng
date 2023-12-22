@@ -33,4 +33,11 @@ public class DateTimeUtils {
         return LocalDateTime.ofInstant(instant, eBayServerZoneId());
     }
 
+    /**
+     * get LocalDateTime.now() in eBay server's time zone, which is UTC-7
+     */
+    public static LocalDateTime currentTime() {
+        return LocalDateTime.now(eBayServerZoneId());
+    }
+
 }

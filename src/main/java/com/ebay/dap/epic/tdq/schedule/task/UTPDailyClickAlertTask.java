@@ -127,7 +127,7 @@ public class UTPDailyClickAlertTask {
             Context context = new Context();
             context.setVariable("emailAlert", alertVo);
 
-            emailService.sendEmail("alert-utp-daily-click", context, "UTP Daily Click Volume");
+            emailService.sendHtmlEmail("alert-utp-daily-click", context, "UTP Daily Click Volume");
         }
 
     }

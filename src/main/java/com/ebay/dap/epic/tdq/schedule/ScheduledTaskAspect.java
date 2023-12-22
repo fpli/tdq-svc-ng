@@ -2,10 +2,12 @@ package com.ebay.dap.epic.tdq.schedule;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.common.util.DateTimeUtils;
 import com.ebay.dap.epic.tdq.data.entity.ScheduledTaskCfg;
 import com.ebay.dap.epic.tdq.data.entity.ScheduledTaskHistory;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ScheduledTaskCfgMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ScheduledTaskHistoryMapper;
+import com.ebay.dap.epic.tdq.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -15,9 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -30,10 +33,13 @@ public class ScheduledTaskAspect {
     @Autowired
     private ScheduledTaskCfgMapper scheduledTaskCfgMapper;
 
+    @Autowired
+    private EmailService emailService;
+
     @Around("@annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void doIt(ProceedingJoinPoint pjp) {
         // use GMT-7 timezone to track job time
-        LocalDateTime startTime = LocalDateTime.now(ZoneId.of("GMT-7"));
+        LocalDateTime startTime = DateTimeUtils.currentTime();
         ScheduledTaskHistory taskHistory = new ScheduledTaskHistory();
 
         String taskName = getTaskName(pjp);
@@ -43,7 +49,7 @@ public class ScheduledTaskAspect {
         String host;
         try {
             host = InetAddress.getLocalHost().getHostName();
-        } catch (Exception e) {
+        } catch (UnknownHostException e) {
             host = "Unknown Host";
         }
 
@@ -62,7 +68,7 @@ public class ScheduledTaskAspect {
             if (scheduledTaskCfg != null && scheduledTaskCfg.getInactive()) {
                 log.info("Skipped {}", taskName);
                 // use GMT-7 timezone to track job time
-                LocalDateTime endTime = LocalDateTime.now(ZoneId.of("GMT-7"));
+                LocalDateTime endTime = DateTimeUtils.currentTime();
                 long runningSec = ChronoUnit.SECONDS.between(startTime, endTime);
 
                 taskHistory.setEndTime(endTime);
@@ -76,7 +82,7 @@ public class ScheduledTaskAspect {
             pjp.proceed();
 
             // use GMT-7 timezone to track job time
-            LocalDateTime endTime = LocalDateTime.now(ZoneId.of("GMT-7"));
+            LocalDateTime endTime = DateTimeUtils.currentTime();
             long runningSec = ChronoUnit.SECONDS.between(startTime, endTime);
 
             taskHistory.setEndTime(endTime);
@@ -89,7 +95,7 @@ public class ScheduledTaskAspect {
 
         } catch (Throwable e) {
             log.error("Failed to execute scheduled task: {}", taskName, e);
-            LocalDateTime endTime = LocalDateTime.now(ZoneId.of("UTC"));
+            LocalDateTime endTime = DateTimeUtils.currentTime();
             long runningSec = ChronoUnit.SECONDS.between(startTime, endTime);
 
             taskHistory.setEndTime(endTime);
@@ -98,7 +104,19 @@ public class ScheduledTaskAspect {
             taskHistory.setErrorMsg(e.getMessage());
             taskHistory.setErrorDetails(ExceptionUtils.getStackTrace(e));
 
+            // save task status into database
             scheduledTaskHistoryMapper.updateById(taskHistory);
+
+            // send failure tasks to dev
+            try {
+                emailService.sendEmail(String.format("Failed to execute scheduled task: %s. \nError Message: %s. \nDetailed Error Message: %s",
+                                taskName, e.getMessage(), ExceptionUtils.getStackTrace(e)),
+                        "TDQ - Scheduled Task Failure",
+                        List.of("yxiao6@ebay.com", "fangpli@ebay.com"),
+                        null);
+            } catch (Exception ex) {
+                // ignore email exception
+            }
         }
 
     }

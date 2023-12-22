@@ -45,11 +45,11 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendEmail(@NonNull String content, @NonNull String subject, @NonNull List<String> to, List<String> cc) throws Exception {
         log.info("Sending email with subject: {}, to: {}, cc: {}", subject, to, cc);
-        if (to.isEmpty()){
+        if (to.isEmpty()) {
             return;
         }
         List<String> list = to.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             return;
         }
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -62,8 +62,9 @@ public class EmailServiceImpl implements EmailService {
 
         if (CollectionUtils.isNotEmpty(cc)) {
             List<String> ccList = cc.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
-            if (!ccList.isEmpty())
+            if (!ccList.isEmpty()) {
                 helper.setCc(ccList.toArray(new String[0]));
+            }
         }
 
         mailSender.send(mimeMessage);
@@ -82,7 +83,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendEmail(@NonNull String emailTemplate, Context context, @NonNull String emailCfgName) throws Exception {
+    public void sendHtmlEmail(@NonNull String templateName, Context context, @NonNull String emailCfgName) throws Exception {
 
         LambdaQueryWrapper<EmailConfigEntity> lambdaQuery = Wrappers.lambdaQuery();
         lambdaQuery.eq(EmailConfigEntity::getName, emailCfgName);
@@ -95,8 +96,11 @@ public class EmailServiceImpl implements EmailService {
         List<String> to = Arrays.stream(emailConfigEntity.getRecipient().split(",")).toList();
         List<String> cc = null;
         if (emailConfigEntity.getCc() != null && !emailConfigEntity.getCc().isBlank()) {
-            cc = Arrays.stream(emailConfigEntity.getCc().split(",")).map(String::strip).filter(item -> !item.isBlank()).toList();
+            cc = Arrays.stream(emailConfigEntity.getCc().split(","))
+                       .map(String::strip)
+                       .filter(item -> !item.isBlank())
+                       .toList();
         }
-        this.sendHtmlEmail(emailTemplate, context, emailConfigEntity.getSubject(), to, cc);
+        this.sendHtmlEmail(templateName, context, emailConfigEntity.getSubject(), to, cc);
     }
 }
