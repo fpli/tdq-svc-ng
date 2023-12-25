@@ -55,6 +55,8 @@ public class Top50PageTrafficHourlyAlertTask {
     @Autowired
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
 
+    private static final double THRESHOLD_PCT = -0.6; // drop 60%
+
     /**
      * Run every hour at 30'
      */
@@ -122,7 +124,7 @@ public class Top50PageTrafficHourlyAlertTask {
 
                     double diffPct = (currentPageMetricDoc.getRtEventCnt() - avgAsDouble) / avgAsDouble;
 
-                    if (diffPct < -0.5) {
+                    if (diffPct < THRESHOLD_PCT) {
                         PageAlertItemVo itemVo = new PageAlertItemVo();
                         itemVo.setPageId(pageId);
                         itemVo.setPageId(pageId);
