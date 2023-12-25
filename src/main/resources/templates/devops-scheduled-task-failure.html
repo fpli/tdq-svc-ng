@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      th {
+        width: 20%;
+      }
+
+      th, td {
+        padding: 5px;
+        text-align: left;
+      }
+    </style>
+</head>
+<body>
+<div id="container">
+    <table id="table" style="width:100%">
+        <tr>
+            <th>Scheduled Task</th>
+            <td th:text="${taskVo.task}">ScorecardExecutionTask</td>
+        </tr>
+        <tr>
+            <th>Execution Start Time</th>
+            <td th:text="${taskVo.startTime}">2023-07-17 02:20:30</td>
+        </tr>
+        <tr>
+            <th>Execution End Time</th>
+            <td th:text="${taskVo.endTime}">2023-07-17 02:20:30</td>
+        </tr>
+        <tr>
+            <th>Error Message</th>
+            <td th:text="${taskVo.errorMsg}">Error Message</td>
+        </tr>
+        <tr>
+            <th>Detailed Error Message</th>
+            <td th:text="${taskVo.errorDetails}">Detailed Error Message, Exception Trace...</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

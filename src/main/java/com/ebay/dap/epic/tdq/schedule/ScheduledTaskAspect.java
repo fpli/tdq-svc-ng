@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -109,11 +110,14 @@ public class ScheduledTaskAspect {
 
             // send failure tasks to dev
             try {
-                emailService.sendEmail(String.format("Failed to execute scheduled task: %s. \nError Message: %s. \nDetailed Error Message: %s",
-                                taskName, e.getMessage(), ExceptionUtils.getStackTrace(e)),
-                        "TDQ - Scheduled Task Failure",
-                        List.of("yxiao6@ebay.com", "fangpli@ebay.com"),
-                        null);
+                Context context = new Context();
+                context.setVariable("taskVo", taskHistory);
+                emailService.sendHtmlEmail(
+                        "devops-scheduled-task-failure",
+                        context,
+                        "Scheduled Task Execution Failure",
+                        List.of("yxiao6@ebay.com", "fangpli@ebay.com")
+                );
             } catch (Exception ex) {
                 // ignore email exception
             }
