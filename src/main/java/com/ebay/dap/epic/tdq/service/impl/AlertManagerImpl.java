@@ -273,7 +273,7 @@ public class AlertManagerImpl implements AlertManager {
 //        toEmailList.add("hchen6@ebay.com");
 //        List<String> ccEmailList = List.of("DL-eBay-Marketing-Support@ebay.com");
 
-        emailService.sendEmail("guid-x-uid-alert", context, "EP and famx Alert");
+        emailService.sendHtmlEmail("guid-x-uid-alert", context, "EP and famx Alert");
     }
 
     private void detectAbnormal(LocalDate localDate, List<LegacyItemDTO> list, List<Integer> allEventMetricIds, List<Integer> validEventMetricIds, PageAlertDto<MultipleUidDTO> pageAlertDto) {
