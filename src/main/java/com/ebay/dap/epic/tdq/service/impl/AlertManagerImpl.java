@@ -3,6 +3,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.dto.AdsClickFraudDTO;
+import com.ebay.dap.epic.tdq.data.dto.LegacyItemDTO;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
@@ -17,6 +18,7 @@ import com.ebay.dap.epic.tdq.data.mapper.mybatis.NonBotPageCountMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.PageLookUpInfoMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.ProfilingCustomerPageRelMapper;
 import com.ebay.dap.epic.tdq.data.pronto.MetricDoc;
+import com.ebay.dap.epic.tdq.data.vo.email.MultipleUidDTO;
 import com.ebay.dap.epic.tdq.service.AlertManager;
 import com.ebay.dap.epic.tdq.service.EmailService;
 import com.ebay.dap.epic.tdq.service.MetricService;
@@ -32,10 +34,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -234,8 +233,129 @@ public class AlertManagerImpl implements AlertManager {
 
     @Override
     public void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception {
+        LocalDate localDate = localDateTime.toLocalDate();
 
+        LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.04, ">", "guid_cnt_all_uid_is_1", "%");
+        LegacyItemDTO legacyItemDTO_2 = new LegacyItemDTO(47, "Guids with >= 2 uids percent (All events)", "guids with 2 or more users percent of all events", 0.02, ">", "guid_cnt_all_uid_gte_2", "%");
+        LegacyItemDTO legacyItemDTO_3 = new LegacyItemDTO(51, "Guids with 0 uid (Valid events)", "Num of guids with 0 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_0", null);
+        LegacyItemDTO legacyItemDTO_4 = new LegacyItemDTO(52, "Guids with 1 uid (Valid events)", "Num of guids with 1 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_1", null);
+        LegacyItemDTO legacyItemDTO_5 = new LegacyItemDTO(53, "Guids with >= 2 uids (Valid events)", "Num of guids with 2 or more users for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_gte_2", null);
+        LegacyItemDTO legacyItemDTO_6 = new LegacyItemDTO(57, "Page level multiple uid events count", "events with multiple uids on page id level", 50000.00, ">", "multi_uid_events_cnt", null);
+        LegacyItemDTO legacyItemDTO_7 = new LegacyItemDTO(60, "Sessions percent with >=2 uids", "Sessions percent with >=2 uids", 1.00, ">", "session_rate_valid_uid_gte_2", null);
+        List<LegacyItemDTO> list = List.of(legacyItemDTO_1, legacyItemDTO_2, legacyItemDTO_3, legacyItemDTO_4, legacyItemDTO_5, legacyItemDTO_6, legacyItemDTO_7);
+
+        List<Integer> allEventMetricIds = Arrays.asList(46, 47,  57, 60);
+        List<Integer> validEventMetricIds = Arrays.asList(51, 52, 53);
+
+        PageAlertDto<MultipleUidDTO> pageAlertDto = new PageAlertDto<>();
+        pageAlertDto.setDt(localDate.toString());
+        pageAlertDto.setGroupName(" ");
+        pageAlertDto.setPages(new ArrayList<>());
+        pageAlertDto.setList(new ArrayList<>());
+
+        detectAbnormal(localDate, list, allEventMetricIds, validEventMetricIds, pageAlertDto);
+
+        if (CollectionUtils.isEmpty(pageAlertDto.getPages()) && CollectionUtils.isEmpty(pageAlertDto.getList())){
+            return;
+        }
+        pageAlertDto.setCnt(pageAlertDto.getPages().size() + pageAlertDto.getList().size());
+
+        Context context = new Context();
+        context.setVariable("alert", pageAlertDto);
+
+        //String content = templateEngine.process("guid-x-uid-alert", context);
+//        List<String> toEmailList = new ArrayList<>();
+//        toEmailList.add("fangpli@ebay.com");
+//        toEmailList.add("DL-eBay-Tracking-Data-Quality@ebay.com");
+//        toEmailList.add("jingjzhang@ebay.com");
+//        toEmailList.add("fechen@ebay.com");
+//        toEmailList.add("yzou1@ebay.com");
+//        toEmailList.add("hchen6@ebay.com");
+//        List<String> ccEmailList = List.of("DL-eBay-Marketing-Support@ebay.com");
+
+        emailService.sendEmail("guid-x-uid-alert", context, "EP and famx Alert");
     }
+
+    private void detectAbnormal(LocalDate localDate, List<LegacyItemDTO> list, List<Integer> allEventMetricIds, List<Integer> validEventMetricIds, PageAlertDto<MultipleUidDTO> pageAlertDto) {
+        allEventMetricIds.forEach(id -> {
+            Optional<LegacyItemDTO> optional = list.stream().filter(legacyItemDTO -> legacyItemDTO.getId().equals(id)).findFirst();
+            if (optional.isPresent()){
+                LegacyItemDTO legacyItemDTO = optional.get();
+                List<MetricDoc> metricDocList = metricService.getDailyMetrics(localDate, legacyItemDTO.getMetricKey());
+                if (!metricDocList.isEmpty()) {
+                    Optional<MetricDoc> docOptional = metricDocList.stream().filter(metricDoc1 -> metricDoc1.getDimension() == null).findFirst();
+                    if (docOptional.isPresent()) {
+                        MetricDoc metricDoc = docOptional.get();
+                        double v = metricDoc.getValue().doubleValue();
+                        double realV = v;
+                        if (legacyItemDTO.getUnit() != null && "%".equals(legacyItemDTO.getUnit())) {
+                            realV = v / 100;
+                        }
+                        if (checkAlert(legacyItemDTO, realV)){
+                            MultipleUidDTO multipleUidDTO = new MultipleUidDTO();
+                            multipleUidDTO.setMetricName(legacyItemDTO.getName());
+                            multipleUidDTO.setDescription(legacyItemDTO.getDescription());
+                            multipleUidDTO.setValueOfToday(realV);
+                            multipleUidDTO.setThreshold(legacyItemDTO.getThreshold());
+                            multipleUidDTO.setUnit(legacyItemDTO.getUnit() == null ? "-" : legacyItemDTO.getUnit());
+                            pageAlertDto.getList().add(multipleUidDTO);
+                        }
+                    }
+                }
+            }
+        });
+
+        LocalDate sevenAgo = localDate.minusDays(7);
+        validEventMetricIds.forEach(id -> {
+            Optional<LegacyItemDTO> optional = list.stream().filter(legacyItemDTO -> legacyItemDTO.getId().equals(id)).findFirst();
+            if (optional.isPresent()){
+                LegacyItemDTO legacyItemDTO = optional.get();
+                List<MetricDoc> metricDocList = metricService.getDailyMetrics(localDate, legacyItemDTO.getMetricKey());
+                List<MetricDoc> metricDocList2 = metricService.getDailyMetrics(sevenAgo, legacyItemDTO.getMetricKey());
+                if (!metricDocList.isEmpty() && !metricDocList2.isEmpty()) {
+                    MetricDoc metricDoc = metricDocList.get(0);
+                    double value = metricDoc.getValue().doubleValue();
+
+                    MetricDoc metricDoc1 = metricDocList2.get(0);
+                    double value1 = metricDoc1.getValue().doubleValue();
+
+                    MultipleUidDTO multipleUidDTO = new MultipleUidDTO();
+                    multipleUidDTO.setMetricName(legacyItemDTO.getName());
+                    multipleUidDTO.setDescription(legacyItemDTO.getDescription());
+                    multipleUidDTO.setValueOfToday(value);
+
+                    if (value1 != 0.0){
+                        double a = value - value1;
+                        if (a > 0){
+                            multipleUidDTO.setIncreaseType("up");
+                        } else if (a < 0){
+                            multipleUidDTO.setIncreaseType("down");
+                        } else {
+                            multipleUidDTO.setIncreaseType("-");
+                        }
+                        double v = Math.abs(a) / value1;
+                        if (v > legacyItemDTO.getThreshold()){
+                            multipleUidDTO.setRate(v);
+                            pageAlertDto.getPages().add(multipleUidDTO);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private boolean checkAlert(LegacyItemDTO legacyItemDTO, double v) {
+        Double threshold = legacyItemDTO.getThreshold();
+        String thresholdType = legacyItemDTO.getThresholdType();
+        return switch (thresholdType) {
+            case "<=" -> v <= threshold;
+            case "<" -> v < threshold;
+            case ">=" -> v >= threshold;
+            case ">" -> v > threshold;
+            default -> false;
+        };
+    }
+
 
     @Override
     public void adsClickFraud(LocalDate date) throws Exception {
