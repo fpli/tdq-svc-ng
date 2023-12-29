@@ -19,7 +19,7 @@ public class EpAndFamxAlertTask {
     @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
     @SchedulerLock(name = "EpAndFamxAlertTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
-        LocalDateTime localDateTime = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1);
+        LocalDateTime localDateTime = LocalDateTime.now().minusDays(2);
         alertManager.alertForEPTeamAndFamx(localDateTime);
     }
 }
