@@ -23,6 +23,7 @@ import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -223,8 +224,9 @@ public class MetricServiceImpl implements MetricService {
 
         criteria = new Criteria("metric_key").is("hourly_event_cnt").and("dt").lessThan(deadline);
 
-        query = new CriteriaQuery(criteria);
-        ByQueryResponse byQueryResponse = esOperations.delete(query, PageMetricDoc.class, indexCoordinates);
+        CriteriaQuery criteriaQuery = new CriteriaQuery(criteria);
+        criteriaQuery.setTimeout(Duration.ofSeconds(120));
+        ByQueryResponse byQueryResponse = esOperations.delete(criteriaQuery, PageMetricDoc.class, indexCoordinates);
         List<ByQueryResponse.Failure> failures = byQueryResponse.getFailures();
         if (!failures.isEmpty()){
             failures.forEach(failure -> log.error(" _id: {}, error: {}", "",  failure.getId(), failure.getCause()));
