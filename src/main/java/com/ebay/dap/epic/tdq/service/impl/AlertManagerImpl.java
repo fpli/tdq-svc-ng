@@ -323,7 +323,7 @@ public class AlertManagerImpl implements AlertManager {
                     multipleUidDTO.setMetricName(legacyItemDTO.getName());
                     multipleUidDTO.setDescription(legacyItemDTO.getDescription());
                     multipleUidDTO.setValueOfToday(value);
-
+                    multipleUidDTO.setValueOfYesterday(value1);
                     if (value1 != 0.0){
                         double a = value - value1;
                         if (a > 0){
