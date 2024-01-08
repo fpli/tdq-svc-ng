@@ -208,33 +208,6 @@ public class MetricServiceImpl implements MetricService {
         return results;
     }
 
-    @Override
-    public void cleanUpTop50PageMetricDoc() {
-        IndexCoordinates indexCoordinates = IndexCoordinates.of("prod.metric.rt.page");
-        Criteria criteria = new Criteria("metric_key").is("hourly_event_cnt");
-        Query query = new CriteriaQuery(criteria).addSort(Sort.by("dt").descending()).setPageable(Pageable.ofSize(1));
-        SearchHits<PageMetricDoc> searchHits = esOperations.search(query, PageMetricDoc.class, indexCoordinates);
-        if (searchHits.isEmpty())
-            return;
-
-        PageMetricDoc pageMetricDoc = searchHits.getSearchHits().get(0).getContent();
-        String dt = pageMetricDoc.getDt().toString();
-        LocalDate localDate = LocalDate.parse(dt);
-        String deadline = localDate.minusDays(90).toString();
-
-        criteria = new Criteria("metric_key").is("hourly_event_cnt").and("dt").lessThan(deadline);
-
-        CriteriaQuery criteriaQuery = new CriteriaQuery(criteria);
-        criteriaQuery.setTimeout(Duration.ofSeconds(120));
-        ByQueryResponse byQueryResponse = esOperations.delete(criteriaQuery, PageMetricDoc.class, indexCoordinates);
-        List<ByQueryResponse.Failure> failures = byQueryResponse.getFailures();
-        if (!failures.isEmpty()){
-            failures.forEach(failure -> log.error(" _id: {}, error: {}", "",  failure.getId(), failure.getCause()));
-        } else {
-            log.info("deleted {} docs at this time", byQueryResponse.getDeleted());
-        }
-    }
-
     private List<MetricDoc> convertSearchHitsToMetricDocs(List<SearchHit<MetricDoc>> searchHits) {
         List<MetricDoc> metricDocs = new ArrayList<>();
         for (SearchHit<MetricDoc> searchHit : searchHits) {
