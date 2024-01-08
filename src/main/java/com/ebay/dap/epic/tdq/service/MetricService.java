@@ -30,6 +30,4 @@ public interface MetricService {
 
     List<PageMetricDoc> getTop50PageMetricDoc(List<Integer> pageIds, LocalDate dt, Integer hr);
 
-    void cleanUpTop50PageMetricDoc();
-
 }
