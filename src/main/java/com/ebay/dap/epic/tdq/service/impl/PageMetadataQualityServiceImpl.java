@@ -3,9 +3,9 @@ package com.ebay.dap.epic.tdq.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.entity.PagePoolLKP;
-import com.ebay.dap.epic.tdq.data.entity.UnregisterPageMetadataEntity;
+import com.ebay.dap.epic.tdq.data.entity.InvalidPageMetadataEntity;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.PagePoolLKPMapper;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.UnregisterPageMetadataMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.InvalidPageMetadataMapper;
 import com.ebay.dap.epic.tdq.data.vo.BaseGeneralVO;
 import com.ebay.dap.epic.tdq.service.PageMetadataQualityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +23,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +37,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     private PagePoolLKPMapper pagePoolLKPMapper;
 
     @Autowired
-    private UnregisterPageMetadataMapper unregisterPageMetadataMapper;
+    private InvalidPageMetadataMapper invalidPageMetadataMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -82,9 +81,9 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             return 0;
         }
 
-        LambdaQueryWrapper<UnregisterPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(UnregisterPageMetadataEntity.class);
-        lambdaQueryWrapper.eq(UnregisterPageMetadataEntity::getDt, date);
-        unregisterPageMetadataMapper.delete(lambdaQueryWrapper);
+        LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
+        lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
+        invalidPageMetadataMapper.delete(lambdaQueryWrapper);
 
         String token = validateUser("", "");
         if (null == token){
@@ -100,12 +99,12 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     }
 
     @Override
-    public BaseGeneralVO<UnregisterPageMetadataEntity> listAllUnregisterPage(LocalDate date) {
-        BaseGeneralVO<UnregisterPageMetadataEntity> baseGeneralVO = new BaseGeneralVO();
-        LambdaQueryWrapper<UnregisterPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(UnregisterPageMetadataEntity.class);
-        lambdaQueryWrapper.eq(UnregisterPageMetadataEntity::getDt, date);
+    public BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage(LocalDate date) {
+        BaseGeneralVO<InvalidPageMetadataEntity> baseGeneralVO = new BaseGeneralVO();
+        LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
+        lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
         //lambdaQueryWrapper.orderByDesc(UnregisterPageMetadataEntity::getTraffic);
-        List<UnregisterPageMetadataEntity> unregisterPageMetadataEntities = unregisterPageMetadataMapper.selectList(lambdaQueryWrapper);
+        List<InvalidPageMetadataEntity> unregisterPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
         baseGeneralVO.setDate(date.toString());
         baseGeneralVO.setList(unregisterPageMetadataEntities);
         baseGeneralVO.setCount(unregisterPageMetadataEntities.size());
@@ -113,12 +112,12 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     }
 
     private void retrieveUnregisteredPageMetadata(PagePoolLKP pagePoolLKP, String token, LongAdder longAdder){
-        UnregisterPageMetadataEntity unregisterPageMetadataEntity = new UnregisterPageMetadataEntity();
-        unregisterPageMetadataEntity.setPageId(pagePoolLKP.getPageId());
-        unregisterPageMetadataEntity.setTraffic(pagePoolLKP.getTraffic());
-        unregisterPageMetadataEntity.setPoolName(pagePoolLKP.getPoolName());
-        unregisterPageMetadataEntity.setDt(pagePoolLKP.getDt());
-        unregisterPageMetadataMapper.insert(unregisterPageMetadataEntity);
+        InvalidPageMetadataEntity invalidPageMetadataEntity = new InvalidPageMetadataEntity();
+        invalidPageMetadataEntity.setPageId(pagePoolLKP.getPageId());
+        invalidPageMetadataEntity.setTraffic(pagePoolLKP.getTraffic());
+        invalidPageMetadataEntity.setPoolName(pagePoolLKP.getPoolName());
+        invalidPageMetadataEntity.setDt(pagePoolLKP.getDt());
+        invalidPageMetadataMapper.insert(invalidPageMetadataEntity);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder();
         builder.setHeader("Authorization", token);
@@ -140,12 +139,12 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 Map applicationMap = (Map) applicationServiceMap.get("application");
                 Map<String, String> refMap = (Map<String, String>) applicationMap.get("ref");
                 String applicationURL = refMap.get("url");
-                fillApplicationInfo(builder, applicationURL, unregisterPageMetadataEntity);
+                fillApplicationInfo(builder, applicationURL, invalidPageMetadataEntity);
                 Map onCallServiceMap = (Map) applicationServiceMap.get("onCallService");
                 Map<String, String> ref_map = (Map<String, String>) onCallServiceMap.get("ref");
                 String onCallServiceURL = ref_map.get("url");
-                fillOnCallServiceEmail(builder, onCallServiceURL, unregisterPageMetadataEntity);
-                unregisterPageMetadataMapper.updateById(unregisterPageMetadataEntity);
+                fillOnCallServiceEmail(builder, onCallServiceURL, invalidPageMetadataEntity);
+                invalidPageMetadataMapper.updateById(invalidPageMetadataEntity);
                 longAdder.increment();
             }
 
@@ -157,7 +156,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
 
     //unregisterPageMetadataEntity.setJiraLink(app_jira);
     //unregisterPageMetadataEntity.setOwner(app_owner);
-    private void fillApplicationInfo(HttpRequest.Builder builder, String applicationURL, UnregisterPageMetadataEntity unregisterPageMetadataEntity) throws IOException, InterruptedException {
+    private void fillApplicationInfo(HttpRequest.Builder builder, String applicationURL, InvalidPageMetadataEntity invalidPageMetadataEntity) throws IOException, InterruptedException {
         URI uri = URI.create(baseURL + applicationURL);
         builder.uri(uri);
         Map app_map = doCallCMS(builder.build());
@@ -170,7 +169,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             Map project = doCallCMS(builder.build());
             if (null != project) {
                 String projectKey = (String) project.get("projectKey");
-                unregisterPageMetadataEntity.setJiraLink("https://jirap.corp.ebay.com/browse/" + projectKey);
+                invalidPageMetadataEntity.setJiraLink("https://jirap.corp.ebay.com/browse/" + projectKey);
             }
 
             Map consumer_map = (Map) app_map.get("consumer");
@@ -189,14 +188,14 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 Map map6 = doCallCMS(builder.build());
                 if (null != map6) {
                     String resourceId = map6.get("resourceId").toString();
-                    unregisterPageMetadataEntity.setOwner(resourceId);
+                    invalidPageMetadataEntity.setOwner(resourceId);
                 }
             }
         }
     }
 
     //unregisterPageMetadataEntity.setEmail(app_notification);
-    private void fillOnCallServiceEmail(HttpRequest.Builder builder, String onCallServiceURL, UnregisterPageMetadataEntity unregisterPageMetadataEntity) throws IOException, InterruptedException {
+    private void fillOnCallServiceEmail(HttpRequest.Builder builder, String onCallServiceURL, InvalidPageMetadataEntity invalidPageMetadataEntity) throws IOException, InterruptedException {
         URI uri = URI.create(baseURL + onCallServiceURL);
         builder.uri(uri);
         Map map = doCallCMS(builder.build());
@@ -215,7 +214,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 email = dl_list.get(0);
             }
         }
-        unregisterPageMetadataEntity.setEmail(email);
+        invalidPageMetadataEntity.setEmail(email);
     }
 
     private Map doCallCMS(HttpRequest request) throws IOException, InterruptedException {

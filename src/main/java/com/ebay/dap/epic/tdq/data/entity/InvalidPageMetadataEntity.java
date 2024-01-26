@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @TableName(" t_invalid_page_metadata")
-public class UnregisterPageMetadataEntity extends AuditableEntity {
+public class InvalidPageMetadataEntity extends AuditableEntity {
 
     @TableField("page_id")
     private Integer pageId;

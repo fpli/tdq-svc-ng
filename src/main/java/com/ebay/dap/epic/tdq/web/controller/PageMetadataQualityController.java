@@ -1,13 +1,12 @@
 package com.ebay.dap.epic.tdq.web.controller;
 
-import com.ebay.dap.epic.tdq.data.entity.UnregisterPageMetadataEntity;
+import com.ebay.dap.epic.tdq.data.entity.InvalidPageMetadataEntity;
 import com.ebay.dap.epic.tdq.data.vo.BaseGeneralVO;
 import com.ebay.dap.epic.tdq.service.PageMetadataQualityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/page/metadata/")
@@ -36,7 +34,7 @@ public class PageMetadataQualityController {
 
     @Operation(summary = "listAllUnregisteredPage")
     @GetMapping("listAllUnregisteredPage")
-    public BaseGeneralVO<UnregisterPageMetadataEntity> listAllUnregisteredPage(@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+    public BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisteredPage(@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
         if (null == date){
             date = LocalDate.now().minusDays(2);
         }
