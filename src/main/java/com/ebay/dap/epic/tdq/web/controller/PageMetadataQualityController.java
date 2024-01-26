@@ -32,9 +32,9 @@ public class PageMetadataQualityController {
         return "done";
     }
 
-    @Operation(summary = "listAllUnregisteredPage")
-    @GetMapping("listAllUnregisteredPage")
-    public BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisteredPage(@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+    @Operation(summary = "listAllInvalidPage")
+    @GetMapping("listAllInvalidPage")
+    public BaseGeneralVO<InvalidPageMetadataEntity> listAllInvalidPage(@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
         if (null == date){
             date = LocalDate.now().minusDays(2);
         }
