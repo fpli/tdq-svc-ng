@@ -44,7 +44,6 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     private ObjectMapper objectMapper;
 
     private HttpClient httpClient;
-    private String restAPI = "https://app-api.altus.vip.ebay.com/api/v2/applications/%s";
 
     private String baseURL = "https://cms.vip.stratus.ebay.com/cms";
 
@@ -231,45 +230,6 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             }
         }
         return null;
-    }
-
-
-    private void retrieveMetadata(PagePoolLKP pagePoolLKP, LongAdder longAdder) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder();
-        String poolName = pagePoolLKP.getPoolName();
-        if (poolName.startsWith("r1")){
-            poolName = poolName.substring(2);
-        }
-        String url = String.format(restAPI, poolName);
-        builder.uri(URI.create(url));
-        builder.setHeader("Content-Type", "application/json");
-        builder.setHeader("Authorization", "MSID_Bg8htCy4dG4u2iVAGdSJD22EDMXLexnW8E1YpPXi654wkVbQ");
-        try {
-            HttpResponse<String> httpResponse = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
-            String body = httpResponse.body();
-            Map<String, Object> map = objectMapper.readValue(body, Map.class);
-            if ("SUCCESS".equals(map.get("status"))){
-                Map<String, Object> result = (Map<String, Object>) map.get("result");
-                Map<String, Object> onCallServiceResponse = (Map<String, Object>) result.get("onCallServiceResponse");
-                String app_jira = (String) result.get("jiraUrl");
-                String app_owner = (String) result.get("onCallMgr");
-                String app_notification = (String) onCallServiceResponse.get("contactDL");
-
-                UnregisterPageMetadataEntity unregisterPageMetadataEntity = new UnregisterPageMetadataEntity();
-                unregisterPageMetadataEntity.setPageId(pagePoolLKP.getPageId());
-                unregisterPageMetadataEntity.setTraffic(pagePoolLKP.getTraffic());
-                unregisterPageMetadataEntity.setPoolName(pagePoolLKP.getPoolName());
-                unregisterPageMetadataEntity.setDt(pagePoolLKP.getDt());
-                unregisterPageMetadataEntity.setJiraLink(app_jira);
-                unregisterPageMetadataEntity.setOwner(app_owner);
-                unregisterPageMetadataEntity.setEmail(app_notification);
-                unregisterPageMetadataMapper.insert(unregisterPageMetadataEntity);
-                longAdder.increment();
-            }
-        } catch (IOException|InterruptedException  e) {
-            e.printStackTrace();
-            log.error("occurred exception: ", e);
-        }
     }
 
 }
