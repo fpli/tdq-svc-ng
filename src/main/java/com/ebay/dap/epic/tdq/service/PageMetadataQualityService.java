@@ -9,6 +9,6 @@ public interface PageMetadataQualityService {
 
     int dailyTask(LocalDate date);
 
-    BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage(LocalDate date);
+    BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage();
 
 }

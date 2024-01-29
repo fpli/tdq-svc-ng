@@ -99,11 +99,18 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     }
 
     @Override
-    public BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage(LocalDate date) {
+    public BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage() {
         BaseGeneralVO<InvalidPageMetadataEntity> baseGeneralVO = new BaseGeneralVO();
+
         LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
+        lambdaQueryWrapper.orderByDesc(InvalidPageMetadataEntity::getDt);
+        lambdaQueryWrapper.last(" limit 1");
+        InvalidPageMetadataEntity invalidPageMetadataEntity = invalidPageMetadataMapper.selectOne(lambdaQueryWrapper);
+        LocalDate date = invalidPageMetadataEntity.getDt();
+
+        lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
         lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
-        //lambdaQueryWrapper.orderByDesc(UnregisterPageMetadataEntity::getTraffic);
+        //lambdaQueryWrapper.orderByDesc(InvalidPageMetadataEntity::getTraffic);
         List<InvalidPageMetadataEntity> unregisterPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
         baseGeneralVO.setDate(date.toString());
         baseGeneralVO.setList(unregisterPageMetadataEntities);

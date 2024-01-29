@@ -34,14 +34,8 @@ public class PageMetadataQualityController {
 
     @Operation(summary = "listAllInvalidPage")
     @GetMapping("listAllInvalidPage")
-    public BaseGeneralVO<InvalidPageMetadataEntity> listAllInvalidPage(@RequestParam(name = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-        if (null == date){
-            date = LocalDate.now().minusDays(2);
-        }
-        if (date.isAfter(LocalDate.now())){
-            throw new IllegalArgumentException("the parameter data: " + date + " can't be later than today.");
-        }
-        return pageMetadataQualityService.listAllUnregisterPage(date);
+    public BaseGeneralVO<InvalidPageMetadataEntity> listAllInvalidPage(){
+        return pageMetadataQualityService.listAllUnregisterPage();
     }
 
 }
