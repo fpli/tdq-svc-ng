@@ -4,6 +4,7 @@ package com.ebay.dap.epic.tdq.schedule.task;
 import com.ebay.dap.epic.tdq.service.PageMetadataQualityService;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @Slf4j
 public class UnregisteredPageMetadataTask {
 
+    @Autowired
     private PageMetadataQualityService pageMetadataQualityService;
 
     @Scheduled(cron = "0 0 8 * * *", zone = "GMT-7")
