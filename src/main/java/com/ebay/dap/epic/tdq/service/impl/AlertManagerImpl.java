@@ -235,6 +235,7 @@ public class AlertManagerImpl implements AlertManager {
     public void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception {
         LocalDate localDate = localDateTime.toLocalDate();
 
+        LegacyItemDTO legacyItemDTO_0 = new LegacyItemDTO(45, "Guids with 0 uid percent (All events)", "guids with 0 user percent of all events", 0.96, "<", "guid_cnt_all_uid_is_0", "%");
         LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.04, ">", "guid_cnt_all_uid_is_1", "%");
         LegacyItemDTO legacyItemDTO_2 = new LegacyItemDTO(47, "Guids with >= 2 uids percent (All events)", "guids with 2 or more users percent of all events", 0.02, ">", "guid_cnt_all_uid_gte_2", "%");
         LegacyItemDTO legacyItemDTO_3 = new LegacyItemDTO(51, "Guids with 0 uid (Valid events)", "Num of guids with 0 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_0", null);
@@ -242,9 +243,9 @@ public class AlertManagerImpl implements AlertManager {
         LegacyItemDTO legacyItemDTO_5 = new LegacyItemDTO(53, "Guids with >= 2 uids (Valid events)", "Num of guids with 2 or more users for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_gte_2", null);
         LegacyItemDTO legacyItemDTO_6 = new LegacyItemDTO(57, "Page level multiple uid events count", "events with multiple uids on page id level", 50000.00, ">", "multi_uid_events_cnt", null);
         LegacyItemDTO legacyItemDTO_7 = new LegacyItemDTO(60, "Sessions percent with >=2 uids", "Sessions percent with >=2 uids", 1.00, ">", "session_rate_valid_uid_gte_2", null);
-        List<LegacyItemDTO> list = List.of(legacyItemDTO_1, legacyItemDTO_2, legacyItemDTO_3, legacyItemDTO_4, legacyItemDTO_5, legacyItemDTO_6, legacyItemDTO_7);
+        List<LegacyItemDTO> list = List.of(legacyItemDTO_0, legacyItemDTO_1, legacyItemDTO_2, legacyItemDTO_3, legacyItemDTO_4, legacyItemDTO_5, legacyItemDTO_6, legacyItemDTO_7);
 
-        List<Integer> allEventMetricIds = Arrays.asList(46, 47,  57, 60);
+        List<Integer> allEventMetricIds = Arrays.asList(45, 46, 47,  57, 60);
         List<Integer> validEventMetricIds = Arrays.asList(51, 52, 53);
 
         PageAlertDto<MultipleUidDTO> pageAlertDto = new PageAlertDto<>();
