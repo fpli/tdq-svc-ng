@@ -55,7 +55,8 @@ public class Top50PageTrafficHourlyAlertTask {
     @Autowired
     private AlertSuppressionPageCfgMapper alertSuppressionPageCfgMapper;
 
-    private static final double THRESHOLD_PCT = -0.6; // drop 60%
+    // threshold set to drop 50%
+    private static final double THRESHOLD_PCT = -0.5;
 
     /**
      * Run every hour at 30'

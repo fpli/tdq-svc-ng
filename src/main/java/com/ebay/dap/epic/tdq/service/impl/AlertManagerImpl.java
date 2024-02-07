@@ -360,21 +360,23 @@ public class AlertManagerImpl implements AlertManager {
 
     @Override
     public void adsClickFraud(LocalDate date) throws Exception {
+        final double THRESHOLD = 0.0004;
+
         List<MetricDoc> dailyMetrics = metricService.getDailyMetrics(date, "ads_click_fruad_detection");
         if (org.springframework.util.CollectionUtils.isEmpty(dailyMetrics)){
             return;
         }
         MetricDoc metricDoc = dailyMetrics.get(0);
         BigDecimal value = metricDoc.getValue();
-        double v = value.doubleValue() / 100, threshold = 0.0002;
-        if (threshold >= v){
+        double v = value.doubleValue() / 100;
+        if (THRESHOLD >= v){
             return;
         }
         AdsClickFraudDTO adsClickFraudDTO = new AdsClickFraudDTO();
         adsClickFraudDTO.setDt(date.toString());
         adsClickFraudDTO.setGroupName("Ads");
         adsClickFraudDTO.setValue(v);
-        adsClickFraudDTO.setThreshold(threshold);
+        adsClickFraudDTO.setThreshold(THRESHOLD);
 
         Context context = new Context();
         context.setVariable("adsAlert", adsClickFraudDTO);
