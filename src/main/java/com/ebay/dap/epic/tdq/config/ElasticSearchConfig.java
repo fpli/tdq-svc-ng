@@ -41,7 +41,7 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
                                    .connectedTo(hostAndPort)
                                    .usingSsl()
                                    .withConnectTimeout(15000) //15s
-                                   .withSocketTimeout(30000) //30s
+                                   .withSocketTimeout(60000) //60s
                                    .withBasicAuth(prontoEnv.getUsername(), prontoEnv.getPassword());
 
 
