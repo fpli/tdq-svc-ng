@@ -124,6 +124,8 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         invalidPageMetadataEntity.setTraffic(pagePoolLKP.getTraffic());
         invalidPageMetadataEntity.setPoolName(pagePoolLKP.getPoolName());
         invalidPageMetadataEntity.setDt(pagePoolLKP.getDt());
+        invalidPageMetadataEntity.setEnvironment(pagePoolLKP.getEnvironment());
+        invalidPageMetadataEntity.setState(pagePoolLKP.getState());
         invalidPageMetadataMapper.insert(invalidPageMetadataEntity);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder();

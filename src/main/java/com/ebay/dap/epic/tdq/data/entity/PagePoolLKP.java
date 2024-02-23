@@ -17,6 +17,12 @@ public class PagePoolLKP extends BaseEntity {
     @TableField("page_id")
     private Integer pageId;
 
+    @TableField("environment")
+    private String environment;
+
+    @TableField("state")
+    private String state;
+
     private long  traffic;
 
     @TableField("pool_name")
