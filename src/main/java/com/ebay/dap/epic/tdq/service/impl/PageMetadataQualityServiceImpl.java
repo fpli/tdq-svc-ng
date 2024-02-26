@@ -150,15 +150,17 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 String applicationURL = refMap.get("url");
                 fillApplicationInfo(builder, applicationURL, invalidPageMetadataEntity);
                 Map onCallServiceMap = (Map) applicationServiceMap.get("onCallService");
-                Map<String, String> ref_map = (Map<String, String>) onCallServiceMap.get("ref");
-                String onCallServiceURL = ref_map.get("url");
-                fillOnCallServiceEmail(builder, onCallServiceURL, invalidPageMetadataEntity);
+                if (null != onCallServiceMap){
+                    Map<String, String> ref_map = (Map<String, String>) onCallServiceMap.get("ref");
+                    String onCallServiceURL = ref_map.get("url");
+                    fillOnCallServiceEmail(builder, onCallServiceURL, invalidPageMetadataEntity);
+                }
                 invalidPageMetadataMapper.updateById(invalidPageMetadataEntity);
                 longAdder.increment();
             }
 
         } catch (IOException | InterruptedException e) {
-            log.error("occurred exception: {0}", e);
+            log.error("occurred exception: {}, parameter: {}", e, pagePoolLKP);
             throw new RuntimeException(e);
         }
     }
