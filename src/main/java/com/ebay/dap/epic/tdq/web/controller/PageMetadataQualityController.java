@@ -38,4 +38,11 @@ public class PageMetadataQualityController {
         return pageMetadataQualityService.listAllUnregisterPage();
     }
 
+    @Operation(summary = "trigger invalid page notification")
+    @GetMapping("triggerNotification")
+    public String triggerNotification(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        pageMetadataQualityService.dailyNotifyApplicationOwner(date);
+        return "done";
+    }
+
 }

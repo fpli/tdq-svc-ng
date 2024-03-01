@@ -2,18 +2,22 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.ebay.dap.epic.tdq.data.entity.PagePoolLKP;
+import com.ebay.dap.epic.tdq.data.dto.InvalidPageAlertDTO;
 import com.ebay.dap.epic.tdq.data.entity.InvalidPageMetadataEntity;
-import com.ebay.dap.epic.tdq.data.mapper.mybatis.PagePoolLKPMapper;
+import com.ebay.dap.epic.tdq.data.entity.PagePoolLKP;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.InvalidPageMetadataMapper;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.PagePoolLKPMapper;
 import com.ebay.dap.epic.tdq.data.vo.BaseGeneralVO;
+import com.ebay.dap.epic.tdq.service.EmailService;
 import com.ebay.dap.epic.tdq.service.PageMetadataQualityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.thymeleaf.context.Context;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -25,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,13 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     private HttpClient httpClient;
 
     private String baseURL = "https://cms.vip.stratus.ebay.com/cms";
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    @Qualifier("externalEmailService")
+    private EmailService externalEmailService;
 
     @PostConstruct
     public void init(){
@@ -89,11 +99,6 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         if (null == token){
             return 0;
         }
-        //pagePoolLKPS.parallelStream().forEach(pagePoolLKP -> retrieveMetadata(pagePoolLKP, longAdder));
-        ConcurrentMap<String, List<PagePoolLKP>> listConcurrentMap = pagePoolLKPS.parallelStream().collect(Collectors.groupingByConcurrent(PagePoolLKP::getPoolName));
-        listConcurrentMap.forEach((poolName, list) -> {
-            // todo
-        });
         pagePoolLKPS.parallelStream().forEach(pagePoolLKP -> retrieveUnregisteredPageMetadata(pagePoolLKP, token, longAdder));
         return longAdder.intValue();
     }
@@ -116,6 +121,35 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         baseGeneralVO.setList(unregisterPageMetadataEntities);
         baseGeneralVO.setCount(unregisterPageMetadataEntities.size());
         return baseGeneralVO;
+    }
+
+    @Override
+    public void dailyNotifyApplicationOwner(LocalDate date) {
+        LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
+        lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
+        lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getOwner);
+        lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getEmail);
+
+        List<InvalidPageMetadataEntity> invalidPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
+        Map<String, Map<String, List<InvalidPageMetadataEntity>>> ownerMap = invalidPageMetadataEntities.stream().collect(Collectors.groupingBy(InvalidPageMetadataEntity::getOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getEmail)));
+        ownerMap.forEach(this::notifyApplicationOwner);
+    }
+
+    private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map) {
+        map.forEach((dl, list) -> {
+            List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
+            InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
+            invalidPageAlertDTO.setOwner(owner);
+            invalidPageAlertDTO.getPageIds().addAll(pageids);
+            Context context = new Context();
+            context.setVariable("alert", invalidPageAlertDTO);
+            try {
+                emailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of(dl, "fangpli@ebay.com"));
+                //externalEmailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of("fangpli@ebay.com"));
+            } catch (Exception e) {
+                log.error("failed to send email notification to {} ", owner, e);
+            }
+        });
     }
 
     private void retrieveUnregisteredPageMetadata(PagePoolLKP pagePoolLKP, String token, LongAdder longAdder){
