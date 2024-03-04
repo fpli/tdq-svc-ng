@@ -208,7 +208,7 @@ public class MMDServiceImpl implements MMDService {
                         String httpResult = MMDServiceImpl.this.tryDoPostWithJson(mmdCommonCfg.getUrl(), mmdCommonCfg.getHeadParams(), jsonString);
                         log.info("jobs size: {}, cost time: {} seconds", jobs.size(), Duration.between(start, Instant.now()).getSeconds());
 //                        if (ConstantDefine.CUR_ENV.equalsIgnoreCase(ConstantDefine.ENV.QA)) {
-                        log.info("jsonString:{} \n, httpResult:{}", jsonString, httpResult);
+                        //log.info("jsonString:{} \n, httpResult:{}", jsonString, httpResult);
 //                        }
                         return objectMapper.readValue(httpResult, MMDResult.class);
                     } catch (Exception e) {
