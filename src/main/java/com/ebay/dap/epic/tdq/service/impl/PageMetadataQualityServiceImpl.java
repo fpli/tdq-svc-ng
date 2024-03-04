@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.thymeleaf.context.Context;
@@ -135,7 +134,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         ownerMap.forEach(this::notifyApplicationOwner);
     }
 
-    private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map) throws RuntimeException {
+    private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map){
         map.forEach((dl, list) -> {
             List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
             InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
