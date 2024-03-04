@@ -52,9 +52,9 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     @Autowired
     private EmailService emailService;
 
-    @Autowired
-    @Qualifier("externalEmailService")
-    private EmailService externalEmailService;
+//    @Autowired
+//    @Qualifier("externalEmailService")
+//    private EmailService externalEmailService;
 
     @PostConstruct
     public void init(){
@@ -144,7 +144,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             Context context = new Context();
             context.setVariable("alert", invalidPageAlertDTO);
             try {
-                emailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of(dl, "fangpli@ebay.com"));
+                emailService.sendHtmlEmail("alert-invalid-page", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com"));
                 //externalEmailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of("fangpli@ebay.com"));
             } catch (Exception e) {
                 log.error("failed to send email notification to {} ", owner, e);
