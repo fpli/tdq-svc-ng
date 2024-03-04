@@ -135,7 +135,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         ownerMap.forEach(this::notifyApplicationOwner);
     }
 
-    private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map) {
+    private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map) throws RuntimeException {
         map.forEach((dl, list) -> {
             List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
             InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
@@ -148,6 +148,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 //externalEmailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of("fangpli@ebay.com"));
             } catch (Exception e) {
                 log.error("failed to send email notification to {} ", owner, e);
+                throw new RuntimeException(e);
             }
         });
     }
