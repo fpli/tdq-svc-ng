@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>invalid pages detection</title>
+  <style>
+      body {
+          font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .container {
+          width: 100%;
+          margin: auto;
+          /*background-color: aqua;*/
+          /* border: 1px solid gray; */
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- <div class="header"></div> -->
+  <div class="content">
+    <p>
+      Dear <b th:text="${alert.owner}">application owner</b>, <br/><br/>
+      It has come to our attention that one or more pages associated with your application pool are not properly registered in Braavos (our Tracking Metadata System), yet they are
+      actively generating events that are being captured in our tracking system. <br/>  <br/>
+      Below is the involved pageid(s):
+      <ul th:each="pageId : ${alert.pageIds}">
+        <li th:text="${pageId}"></li>
+      </ul>
+    </p>
+
+    <br/>
+
+    <div>
+      <p>
+        To address this issue and prevent any potential adverse effects on both our systems and your page's performance, we kindly request your cooperation in the following actions:
+      </p>
+      <ol>
+        <li>Please verify the status of your pages in both staging and production environments on Braavos.</li>
+        <li>If you identify any pages that are not correctly registered, please make sure to complete tracking DOD process.</li>
+        <li>If the pageid is not needed any more, please take measures to stop emitting events.</li>
+      </ol>
+      <p>
+        To require any assistance or have questions about this process, please contact tracking team via following methods: <br/>
+        slack channel:
+        <a href="https://ebay.enterprise.slack.com/archives/C0Q8FR0AK">#tracking-general</a> <br/>
+        email: <a href="mailto:DL-eBay-Tracking-Data-Quality@ebay.com">DL-eBay-Tracking-Data-Quality@ebay.com</a> <br/>
+        Tracking Portal: <a href="http://go/tracking">go/tracking</a>
+      </p>
+    </div>
+
+    <p>
+      Thanks, <br/>
+      Tracking Data Quality
+    </p>
+  </div>
+</div>
+</body>
+</html>

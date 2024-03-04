@@ -11,4 +11,6 @@ public interface PageMetadataQualityService {
 
     BaseGeneralVO<InvalidPageMetadataEntity> listAllUnregisterPage();
 
+    void dailyNotifyApplicationOwner(LocalDate date);
+
 }
