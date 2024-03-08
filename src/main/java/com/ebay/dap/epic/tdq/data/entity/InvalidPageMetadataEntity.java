@@ -25,6 +25,12 @@ public class InvalidPageMetadataEntity extends AuditableEntity {
     @TableField("pool_name")
     private String poolName;
 
+    @TableField("pool_notification")
+    private String poolDL;
+
+    @TableField("resource_id")
+    private String poolId;
+
     @TableField("dt")
     private LocalDate dt;
 
