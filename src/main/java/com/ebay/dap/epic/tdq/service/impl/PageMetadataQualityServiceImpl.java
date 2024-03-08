@@ -262,7 +262,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                     invalidPageMetadataEntity.setOwner(resourceId);
                 }
             }
-            // retrieve application oncall dl
+
             // retrieve application oncall dl
             Map dedicatedTeam = (Map)app_map.get("dedicatedTeam");
             Map ref_map = (Map)dedicatedTeam.get("ref");
