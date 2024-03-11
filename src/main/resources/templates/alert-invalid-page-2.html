@@ -22,8 +22,8 @@
   <div class="content">
     <p>
       Dear <b th:text="${alert.owner}">application owner</b>, <br/><br/>
-      It has come to our attention that one or more pages associated with your application pool are not properly registered in Braavos (our Tracking Metadata System), yet they are
-      actively generating events that are being captured in our tracking system. <br/>  <br/>
+      It has come to our attention that one or more pages associated with your application pool <b th:text="${alert.poolName}">pool name</b> are not properly registered in Braavos (our Tracking Metadata System),
+      yet they are actively generating events that are being captured in our tracking system on <b th:text="${alert.dt}">2024-03-06</b>. <br/>  <br/>
       Below is the involved pageid(s):
       <ul th:each="pageId : ${alert.pageIds}">
         <li th:text="${pageId}"></li>

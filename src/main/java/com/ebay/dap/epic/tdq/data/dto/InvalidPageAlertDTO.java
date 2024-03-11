@@ -11,5 +11,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidPageAlertDTO {
     String owner;
+    String dt;
+    String poolName;
     List<Integer> pageIds = new ArrayList<>();
 }

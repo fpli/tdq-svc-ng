@@ -20,25 +20,31 @@ public class InvalidPageMetadataEntity extends AuditableEntity {
     private String environment;
 
     @TableField("life_cycle_state")
-    private String state;
+    private String lifeCycleState;
 
     @TableField("pool_name")
     private String poolName;
+
+    @TableField("pool_notification")
+    private String poolNotification;
+
+    @TableField("resource_id")
+    private String resourceId;
 
     @TableField("dt")
     private LocalDate dt;
 
     @TableField("event_cnt")
-    private long traffic;
+    private long eventCnt;
 
     @TableField("event_pct")
-    private double percentage;
+    private double eventPct;
 
     @TableField("app_owner")
-    private String owner;
+    private String appOwner;
 
     @TableField("app_notification")
-    private String email;
+    private String appNotification;
 
     @TableField("app_jira")
     private String jiraLink;

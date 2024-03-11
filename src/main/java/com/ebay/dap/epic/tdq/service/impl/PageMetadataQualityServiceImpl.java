@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
@@ -126,28 +127,50 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     public void dailyNotifyApplicationOwner(LocalDate date) {
         LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
         lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
-        lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getOwner);
-        lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getEmail);
+        lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getAppOwner);
+        //lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getEmail);
 
         List<InvalidPageMetadataEntity> invalidPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
-        Map<String, Map<String, List<InvalidPageMetadataEntity>>> ownerMap = invalidPageMetadataEntities.stream().collect(Collectors.groupingBy(InvalidPageMetadataEntity::getOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getEmail)));
-        ownerMap.forEach(this::notifyApplicationOwner);
+        Map<Boolean, List<InvalidPageMetadataEntity>> booleanListMap = invalidPageMetadataEntities.stream().collect(Collectors.partitioningBy(invalidPageMetadataEntity -> invalidPageMetadataEntity.getPoolNotification() != null));
+        booleanListMap.forEach((flag, list) -> {
+            if (flag){
+                Map<Boolean, List<InvalidPageMetadataEntity>> booleanListMap1 = list.stream().collect(Collectors.partitioningBy(invalidPageMetadataEntity -> !Objects.equals(invalidPageMetadataEntity.getPoolNotification(), invalidPageMetadataEntity.getAppNotification())));
+                booleanListMap1.forEach((flag1, list1) -> {
+                    if (flag1){
+                        Map<String, Map<String, List<InvalidPageMetadataEntity>>> map = list1.stream().filter(invalidPageMetadataEntity -> invalidPageMetadataEntity.getAppNotification() != null).collect(Collectors.groupingBy(InvalidPageMetadataEntity::getAppOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getAppNotification)));
+                        map.forEach(this::notifyApplicationOwner);
+                    }
+                    Map<String, Map<String, List<InvalidPageMetadataEntity>>> map = list1.stream().collect(Collectors.groupingBy(InvalidPageMetadataEntity::getAppOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getPoolNotification)));
+                    map.forEach(this::notifyApplicationOwner);
+                });
+            } else {
+                Map<String, Map<String, List<InvalidPageMetadataEntity>>> map = list.stream().filter(invalidPageMetadataEntity -> invalidPageMetadataEntity.getAppNotification() != null).collect(Collectors.groupingBy(InvalidPageMetadataEntity::getAppOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getAppNotification)));
+                map.forEach(this::notifyApplicationOwner);
+            }
+        });
+        //Map<String, Map<String, List<InvalidPageMetadataEntity>>> ownerMap = invalidPageMetadataEntities.stream().collect(Collectors.groupingBy(InvalidPageMetadataEntity::getOwner, Collectors.groupingBy(InvalidPageMetadataEntity::getEmail)));
+        //ownerMap.forEach(this::notifyApplicationOwner);
     }
 
     private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map){
         map.forEach((dl, list) -> {
-            List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
-            InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
-            invalidPageAlertDTO.setOwner(owner);
-            invalidPageAlertDTO.getPageIds().addAll(pageids);
-            Context context = new Context();
-            context.setVariable("alert", invalidPageAlertDTO);
-            try {
-                emailService.sendHtmlEmail("alert-invalid-page", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com"));
-                //externalEmailService.sendHtmlEmail("alert-invalid-page", context, "invalid page notification", List.of("fangpli@ebay.com"));
-            } catch (Exception e) {
-                log.error("failed to send email notification to {} ", owner, e);
-                throw new RuntimeException(e);
+            if (dl != null) {
+                List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
+                InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
+                invalidPageAlertDTO.setOwner(owner);
+                InvalidPageMetadataEntity invalidPageMetadataEntity = list.get(0);
+                invalidPageAlertDTO.setDt(invalidPageMetadataEntity.getDt().toString());
+                invalidPageAlertDTO.setPoolName(invalidPageMetadataEntity.getPoolName() + " (" + invalidPageMetadataEntity.getResourceId() + ")");
+                invalidPageAlertDTO.getPageIds().addAll(pageids);
+                Context context = new Context();
+                context.setVariable("alert", invalidPageAlertDTO);
+                try {
+                    emailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com"));
+                    //externalEmailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of("fangpli@ebay.com"));
+                } catch (Exception e) {
+                    log.error("failed to send email notification to {} ", owner, e);
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -155,11 +178,11 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     private void retrieveUnregisteredPageMetadata(PagePoolLKP pagePoolLKP, String token, LongAdder longAdder){
         InvalidPageMetadataEntity invalidPageMetadataEntity = new InvalidPageMetadataEntity();
         invalidPageMetadataEntity.setPageId(pagePoolLKP.getPageId());
-        invalidPageMetadataEntity.setTraffic(pagePoolLKP.getTraffic());
+        invalidPageMetadataEntity.setEventCnt(pagePoolLKP.getTraffic());
         invalidPageMetadataEntity.setPoolName(pagePoolLKP.getPoolName());
         invalidPageMetadataEntity.setDt(pagePoolLKP.getDt());
         invalidPageMetadataEntity.setEnvironment(pagePoolLKP.getEnvironment());
-        invalidPageMetadataEntity.setState(pagePoolLKP.getState());
+        invalidPageMetadataEntity.setLifeCycleState(pagePoolLKP.getState());
         invalidPageMetadataMapper.insert(invalidPageMetadataEntity);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder();
@@ -179,6 +202,8 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             builder.uri(URI.create(actualUri));
             Map applicationServiceMap = doCallCMS(builder.build());
             if (null != applicationServiceMap) {
+                String resourceId = (String) applicationServiceMap.get("resourceId");
+                invalidPageMetadataEntity.setResourceId(resourceId);
                 Map applicationMap = (Map) applicationServiceMap.get("application");
                 Map<String, String> refMap = (Map<String, String>) applicationMap.get("ref");
                 String applicationURL = refMap.get("url");
@@ -201,6 +226,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
 
     //unregisterPageMetadataEntity.setJiraLink(app_jira);
     //unregisterPageMetadataEntity.setOwner(app_owner);
+    //unregisterPageMetadataEntity.app_notification(app_notification);
     private void fillApplicationInfo(HttpRequest.Builder builder, String applicationURL, InvalidPageMetadataEntity invalidPageMetadataEntity) throws IOException, InterruptedException {
         URI uri = URI.create(baseURL + applicationURL);
         builder.uri(uri);
@@ -233,13 +259,28 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 Map map6 = doCallCMS(builder.build());
                 if (null != map6) {
                     String resourceId = map6.get("resourceId").toString();
-                    invalidPageMetadataEntity.setOwner(resourceId);
+                    invalidPageMetadataEntity.setAppOwner(resourceId);
                 }
+            }
+
+            // retrieve application oncall dl
+            Map dedicatedTeam = (Map)app_map.get("dedicatedTeam");
+            Map ref_map = (Map)dedicatedTeam.get("ref");
+            String dedicatedTeam_url = ref_map.get("url").toString();
+
+            URI dedicatedTeam_uri = URI.create(baseURL + dedicatedTeam_url);
+            builder.uri(dedicatedTeam_uri);
+            Map map5 = doCallCMS(builder.build());
+            List<String> dl_list = (List<String>) map5.get("dl");
+            if (!CollectionUtils.isEmpty(dl_list)){
+                String email = dl_list.get(0);
+                if (email != null)
+                    invalidPageMetadataEntity.setAppNotification(email.endsWith("@ebay.com") ? email : email + "@ebay.com");
             }
         }
     }
 
-    //unregisterPageMetadataEntity.setEmail(app_notification);
+    //unregisterPageMetadataEntity.setPoolDL(pool_notification);
     private void fillOnCallServiceEmail(HttpRequest.Builder builder, String onCallServiceURL, InvalidPageMetadataEntity invalidPageMetadataEntity) throws IOException, InterruptedException {
         URI uri = URI.create(baseURL + onCallServiceURL);
         builder.uri(uri);
@@ -249,7 +290,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         }
         String email = (String) map.get("email");
         Map dedicatedTeamMap = (Map) map.get("dedicatedTeam");
-        if (!CollectionUtils.isEmpty(dedicatedTeamMap)){
+        if ((null == email || email.isBlank()) && !CollectionUtils.isEmpty(dedicatedTeamMap)){
             Map ref_map = (Map) dedicatedTeamMap.get("ref");
             String url = (String) ref_map.get("url");
             builder.uri(URI.create(baseURL + url));
@@ -259,7 +300,8 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 email = dl_list.get(0);
             }
         }
-        invalidPageMetadataEntity.setEmail(email);
+        if (email != null)
+            invalidPageMetadataEntity.setPoolNotification(email.endsWith("@ebay.com") ? email : email + "@ebay.com");
     }
 
     private Map doCallCMS(HttpRequest request) throws IOException, InterruptedException {
