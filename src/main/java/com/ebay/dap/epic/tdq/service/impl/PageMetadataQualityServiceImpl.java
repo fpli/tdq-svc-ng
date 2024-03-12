@@ -165,7 +165,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 Context context = new Context();
                 context.setVariable("alert", invalidPageAlertDTO);
                 try {
-                    emailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com"));
+                    emailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com", "DL-eBay-Tracking-Data-Quality@ebay.com"));
                     //externalEmailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of("fangpli@ebay.com"));
                 } catch (Exception e) {
                     log.error("failed to send email notification to {} ", owner, e);
