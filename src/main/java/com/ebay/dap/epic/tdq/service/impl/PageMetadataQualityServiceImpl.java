@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.thymeleaf.context.Context;
@@ -166,7 +165,7 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 Context context = new Context();
                 context.setVariable("alert", invalidPageAlertDTO);
                 try {
-                    emailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com", "DL-eBay-Tracking-Data-Quality@ebay.com"), List.of());
+                    emailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(dl), List.of("fangpli@ebay.com", "yxiao6@ebay.com", "yanmshi@ebay.com"), List.of());
                     //externalEmailService.sendHtmlEmail("alert-invalid-page-2", context, "TDQ Alerts - Tracking page metadata invalid", List.of(), List.of("fangpli@ebay.com"), List.of());
                 } catch (Exception e) {
                     log.error("failed to send email notification to {} ", owner, e);
