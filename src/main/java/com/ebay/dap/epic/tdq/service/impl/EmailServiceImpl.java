@@ -44,30 +44,47 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(@NonNull String content, @NonNull String subject, @NonNull List<String> to, List<String> cc) throws Exception {
-        log.info("Sending email with subject: {}, to: {}, cc: {}", subject, to, cc);
-        if (to.isEmpty()) {
-            return;
-        }
-        List<String> list = to.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
-        if (list.isEmpty()) {
-            return;
-        }
+        sendEmail(content, subject, to, null, cc);
+    }
+
+    @Override
+    public void sendEmail(@NonNull String content, @NonNull String subject, List<String> to, List<String> bcc, List<String> cc) throws Exception {
+        log.info("Sending email with subject: {}, to: {}, bcc: {}, cc: {}", subject, to, bcc, cc);
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-
         helper.setFrom(FROM_ADDRESS, FROM_NAME);
-        helper.setTo(list.toArray(new String[0]));
         helper.setSubject(subject);
         helper.setText(content, true);
+
+        boolean flag = false;
+
+        if (CollectionUtils.isNotEmpty(to)) {
+            List<String> list = to.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
+            if (!list.isEmpty()){
+                helper.setTo(list.toArray(new String[0]));
+                flag = true;
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(bcc)) {
+            List<String> list = bcc.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
+            if (!list.isEmpty()){
+                helper.setBcc(list.toArray(new String[0]));
+                flag = true;
+            }
+        }
 
         if (CollectionUtils.isNotEmpty(cc)) {
             List<String> ccList = cc.stream().map(String::strip).filter(item -> !item.isBlank()).toList();
             if (!ccList.isEmpty()) {
                 helper.setCc(ccList.toArray(new String[0]));
+                flag = true;
             }
         }
 
-        mailSender.send(mimeMessage);
+        if (flag) {
+            mailSender.send(mimeMessage);
+        }
     }
 
     @Override
@@ -80,6 +97,13 @@ public class EmailServiceImpl implements EmailService {
         log.info("Processing html email using template: {}, with subject: {}", templateName, subject);
         String content = templateEngine.process(templateName, context);
         sendEmail(content, subject, to, cc);
+    }
+
+    @Override
+    public void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> bcc, List<String> cc) throws Exception {
+        log.info("Processing html email using template: {}, with subject: {}", templateName, subject);
+        String content = templateEngine.process(templateName, context);
+        sendEmail(content, subject, to, bcc, cc);
     }
 
     @Override
