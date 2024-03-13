@@ -10,9 +10,13 @@ public interface EmailService {
 
     void sendEmail(@NonNull String content, @NonNull String subject, @NonNull List<String> to, List<String> cc) throws Exception;
 
+    void sendEmail(@NonNull String content, @NonNull String subject, List<String> to, List<String> bcc, List<String> cc) throws Exception;
+
     void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to) throws Exception;
 
     void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> cc) throws Exception;
+
+    void sendHtmlEmail(@NonNull String templateName, Context context, String subject, List<String> to, List<String> bcc, List<String> cc) throws Exception;
 
     void sendHtmlEmail(@NonNull String templateName, Context context, @NonNull String emailCfgName) throws Exception;
 }
