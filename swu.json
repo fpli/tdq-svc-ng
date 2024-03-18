@@ -1,0 +1,19 @@
+{
+  "git": {
+    "org": "Tracking-Data-Quality",
+    "repo": "tdq-svc-ng",
+    "branch": "master"
+  },
+  "enabled": true,
+  "stack": "raptor",
+  "user": "fangpli",
+  "emails": [
+    "fangpli@ebay.com",
+    "yxiao6@ebay.com"
+  ],
+  "upgradeDay": 5,
+  "timeZone": "UTC+08",
+  "props": {
+    "pom": "pom.xml"
+  }
+}
