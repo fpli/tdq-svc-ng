@@ -86,7 +86,6 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         LongAdder longAdder = new LongAdder();
         LambdaQueryWrapper<PagePoolLKP> pagePoolLKPLambdaQueryWrapper = Wrappers.lambdaQuery(PagePoolLKP.class);
         pagePoolLKPLambdaQueryWrapper.ge(PagePoolLKP::getDt, date);
-
         List<PagePoolLKP> pagePoolLKPS = pagePoolLKPMapper.selectList(pagePoolLKPLambdaQueryWrapper);
         if (pagePoolLKPS.isEmpty()){
             return 0;
