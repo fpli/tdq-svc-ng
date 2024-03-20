@@ -1,0 +1,17 @@
+{
+  "git": {
+    "org": "Tracking-Data-Quality",
+    "repo": "tdq-svc-ng",
+    "branch": "master"
+  },
+  "enabled": true,
+  "stack": "raptor",
+  "emails": [
+    "DL-eBay-Tracking-Data-Quality-Dev@ebay.com"
+  ],
+  "upgradeDay": "5",
+  "timeZone": "UTC+08",
+  "props": {
+    "pom": "pom.xml"
+  }
+}

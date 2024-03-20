@@ -274,8 +274,9 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
             List<String> dl_list = (List<String>) map5.get("dl");
             if (!CollectionUtils.isEmpty(dl_list)){
                 String email = dl_list.get(0);
-                if (email != null)
-                    invalidPageMetadataEntity.setAppNotification(email.endsWith("@ebay.com") ? email : email + "@ebay.com");
+                if (email != null){
+                    invalidPageMetadataEntity.setAppNotification(email.endsWith("@ebay.com") || email.endsWith("@corp.ebay.com") ? email : email + "@ebay.com");
+                }
             }
         }
     }
@@ -300,8 +301,9 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
                 email = dl_list.get(0);
             }
         }
-        if (email != null)
-            invalidPageMetadataEntity.setPoolNotification(email.endsWith("@ebay.com") ? email : email + "@ebay.com");
+        if (email != null){
+            invalidPageMetadataEntity.setPoolNotification(email.endsWith("@ebay.com") || email.endsWith("@corp.ebay.com") ? email : email + "@ebay.com");
+        }
     }
 
     private Map doCallCMS(HttpRequest request) throws IOException, InterruptedException {
