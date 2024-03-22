@@ -6,10 +6,8 @@
   },
   "enabled": true,
   "stack": "raptor",
-  "user": "fangpli",
   "emails": [
-    "fangpli@ebay.com",
-    "yxiao6@ebay.com"
+    "DL-eBay-Tracking-Data-Quality-Dev@ebay.com"
   ],
   "upgradeDay": "5",
   "timeZone": "UTC+08",
