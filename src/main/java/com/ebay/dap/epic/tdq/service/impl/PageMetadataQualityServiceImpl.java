@@ -128,8 +128,8 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
         LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
         lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
         lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getAppOwner);
-        lambdaQueryWrapper.ne(InvalidPageMetadataEntity::getEnvironment, "Production");
-        lambdaQueryWrapper.notIn(InvalidPageMetadataEntity::getLifeCycleState, "Disabled", "New");
+        lambdaQueryWrapper.isNull(InvalidPageMetadataEntity::getEnvironment);
+        lambdaQueryWrapper.in(InvalidPageMetadataEntity::getLifeCycleState);
 
         List<InvalidPageMetadataEntity> invalidPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
         Map<Boolean, List<InvalidPageMetadataEntity>> booleanListMap = invalidPageMetadataEntities.stream().collect(Collectors.partitioningBy(invalidPageMetadataEntity -> invalidPageMetadataEntity.getPoolNotification() != null));
