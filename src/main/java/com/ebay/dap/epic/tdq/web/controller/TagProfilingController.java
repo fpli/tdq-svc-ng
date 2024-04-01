@@ -86,4 +86,13 @@ public class TagProfilingController {
         tagProfilingService.refresh();
         return "Successfully";
     }
+
+    @PostMapping("/triggerCJSTagAlert")
+    public String triggerCJSTagAlert(@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dt, @RequestBody List<String> tagNameList) throws Exception {
+        if (tagNameList == null || tagNameList.isEmpty()){
+            tagNameList = List.of("Itmattr", "plmt", "po", "srpGist", "itmmeta", "cjs", "cjsBeta");
+        }
+        tagProfilingService.cjsTagAlerting(dt, tagNameList);
+        return "Successful";
+    }
 }

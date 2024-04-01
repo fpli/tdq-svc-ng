@@ -26,4 +26,6 @@ public interface TagProfilingService {
     void configAbnormalTag(double TH_ANOMALY_SCORE, int topN, int tagByVolumeTopN);
 
     void refresh();
+
+    void cjsTagAlerting(LocalDate date, List<String> tagList) throws Exception;
 }

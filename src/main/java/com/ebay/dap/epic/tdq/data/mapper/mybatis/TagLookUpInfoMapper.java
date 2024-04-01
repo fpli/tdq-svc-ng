@@ -14,7 +14,7 @@ public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
 
     default List<TagLookUpInfo> findAllByTagName(String tagName) {
         LambdaQueryWrapper<TagLookUpInfo> lambdaQueryWrapper = Wrappers.lambdaQuery();
-        lambdaQueryWrapper.eq(TagLookUpInfo::getName, tagName);
+        lambdaQueryWrapper.eq(TagLookUpInfo::getTagName, tagName);
         return selectList(lambdaQueryWrapper);
     }
 
@@ -23,12 +23,12 @@ public interface TagLookUpInfoMapper extends BaseMapper<TagLookUpInfo> {
         if (CollectionUtils.isEmpty(tagNames)) {
             tagNames = Collections.singletonList(null);
         }
-        lambdaQueryWrapper.in(TagLookUpInfo::getName, tagNames);
+        lambdaQueryWrapper.in(TagLookUpInfo::getTagName, tagNames);
         return selectList(lambdaQueryWrapper);
     }
 
 
     default List<String> findAllTagNames() {
-        return selectList(null).stream().map(TagLookUpInfo::getName).distinct().toList();
+        return selectList(null).stream().map(TagLookUpInfo::getTagName).distinct().toList();
     }
 }
