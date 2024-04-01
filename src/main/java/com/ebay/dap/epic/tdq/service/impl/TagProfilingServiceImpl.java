@@ -146,9 +146,29 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     @Override
     public void cjsTagAlerting(LocalDate date, List<String> tagList) throws Exception {
         Map<String, List<TagRecord>> listMap = new HashMap<>();
+        PageAlertDto<CJSTAGAlertDTO> alertDto = new PageAlertDto();
+        alertDto.setDt(date.toString());
+        alertDto.setGroupName("CJS");
+        alertDto.setList(new ArrayList<>());
+        CJSTAGAlertDTO cjstagAlertDTO;
+
         for (String tagName : tagList) {
+            LambdaQueryWrapper<TagRecord> lambdaQueryWrapper = Wrappers.lambdaQuery();
+            lambdaQueryWrapper.eq(TagRecord::getTagName, tagName);
+            lambdaQueryWrapper.eq(TagRecord::getDt, date);
+            List<TagRecord> tagRecordList = tagRecordRepo.selectList(lambdaQueryWrapper);
+            if (CollectionUtils.isEmpty(tagRecordList) || tagRecordList.get(0).getTagVolume() == 0){
+                cjstagAlertDTO = new CJSTAGAlertDTO();
+                alertDto.getList().add(cjstagAlertDTO);
+                cjstagAlertDTO.setTagName(tagName);
+                cjstagAlertDTO.setTagVolume(0);
+                cjstagAlertDTO.setLowerBound(-1);
+                cjstagAlertDTO.setUpperBound(-1);
+                continue;
+            }
+
             QueryWrapper<TagRecord> queryWrapper = Wrappers.query();
-            LambdaQueryWrapper<TagRecord> lambdaQueryWrapper = queryWrapper.select("distinct tag_name,description,dt,volume AS tagVolume,event_volume,usage_volume AS accessTotal ").lambda();
+            lambdaQueryWrapper = queryWrapper.select("distinct tag_name,description,dt,volume AS tagVolume,event_volume,usage_volume AS accessTotal ").lambda();
             lambdaQueryWrapper.eq(TagRecord::getTagName, tagName);
             lambdaQueryWrapper.le(TagRecord::getDt, date);
             lambdaQueryWrapper.orderByDesc(TagRecord::getDt);
@@ -181,11 +201,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             return;
         }
 
-        PageAlertDto<CJSTAGAlertDTO> alertDto = new PageAlertDto();
-        alertDto.setDt(date.toString());
-        alertDto.setGroupName("CJS");
-        alertDto.setList(new ArrayList<>());
-        CJSTAGAlertDTO cjstagAlertDTO;
+
 
         for (JobResult job : jobs) {
             String label = job.getLabel();

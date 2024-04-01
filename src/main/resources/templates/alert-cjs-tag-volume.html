@@ -55,17 +55,28 @@
                 <thead>
                 <tr>
                     <th>Tag Name</th>
-                    <th>lower bound</th>
-                    <th>Tag Volume</th>
-                    <th>upper bound</th>
+                    <th>Event volume with tag</th>
+                    <th>MMD lower bound</th>
+                    <th>MMD upper bound</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="tag : ${alert.list}">
                     <td><a href="#" th:href="@{https://tdq.vip.ebay.com/profiling/tag/{tag}(tag=${tag.tagName})}"><span th:text="${tag.tagName}">g</span></a></td>
-                    <td><span th:text="${#numbers.formatDecimal(tag.lowerBound, 0, 'COMMA', 0, 'POINT')}">123,456</span></td>
-                    <td><span th:text="${#numbers.formatDecimal(tag.tagVolume, 0, 'COMMA', 0, 'POINT')}">123,456</span></td>
-                    <td><span th:text="${#numbers.formatDecimal(tag.upperBound, 0, 'COMMA', 0, 'POINT')}">123,345</span></td>
+                    <td>
+                        <span th:if="${tag.tagVolume == 0}"></span>
+                        <span th:unless="${tag.tagVolume == 0}"><span th:text="${#numbers.formatDecimal(tag.tagVolume, 0, 'COMMA', 0, 'POINT')}">123,456</span></span>
+                    </td>
+
+                    <td>
+                        <span th:if="${tag.lowerBound == -1}"></span>
+                        <span th:unless="${tag.lowerBound == -1}"><span th:text="${#numbers.formatDecimal(tag.lowerBound, 0, 'COMMA', 0, 'POINT')}">123,456</span></span>
+                    </td>
+
+                    <td>
+                        <span th:if="${tag.upperBound == -1}"></span>
+                        <span th:unless="${tag.upperBound == -1}"><span th:text="${#numbers.formatDecimal(tag.upperBound, 0, 'COMMA', 0, 'POINT')}">123,345</span></span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
