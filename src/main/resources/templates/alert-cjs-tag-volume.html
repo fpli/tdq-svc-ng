@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+          width: 90%;
+          margin: auto;
+          /*background-color: aqua;*/
+          /* border: 1px solid gray; */
+        }
+
+        #page-alert-table {
+          border-collapse: collapse;
+          width: 90%;
+        }
+
+        #page-alert-table td, #page-alert-table th {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+
+        #page-alert-table tr:nth-child(even) {
+          background-color: #f2f2f2;
+        }
+
+        #page-alert-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #04AA6D;
+          color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="header"></div> -->
+    <div class="content">
+        <p>
+            Hi <b th:text="${alert.groupName}">CJS</b> Team, <br/><br/>
+
+            We detected that there are <b th:text="${#lists.size(alert.list)}">1</b> abnormal tags
+            on <b th:text="${alert.dt}">2024-03-29</b>. <br/><br/>
+
+            Details of abnormal tags are listed as below. <br/>
+        </p>
+        <div>
+            <table id="page-alert-table">
+                <thead>
+                <tr>
+                    <th>Tag Name</th>
+                    <th>lower bound</th>
+                    <th>Tag Volume</th>
+                    <th>upper bound</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tag : ${alert.list}">
+                    <td><a href="#" th:href="@{https://tdq.vip.ebay.com/profiling/tag/{tag}(tag=${tag.tagName})}"><span th:text="${tag.tagName}">g</span></a></td>
+                    <td><span th:text="${#numbers.formatDecimal(tag.lowerBound, 0, 'COMMA', 0, 'POINT')}">123,456</span></td>
+                    <td><span th:text="${#numbers.formatDecimal(tag.tagVolume, 0, 'COMMA', 0, 'POINT')}">123,456</span></td>
+                    <td><span th:text="${#numbers.formatDecimal(tag.upperBound, 0, 'COMMA', 0, 'POINT')}">123,345</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <p>
+            For detailed tag info, please click the link: <a href="https://tdq.vip.ebay.com/profiling/tag">tdq-tag-profiling</a>
+        </p>
+    </div>
+    <div class="footer">
+        <br/><br/>
+        Thanks, <br/>
+        Tracking Behavior Data Team
+    </div>
+</div>
+</body>
+</html>

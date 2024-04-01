@@ -1,9 +1,15 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ebay.dap.epic.tdq.data.dto.CJSTAGAlertDTO;
+import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
 import com.ebay.dap.epic.tdq.data.dto.TagDetailDTO;
 import com.ebay.dap.epic.tdq.data.entity.*;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.*;
 import com.ebay.dap.epic.tdq.data.vo.*;
+import com.ebay.dap.epic.tdq.service.EmailService;
 import com.ebay.dap.epic.tdq.service.TagProfilingService;
 import com.ebay.dap.epic.tdq.service.mmd.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.thymeleaf.context.Context;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -93,6 +100,13 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private EmailService emailService;
+
+//    @Autowired
+//    @Qualifier("externalEmailService")
+//    private EmailService externalEmailService;
+
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private int tagTopN = 100;
@@ -127,6 +141,82 @@ public class TagProfilingServiceImpl implements TagProfilingService {
             }
             log.info("init duration: {}", Duration.between(begin, Instant.now()).getSeconds());
         });
+    }
+
+    @Override
+    public void cjsTagAlerting(LocalDate date, List<String> tagList) throws Exception {
+        Map<String, List<TagRecord>> listMap = new HashMap<>();
+        for (String tagName : tagList) {
+            QueryWrapper<TagRecord> queryWrapper = Wrappers.query();
+            LambdaQueryWrapper<TagRecord> lambdaQueryWrapper = queryWrapper.select("distinct tag_name,description,dt,volume AS tagVolume,event_volume,usage_volume AS accessTotal ").lambda();
+            lambdaQueryWrapper.eq(TagRecord::getTagName, tagName);
+            lambdaQueryWrapper.le(TagRecord::getDt, date);
+            lambdaQueryWrapper.orderByDesc(TagRecord::getDt);
+            lambdaQueryWrapper.last(" limit 90");
+            List<TagRecord> tagRecords = tagRecordRepo.selectList(lambdaQueryWrapper);
+            listMap.put(tagName, tagRecords);
+        }
+
+        Map<String, List<Series>> mmdTimeSeries = new HashMap<>();
+        listMap.forEach((tagName, list) ->{
+            List<Series> list1 = new ArrayList<>(list.size());
+            for (TagRecord tagRecord : list) {
+                Series e = new Series();
+                e.setValue(tagRecord.getTagVolume());
+                e.setTimestamp(tagRecord.getDt().toString());
+                list1.add(e);
+            }
+
+            list1.sort(Comparator.comparing(Series::getTimestamp));
+            mmdTimeSeries.put(tagName, list1);
+        });
+        MMDResult mmdResult = mmdService.mmdCallInBatch(mmdTimeSeries, -1, null);
+        if (mmdResult.getCode() != 200){
+            log.error("call mmd service occurred some errors: {}", mmdResult.getMessage());
+            return;
+        }
+
+        List<JobResult> jobs = mmdResult.getJobs();
+        if (CollectionUtils.isEmpty(jobs)) {
+            return;
+        }
+
+        PageAlertDto<CJSTAGAlertDTO> alertDto = new PageAlertDto();
+        alertDto.setDt(date.toString());
+        alertDto.setGroupName("CJS");
+        alertDto.setList(new ArrayList<>());
+        CJSTAGAlertDTO cjstagAlertDTO;
+
+        for (JobResult job : jobs) {
+            String label = job.getLabel();
+            List<MMDAlert> alerts = job.getAlerts();
+            MMDAlert mmdAlert = alerts.get(0);
+            String dtStr = mmdAlert.getDtStr();
+            LocalDate localDate = LocalDate.parse(dtStr, dateTimeFormatter);
+            if (date.equals(localDate) && mmdAlert.getIsAnomaly()){
+                BigDecimal uBound = mmdAlert.getUBound();
+                BigDecimal lBound = mmdAlert.getLBound();
+                BigDecimal rawValue = mmdAlert.getRawValue();
+                cjstagAlertDTO = new CJSTAGAlertDTO();
+                alertDto.getList().add(cjstagAlertDTO);
+                cjstagAlertDTO.setTagName(label);
+                cjstagAlertDTO.setTagVolume(rawValue.longValue());
+                cjstagAlertDTO.setLowerBound(lBound.doubleValue());
+                cjstagAlertDTO.setUpperBound(uBound.doubleValue());
+            }
+        }
+
+        if (!alertDto.getList().isEmpty()){
+            Context context = new Context();
+            context.setVariable("alert", alertDto);
+
+            //externalEmailService.sendHtmlEmail("alert-cjs-tag-volume", context, "CJS tag Alerting", List.of("fangpli@ebay.com"));
+//            externalEmailService.sendHtmlEmail("alert-cjs-tag-volume", context, "CJS TAG monitor");
+
+//            emailService.sendHtmlEmail("", context, "", List.of("fangpli@ebay.com"));
+            emailService.sendHtmlEmail("alert-cjs-tag-volume", context, "CJS TAG monitor");
+        }
+
     }
 
     @Override
