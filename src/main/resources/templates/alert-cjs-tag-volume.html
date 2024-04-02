@@ -64,8 +64,7 @@
                 <tr th:each="tag : ${alert.list}">
                     <td><a href="#" th:href="@{https://tdq.vip.ebay.com/profiling/tag/{tag}(tag=${tag.tagName})}"><span th:text="${tag.tagName}">g</span></a></td>
                     <td>
-                        <span th:if="${tag.tagVolume == 0}"></span>
-                        <span th:unless="${tag.tagVolume == 0}"><span th:text="${#numbers.formatDecimal(tag.tagVolume, 0, 'COMMA', 0, 'POINT')}">123,456</span></span>
+                        <span th:text="${#numbers.formatDecimal(tag.tagVolume, 0, 'COMMA', 0, 'POINT')}">123,456</span>
                     </td>
 
                     <td>
