@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("t_tdq_dashboard")
+@TableName("t_dashboard")
 public class DashboardEntity extends AuditableEntity {
     private String name;
     private String description;
