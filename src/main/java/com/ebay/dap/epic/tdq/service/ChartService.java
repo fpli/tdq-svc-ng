@@ -19,4 +19,6 @@ public interface ChartService {
 
 
     List<ChartInfoDTO> listAllChartInfo();
+
+    List<ChartInfoDTO> listChartInfo(List<Integer> chartIds);
 }

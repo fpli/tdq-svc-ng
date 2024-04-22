@@ -1,5 +1,7 @@
 package com.ebay.dap.epic.tdq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.dto.ChartConfig;
 import com.ebay.dap.epic.tdq.data.dto.ChartInfoDTO;
 import com.ebay.dap.epic.tdq.data.dto.DatasetConfig;
@@ -252,6 +254,27 @@ public class ChartServiceImpl implements ChartService {
     @Override
     public List<ChartInfoDTO> listAllChartInfo() {
         List<ChartInfoEntity> chartInfoEntityList = chartInfoMapper.findAll();
+        List<ChartInfoDTO> chartInfoDTOList = new ArrayList<>();
+        for (ChartInfoEntity entity : chartInfoEntityList) {
+            ChartInfoDTO dto = new ChartInfoDTO();
+            dto.setChartId(entity.getId());
+            dto.setTitle(entity.getName());
+            dto.setDescription(entity.getDescription());
+            dto.setMetricKeys(Arrays.stream(entity.getMetricKeys().split(",")).map(String::trim).toList());
+            dto.setMode(entity.getMode());
+            dto.setExp(entity.getExp());
+            dto.setDispOrder(entity.getDispOrder());
+            dto.setViewCfg(entity.getViewCfg());
+            chartInfoDTOList.add(dto);
+        }
+        return chartInfoDTOList;
+    }
+
+    @Override
+    public List<ChartInfoDTO> listChartInfo(List<Integer> chartIds) {
+        LambdaQueryWrapper<ChartInfoEntity> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.in(ChartInfoEntity::getId, chartIds);
+        List<ChartInfoEntity> chartInfoEntityList = chartInfoMapper.selectList(lambdaQueryWrapper);
         List<ChartInfoDTO> chartInfoDTOList = new ArrayList<>();
         for (ChartInfoEntity entity : chartInfoEntityList) {
             ChartInfoDTO dto = new ChartInfoDTO();
