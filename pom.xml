@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.ebay.raptorio.platform</groupId>
         <artifactId>raptor-io-parent</artifactId>
-        <version>0.19.3-RELEASE</version>
+        <version>0.19.4-RELEASE</version>
         <relativePath></relativePath> <!-- lookup parent from repository -->
     </parent>
 
@@ -35,7 +35,7 @@
         
         <guava.version>31.1-jre</guava.version>
         <swagger.annotations.v3.version>2.2.7</swagger.annotations.v3.version>
-        <ep.component.version>0.19.7-RELEASE</ep.component.version>
+        
         
     </properties>
 
