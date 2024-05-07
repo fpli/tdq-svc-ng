@@ -484,7 +484,7 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         try {
             Set<String> activeTagNames = getActiveTagNames(date);
             List<String> blackList = tagBlackListMapper.getAllTagInBlackList();
-            if (!CollectionUtils.isEmpty(activeTagNames)){
+            if (!CollectionUtils.isEmpty(activeTagNames) && !CollectionUtils.isEmpty(blackList)) {
                 blackList.forEach(activeTagNames::remove);
             }
 
