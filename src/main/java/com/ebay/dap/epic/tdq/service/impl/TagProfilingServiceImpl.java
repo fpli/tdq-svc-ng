@@ -98,6 +98,9 @@ public class TagProfilingServiceImpl implements TagProfilingService {
     private TagRecordMapper tagRecordRepo;
 
     @Autowired
+    private TagBlackListMapper tagBlackListMapper;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -480,10 +483,15 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         List<TagCardItemVo> tagCardItemVoList = new ArrayList<>();
         try {
             Set<String> activeTagNames = getActiveTagNames(date);
+            List<String> blackList = tagBlackListMapper.getAllTagInBlackList();
+            if (!CollectionUtils.isEmpty(activeTagNames)){
+                blackList.forEach(activeTagNames::remove);
+            }
 
             LocalDate date1 = date.minusDays(7);
 
             if (!CollectionUtils.isEmpty(activeTagNames)) {
+
                 Map<String, List<TagDetailVO>> listMap = activeTagNames.parallelStream().collect(Collectors.toMap(UnaryOperator.identity(), tagName -> {
                     try {
                         return checkTag(tagName, date.minusDays(90), date);
