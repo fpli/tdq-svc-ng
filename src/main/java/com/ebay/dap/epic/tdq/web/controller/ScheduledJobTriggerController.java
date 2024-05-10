@@ -55,4 +55,10 @@ public class ScheduledJobTriggerController {
         return "done";
     }
 
+    @Operation(summary = "trigger CJS Search Metric Abnormal Detection alert")
+    @GetMapping("triggerCjsSearchMetricAbnormalDetection")
+    public String triggerCjsSearchMetricAbnormalDetection(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) throws Exception {
+        alertManager.cjsSearchMetricAbnormalDetection(date);
+        return "done";
+    }
 }

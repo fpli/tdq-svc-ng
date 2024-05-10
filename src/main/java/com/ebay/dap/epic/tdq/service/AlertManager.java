@@ -17,4 +17,5 @@ public interface AlertManager {
 
   void adsClickFraud(LocalDate dateTime) throws Exception;
 
+  void cjsSearchMetricAbnormalDetection(LocalDate dateTime) throws Exception;
 }

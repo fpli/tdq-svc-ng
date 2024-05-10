@@ -2,10 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.ebay.dap.epic.tdq.data.dto.AdsClickFraudDTO;
-import com.ebay.dap.epic.tdq.data.dto.LegacyItemDTO;
-import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
-import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
+import com.ebay.dap.epic.tdq.data.dto.*;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
 import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
@@ -26,13 +23,16 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,6 +58,10 @@ public class AlertManagerImpl implements AlertManager {
 
     @Autowired
     private EmailService emailService;
+
+//    @Autowired
+//    @Qualifier("externalEmailService")
+//    private EmailService emailService;
 
     private static final String emailSubject = "TDQ Alerts - Page Profiling Abnormal Alert";
 
@@ -392,5 +396,46 @@ public class AlertManagerImpl implements AlertManager {
         String subject = Objects.requireNonNullElse(emailConfigEntity.getSubject(), "TDQ Alerts - Ads vs Soj event_timestamp gap");
 
         emailService.sendHtmlEmail("alert-ads-click-event-timestamp-gap", context, subject, to, cc);
+    }
+
+    @Override
+    public void cjsSearchMetricAbnormalDetection(LocalDate dt) throws Exception {
+        double threshold = -0.05;
+        List<String> list = List.of("ItemWatched", "SRP", "VI");
+
+        CJSSearchAlertDTO alertDto = new CJSSearchAlertDTO();
+        alertDto.setDt(dt.toString());
+        alertDto.setBegin(dt.minusDays(7).toString());
+        alertDto.setEnd(dt.minusDays(1).toString());
+        alertDto.setGroupName("CJS");
+        alertDto.setThreshold(threshold * -1);
+        List<CJSSearchAlertDTO.CJSSearchAlertDTOItem> alerts = new ArrayList<>();
+        list.forEach(metricKey -> {
+            List<MetricDoc> metricDocList = metricService.getDailyMetricDimensionSeries(metricKey, dt, 8);
+            Map<String, List<MetricDoc>> listMap = metricDocList.stream().collect(Collectors.groupingBy(e -> e.getDimension().get("signal_name").toString()));
+            for (Map.Entry<String, List<MetricDoc>> entry : listMap.entrySet()) {
+                List<MetricDoc> list1 = entry.getValue();
+                if (list1.size() < 8) {
+                    continue;
+                }
+                list1.sort(Comparator.comparing(MetricDoc::getDt));
+                BigDecimal value = list1.get(7).getValue();
+                BigDecimal bigDecimal = list1.stream().takeWhile(e -> e.getDt().isBefore(dt)).map(MetricDoc::getValue).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal avg = bigDecimal.divide(BigDecimal.valueOf(7), 4, RoundingMode.HALF_UP);
+                double diff = value.subtract(avg).doubleValue() / avg.doubleValue();
+                if (diff < threshold) {
+                    CJSSearchAlertDTO.CJSSearchAlertDTOItem item = new CJSSearchAlertDTO.CJSSearchAlertDTOItem(metricKey, entry.getKey(), avg.longValue(), value.longValue(), diff);
+                    alerts.add(item);
+                }
+            }
+        });
+
+        if (!alerts.isEmpty()) {
+            alertDto.setList(alerts);
+            alertDto.setCnt(alerts.size());
+            Context context = new Context();
+            context.setVariable("alert", alertDto);
+            emailService.sendHtmlEmail("alert-cjs-search", context, "CJS search metrics alert");
+        }
     }
 }
