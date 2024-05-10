@@ -33,7 +33,7 @@ public class CJSScheduledTask {
     }
 
     /**
-     * Run at 13:00 PM MST everyday
+     * Run at 17:00 PM MST everyday
      */
     @Scheduled(cron = "0 0 17 * * *", zone = "GMT-7")
     @SchedulerLock(name = "searchMetricAlert", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
