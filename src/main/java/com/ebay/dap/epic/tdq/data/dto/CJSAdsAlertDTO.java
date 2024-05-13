@@ -6,31 +6,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CJSSearchAlertDTO {
+public class CJSAdsAlertDTO {
     String groupName;
-    String begin;
-    String end;
     double threshold;
     String dt;
     long cnt;
-    List<CJSSearchAlertItemDTO> list;
+
+    List<CJSAdsAlertItemDTO> list = new ArrayList<>();
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class CJSSearchAlertItemDTO {
-        String metricKey;
-        String kind;
-        long   threshold;
-        long   value;
+    public static class CJSAdsAlertItemDTO {
+        String adsType;
+        String metricType;
+        long  baseline;
+        long value;
         double diff;
     }
 }
-
