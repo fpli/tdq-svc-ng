@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+          width: 90%;
+          margin: auto;
+          /*background-color: aqua;*/
+          /* border: 1px solid gray; */
+        }
+
+        #page-alert-table {
+          border-collapse: collapse;
+          width: 90%;
+        }
+
+        #page-alert-table td, #page-alert-table th {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+
+        #page-alert-table tr:nth-child(even) {
+          background-color: #f2f2f2;
+        }
+
+        #page-alert-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #04AA6D;
+          color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="header"></div> -->
+    <div class="content">
+        <p>
+            Hi <b th:text="${alert.groupName}">CJS</b> Team, <br/><br/>
+
+            We detected that there are <b th:text="${#lists.size(alert.list)}">1</b> abnormal ads metrics
+            on <b th:text="${alert.dt}">2024-03-29</b>. <br/><br/>
+            The diff expression: <br/> diff = (collection_unique_event_count - baseline_unique_signal_count ) / baseline_unique_signal_count or <br/> diff = (cjs_unique_signal_count - baseline_unique_signal_count ) / baseline_unique_signal_count, <br/> which is less than <b th:text="${#numbers.formatPercent(alert.threshold, 1, 2)}">0.01%</b>. <br/>
+            Details of abnormal metrics are listed as below.  <br/>
+        </p>
+        <div>
+            <table id="page-alert-table">
+                <thead>
+                <tr>
+                    <th>Ads Type</th>
+                    <th>Metrics Name</th>
+                    <th>Baseline unique signal count</th>
+                    <th>Value of today</th>
+                    <th>Diff</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="dto : ${alert.list}">
+                    <td><span th:text="${dto.adsType}">Merch</span></td>
+                    <td><span th:text="${dto.metricType}">cjs_uniq_signal_count</span></td>
+                    <td>
+                        <span th:text="${#numbers.formatDecimal(dto.baseline, 0, 'COMMA', 0, 'POINT')}">123,456</span>
+                    </td>
+                    <td>
+                        <span th:text="${#numbers.formatDecimal(dto.value, 0, 'COMMA', 0, 'POINT')}">123,456</span>
+                    </td>
+                    <td>
+                        <span th:text="${#numbers.formatPercent(dto.diff, 1, 2)}">-30%</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <p>
+            For detailed metric info, please click the link: <a href="https://tdq.vip.ebay.com/dashboard/cjs">tdq-cjs-metric</a>
+        </p>
+    </div>
+    <div class="footer">
+        <br/><br/>
+        Thanks, <br/>
+        Tracking Behavior Data Team
+    </div>
+</div>
+</body>
+</html>

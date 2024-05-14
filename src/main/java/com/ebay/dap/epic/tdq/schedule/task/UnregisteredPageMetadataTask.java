@@ -28,6 +28,6 @@ public class UnregisteredPageMetadataTask {
     @Scheduled(cron = "0 0 9 * * *", zone = "GMT-7")
     @SchedulerLock(name = "notifyApplicationOwner", lockAtLeastFor = "PT5M", lockAtMostFor = "PT20M")
     public void notifyApplicationOwner(){
-        pageMetadataQualityService.dailyNotifyApplicationOwner(LocalDate.now().minusDays(2));
+        pageMetadataQualityService.dailyNotifyApplicationOwner(LocalDate.now().minusDays(1));
     }
 }

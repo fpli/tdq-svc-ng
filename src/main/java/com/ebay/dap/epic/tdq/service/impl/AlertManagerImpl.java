@@ -2,10 +2,7 @@ package com.ebay.dap.epic.tdq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.ebay.dap.epic.tdq.data.dto.AdsClickFraudDTO;
-import com.ebay.dap.epic.tdq.data.dto.LegacyItemDTO;
-import com.ebay.dap.epic.tdq.data.dto.PageAlertDto;
-import com.ebay.dap.epic.tdq.data.dto.PageAlertItemDto;
+import com.ebay.dap.epic.tdq.data.dto.*;
 import com.ebay.dap.epic.tdq.data.entity.AnomalyItemEntity;
 import com.ebay.dap.epic.tdq.data.entity.CustomerGroupEntity;
 import com.ebay.dap.epic.tdq.data.entity.EmailConfigEntity;
@@ -26,11 +23,13 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -58,6 +57,10 @@ public class AlertManagerImpl implements AlertManager {
 
     @Autowired
     private EmailService emailService;
+
+//    @Autowired
+//    @Qualifier("externalEmailService")
+//    private EmailService emailService;
 
     private static final String emailSubject = "TDQ Alerts - Page Profiling Abnormal Alert";
 
@@ -392,5 +395,132 @@ public class AlertManagerImpl implements AlertManager {
         String subject = Objects.requireNonNullElse(emailConfigEntity.getSubject(), "TDQ Alerts - Ads vs Soj event_timestamp gap");
 
         emailService.sendHtmlEmail("alert-ads-click-event-timestamp-gap", context, subject, to, cc);
+    }
+
+    @Override
+    public void cjsSearchMetricAbnormalDetection(LocalDate dt) throws Exception {
+        double threshold = -0.05;
+        List<String> list = List.of("ItemWatched", "SRP", "VI");
+
+        CJSSearchAlertDTO alertDto = new CJSSearchAlertDTO();
+        alertDto.setDt(dt.toString());
+        alertDto.setBegin(dt.minusDays(7).toString());
+        alertDto.setEnd(dt.minusDays(1).toString());
+        alertDto.setGroupName("CJS");
+        alertDto.setThreshold(threshold * -1);
+        List<CJSSearchAlertDTO.CJSSearchAlertItemDTO> alerts = new ArrayList<>();
+        list.forEach(metricKey -> {
+            List<MetricDoc> metricDocList = metricService.getDailyMetricDimensionSeries(metricKey, dt, 8);
+            Map<String, List<MetricDoc>> listMap = metricDocList.stream().collect(Collectors.groupingBy(e -> e.getDimension().get("signal_name").toString()));
+            for (Map.Entry<String, List<MetricDoc>> entry : listMap.entrySet()) {
+                List<MetricDoc> list1 = entry.getValue();
+                if (list1.size() < 8) {
+                    continue;
+                }
+                list1.sort(Comparator.comparing(MetricDoc::getDt));
+                BigDecimal value = list1.get(7).getValue();
+                BigDecimal bigDecimal = list1.stream().takeWhile(e -> e.getDt().isBefore(dt)).map(MetricDoc::getValue).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal avg = bigDecimal.divide(BigDecimal.valueOf(7), 4, RoundingMode.HALF_UP);
+                double diff = value.subtract(avg).doubleValue() / avg.doubleValue();
+                if (diff < threshold) {
+                    CJSSearchAlertDTO.CJSSearchAlertItemDTO item = new CJSSearchAlertDTO.CJSSearchAlertItemDTO(metricKey, entry.getKey(), avg.longValue(), value.longValue(), diff);
+                    alerts.add(item);
+                }
+            }
+        });
+
+        if (!alerts.isEmpty()) {
+            alertDto.setList(alerts);
+            alertDto.setCnt(alerts.size());
+            Context context = new Context();
+            context.setVariable("alert", alertDto);
+            emailService.sendHtmlEmail("alert-cjs-search", context, "CJS search metrics alert");
+        }
+    }
+
+    @Override
+    public void cjsAdsMetricAbnormalDetection(LocalDate dt) throws Exception {
+        List<String> list = List.of("baseline_uniq_signal_count", "collection_uniq_event_count", "cjs_uniq_signal_count");
+        double threshold = 0.0001;
+        CJSAdsAlertDTO alertDto = new CJSAdsAlertDTO();
+        alertDto.setDt(dt.toString());
+        alertDto.setGroupName("CJS");
+        alertDto.setThreshold(threshold);
+        List<CJSAdsAlertDTO.CJSAdsAlertItemDTO> cjsAdsAlertItemDTOList = alertDto.getList();
+
+        String metricKey = "Merch-uni_signal_count";
+        List<MetricDoc> metricDocList = metricService.getDailyMetrics(dt, metricKey);
+        Map<String, List<MetricDoc>> map = metricDocList.stream().filter(metricDoc -> list.contains(metricDoc.getDimension().get("count_type").toString())).collect(Collectors.groupingBy(e -> e.getDimension().get("count_type").toString()));
+        List<MetricDoc> docList0 = map.get("baseline_uniq_signal_count");
+        List<MetricDoc> docList1 = map.get("collection_uniq_event_count");
+        List<MetricDoc> docList2 = map.get("cjs_uniq_signal_count");
+
+        if (docList0.size() == 1 && docList1.size() == 1 && docList2.size() == 1){
+            BigDecimal baseline_uniq_signal_count = docList0.get(0).getValue();
+            BigDecimal collection_uniq_event_count = docList1.get(0).getValue();
+            BigDecimal cjs_uniq_signal_count = docList2.get(0).getValue();
+            BigDecimal decimal = collection_uniq_event_count.subtract(baseline_uniq_signal_count).divide(baseline_uniq_signal_count, 6, RoundingMode.HALF_UP);
+            if (decimal.abs().doubleValue() > threshold){
+                CJSAdsAlertDTO.CJSAdsAlertItemDTO cjsAdsAlertItemDTO = new CJSAdsAlertDTO.CJSAdsAlertItemDTO();
+                cjsAdsAlertItemDTO.setAdsType("Merch");
+                cjsAdsAlertItemDTO.setMetricType("collection_uniq_event_count");
+                cjsAdsAlertItemDTO.setBaseline(baseline_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setValue(collection_uniq_event_count.longValue());
+                cjsAdsAlertItemDTO.setDiff(decimal.doubleValue());
+                cjsAdsAlertItemDTOList.add(cjsAdsAlertItemDTO);
+            }
+            BigDecimal decimal1 = cjs_uniq_signal_count.subtract(baseline_uniq_signal_count).divide(baseline_uniq_signal_count, 6, RoundingMode.HALF_UP);
+            if (decimal1.abs().doubleValue() > threshold){
+                CJSAdsAlertDTO.CJSAdsAlertItemDTO cjsAdsAlertItemDTO = new CJSAdsAlertDTO.CJSAdsAlertItemDTO();
+                cjsAdsAlertItemDTO.setAdsType("Merch");
+                cjsAdsAlertItemDTO.setMetricType("cjs_uniq_signal_count");
+                cjsAdsAlertItemDTO.setBaseline(baseline_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setValue(cjs_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setDiff(decimal1.doubleValue());
+                cjsAdsAlertItemDTOList.add(cjsAdsAlertItemDTO);
+            }
+        }
+
+        metricKey = "OrganicAds-uni_signal_count";
+        metricDocList = metricService.getDailyMetrics(dt, metricKey);
+        map = metricDocList.stream().filter(metricDoc -> list.contains(metricDoc.getDimension().get("count_type").toString())).collect(Collectors.groupingBy(e -> e.getDimension().get("count_type").toString()));
+        docList0 = map.get("baseline_uniq_signal_count");
+        docList1 = map.get("collection_uniq_event_count");
+        docList2 = map.get("cjs_uniq_signal_count");
+
+        if (docList0.size() == 1 && docList1.size() == 1 && docList2.size() == 1){
+            BigDecimal baseline_uniq_signal_count = docList0.get(0).getValue();
+            BigDecimal collection_uniq_event_count = docList1.get(0).getValue();
+            BigDecimal cjs_uniq_signal_count = docList2.get(0).getValue();
+            BigDecimal decimal = collection_uniq_event_count.subtract(baseline_uniq_signal_count).divide(baseline_uniq_signal_count, 6, RoundingMode.HALF_UP);
+            if (decimal.abs().doubleValue() > threshold){
+                CJSAdsAlertDTO.CJSAdsAlertItemDTO cjsAdsAlertItemDTO = new CJSAdsAlertDTO.CJSAdsAlertItemDTO();
+                cjsAdsAlertItemDTO.setAdsType("OrganicAds");
+                cjsAdsAlertItemDTO.setMetricType("collection_uniq_event_count");
+                cjsAdsAlertItemDTO.setBaseline(baseline_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setValue(collection_uniq_event_count.longValue());
+                cjsAdsAlertItemDTO.setDiff(decimal.doubleValue());
+                cjsAdsAlertItemDTOList.add(cjsAdsAlertItemDTO);
+            }
+            BigDecimal decimal1 = cjs_uniq_signal_count.subtract(baseline_uniq_signal_count).divide(baseline_uniq_signal_count, 6, RoundingMode.HALF_UP);
+            if (decimal1.abs().doubleValue() > threshold){
+                CJSAdsAlertDTO.CJSAdsAlertItemDTO cjsAdsAlertItemDTO = new CJSAdsAlertDTO.CJSAdsAlertItemDTO();
+                cjsAdsAlertItemDTO.setAdsType("OrganicAds");
+                cjsAdsAlertItemDTO.setMetricType("cjs_uniq_signal_count");
+                cjsAdsAlertItemDTO.setBaseline(baseline_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setValue(cjs_uniq_signal_count.longValue());
+                cjsAdsAlertItemDTO.setDiff(decimal1.doubleValue());
+                cjsAdsAlertItemDTOList.add(cjsAdsAlertItemDTO);
+            }
+        }
+
+        //
+        if (!cjsAdsAlertItemDTOList.isEmpty()) {
+            alertDto.setCnt(cjsAdsAlertItemDTOList.size());
+            Context context = new Context();
+            context.setVariable("alert", alertDto);
+            emailService.sendHtmlEmail("alert-cjs-ads", context, "CJS ads metrics alert");
+//            emailService.sendHtmlEmail("alert-cjs-ads", context, "CJS Ads alert", List.of("fangpli@ebay.com"));
+        }
     }
 }
