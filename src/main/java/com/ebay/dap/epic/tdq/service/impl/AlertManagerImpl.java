@@ -238,8 +238,8 @@ public class AlertManagerImpl implements AlertManager {
     public void alertForEPTeamAndFamx(LocalDateTime localDateTime) throws Exception {
         LocalDate localDate = localDateTime.toLocalDate();
 
-        LegacyItemDTO legacyItemDTO_0 = new LegacyItemDTO(45, "Guids with 0 uid percent (All events)", "guids with 0 user percent of all events", 0.96, "<", "guid_cnt_all_uid_is_0", "%");
-        LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.04, ">", "guid_cnt_all_uid_is_1", "%");
+        LegacyItemDTO legacyItemDTO_0 = new LegacyItemDTO(45, "Guids with 0 uid percent (All events)", "guids with 0 user percent of all events", 0.85, "<", "guid_cnt_all_uid_is_0", "%");
+        LegacyItemDTO legacyItemDTO_1 = new LegacyItemDTO(46, "Guids with 1 uid percent (All events)", "guids with 1 user percent of all events", 0.12, ">", "guid_cnt_all_uid_is_1", "%");
         LegacyItemDTO legacyItemDTO_2 = new LegacyItemDTO(47, "Guids with >= 2 uids percent (All events)", "guids with 2 or more users percent of all events", 0.02, ">", "guid_cnt_all_uid_gte_2", "%");
         LegacyItemDTO legacyItemDTO_3 = new LegacyItemDTO(51, "Guids with 0 uid (Valid events)", "Num of guids with 0 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_0", null);
         LegacyItemDTO legacyItemDTO_4 = new LegacyItemDTO(52, "Guids with 1 uid (Valid events)", "Num of guids with 1 user for non-redirected and non-iframe events", 0.20, ">", "guid_cnt_valid_uid_is_1", null);
