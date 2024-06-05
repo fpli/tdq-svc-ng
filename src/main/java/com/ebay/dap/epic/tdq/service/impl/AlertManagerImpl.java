@@ -399,7 +399,6 @@ public class AlertManagerImpl implements AlertManager {
 
     @Override
     public void cjsSearchMetricAbnormalDetection(LocalDate dt) throws Exception {
-        double threshold = -0.05;
         List<String> list = List.of("ItemWatched", "SRP", "VI");
 
         CJSSearchAlertDTO alertDto = new CJSSearchAlertDTO();
@@ -407,7 +406,6 @@ public class AlertManagerImpl implements AlertManager {
         alertDto.setBegin(dt.minusDays(7).toString());
         alertDto.setEnd(dt.minusDays(1).toString());
         alertDto.setGroupName("CJS");
-        alertDto.setThreshold(threshold * -1);
         List<CJSSearchAlertDTO.CJSSearchAlertItemDTO> alerts = new ArrayList<>();
         list.forEach(metricKey -> {
             List<MetricDoc> metricDocList = metricService.getDailyMetricDimensionSeries(metricKey, dt, 8);
@@ -422,7 +420,7 @@ public class AlertManagerImpl implements AlertManager {
                 BigDecimal bigDecimal = list1.stream().takeWhile(e -> e.getDt().isBefore(dt)).map(MetricDoc::getValue).reduce(BigDecimal.ZERO, BigDecimal::add);
                 BigDecimal avg = bigDecimal.divide(BigDecimal.valueOf(7), 4, RoundingMode.HALF_UP);
                 double diff = value.subtract(avg).doubleValue() / avg.doubleValue();
-                if (diff < threshold) {
+                if (diff < -0.8 || diff > 1.2) {
                     CJSSearchAlertDTO.CJSSearchAlertItemDTO item = new CJSSearchAlertDTO.CJSSearchAlertItemDTO(metricKey, entry.getKey(), avg.longValue(), value.longValue(), diff);
                     alerts.add(item);
                 }
