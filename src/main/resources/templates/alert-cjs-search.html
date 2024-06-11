@@ -47,7 +47,7 @@
 
             We detected that there are <b th:text="${#lists.size(alert.list)}">1</b> abnormal metrics
             on <b th:text="${alert.dt}">2024-03-29</b>. <br/><br/>
-            The diff expression: diff = the value of today - the average of last 7 days, which is less than <b th:text="${#numbers.formatPercent(alert.threshold, 1, 2)}">5%</b>. <br/>
+            The diff expression: diff = the value of today - the average of last 7 days, which is less than -80% or over 120%. <br/>
             Details of abnormal metrics are listed as below.  <br/>
         </p>
         <div>
