@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ebay.dap.epic.tdq.data.dto.InvalidPageAlertDTO;
 import com.ebay.dap.epic.tdq.data.entity.InvalidPageMetadataEntity;
 import com.ebay.dap.epic.tdq.data.entity.PagePoolLKP;
+import com.ebay.dap.epic.tdq.data.mapper.mybatis.InvalidPageBlackListMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.InvalidPageMetadataMapper;
 import com.ebay.dap.epic.tdq.data.mapper.mybatis.PagePoolLKPMapper;
 import com.ebay.dap.epic.tdq.data.vo.BaseGeneralVO;
@@ -41,6 +42,9 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
 
     @Autowired
     private InvalidPageMetadataMapper invalidPageMetadataMapper;
+
+    @Autowired
+    private InvalidPageBlackListMapper invalidPageBlackListMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -125,11 +129,14 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
 
     @Override
     public void dailyNotifyApplicationOwner(LocalDate date) {
+        List<Integer> pageIdsInBlackList = invalidPageBlackListMapper.listPageIdsInBlackList();
+
         LambdaQueryWrapper<InvalidPageMetadataEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(InvalidPageMetadataEntity.class);
         lambdaQueryWrapper.eq(InvalidPageMetadataEntity::getDt, date);
         lambdaQueryWrapper.isNotNull(InvalidPageMetadataEntity::getAppOwner);
         lambdaQueryWrapper.isNull(InvalidPageMetadataEntity::getEnvironment);
         lambdaQueryWrapper.isNull(InvalidPageMetadataEntity::getLifeCycleState);
+        lambdaQueryWrapper.notIn(InvalidPageMetadataEntity::getPageId, pageIdsInBlackList);
 
         List<InvalidPageMetadataEntity> invalidPageMetadataEntities = invalidPageMetadataMapper.selectList(lambdaQueryWrapper);
         Map<Boolean, List<InvalidPageMetadataEntity>> booleanListMap = invalidPageMetadataEntities.stream().collect(Collectors.partitioningBy(invalidPageMetadataEntity -> invalidPageMetadataEntity.getPoolNotification() != null));
