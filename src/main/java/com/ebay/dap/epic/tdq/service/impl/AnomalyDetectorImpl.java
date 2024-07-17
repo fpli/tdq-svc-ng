@@ -67,7 +67,7 @@ public class AnomalyDetectorImpl implements AnomalyDetector {
         Set<Integer> pagesSet = Sets.newHashSet(pagesGte5M);
         pagesSet.addAll(pagesGte5MLast7D);
         suppressedPages.forEach(pagesSet::remove);
-
+        pagesSet.add(4552796);
         List<Integer> pages = new ArrayList<>(pagesSet);
 
         if (CollectionUtils.isEmpty(pages)) {
