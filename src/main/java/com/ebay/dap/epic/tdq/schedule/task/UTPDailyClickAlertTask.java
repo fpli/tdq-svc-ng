@@ -94,6 +94,11 @@ public class UTPDailyClickAlertTask {
 
             long threshold = Math.round(avg / 2);
 
+            if (threshold < 100) {
+                // skip if threshold is too low
+                continue;
+            }
+
             if (!current.getDt().equals(dt)) {
                 // no value found on input dt, treat as 0
                 // create alert item
