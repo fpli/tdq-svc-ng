@@ -23,7 +23,7 @@ public class CJSScheduledTask {
     @Scheduled(cron = "0 0 12 * * *", zone = "GMT-7")
     @SchedulerLock(name = "CJSScheduledTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
-        List<String> list = List.of("Itmattr", "plmt", "po", "srpGist", "itmmeta", "cjsBeta");
+        List<String> list = List.of("Itmattr", "plmt", "po", "srpGist", "itmmeta", "cjsBeta", "cjs");
         tagProfilingService.cjsTagAlerting(LocalDate.now().minusDays(2), list);
     }
 
