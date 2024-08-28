@@ -155,6 +155,11 @@ public class TagProfilingServiceImpl implements TagProfilingService {
         alertDto.setList(new ArrayList<>());
         CJSTAGAlertDTO cjstagAlertDTO;
 
+        List<String> blackList = tagBlackListMapper.getAllTagInBlackList();
+        if (!CollectionUtils.isEmpty(blackList) && !CollectionUtils.isEmpty(tagList)){
+            blackList.forEach(tagList::remove);
+        }
+
         for (String tagName : tagList) {
             LambdaQueryWrapper<TagRecord> lambdaQueryWrapper = Wrappers.lambdaQuery();
             lambdaQueryWrapper.eq(TagRecord::getTagName, tagName);
