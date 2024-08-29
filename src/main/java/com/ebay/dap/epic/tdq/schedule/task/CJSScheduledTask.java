@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("CJSScheduledTask")
@@ -24,7 +25,7 @@ public class CJSScheduledTask {
     @SchedulerLock(name = "CJSScheduledTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void run() throws Exception {
         List<String> list = List.of("Itmattr", "plmt", "po", "srpGist", "itmmeta", "cjsBeta", "cjs");
-        tagProfilingService.cjsTagAlerting(LocalDate.now().minusDays(2), list);
+        tagProfilingService.cjsTagAlerting(LocalDate.now().minusDays(2), new ArrayList<>(list));
     }
 
 }
