@@ -163,13 +163,14 @@ public class PageMetadataQualityServiceImpl implements PageMetadataQualityServic
     private void notifyApplicationOwner(String owner, Map<String, List<InvalidPageMetadataEntity>> map){
         map.forEach((dl, list) -> {
             if (dl != null) {
-                List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
+                //List<Integer> pageids = list.stream().map(InvalidPageMetadataEntity::getPageId).toList();
                 InvalidPageAlertDTO invalidPageAlertDTO = new InvalidPageAlertDTO();
                 invalidPageAlertDTO.setOwner(owner);
                 InvalidPageMetadataEntity invalidPageMetadataEntity = list.get(0);
                 invalidPageAlertDTO.setDt(invalidPageMetadataEntity.getDt().toString());
                 invalidPageAlertDTO.setPoolName(invalidPageMetadataEntity.getPoolName() + " (" + invalidPageMetadataEntity.getResourceId() + ")");
-                invalidPageAlertDTO.getPageIds().addAll(pageids);
+                //invalidPageAlertDTO.getPageIds().addAll(pageids);
+                invalidPageAlertDTO.setList(list);
                 Context context = new Context();
                 context.setVariable("alert", invalidPageAlertDTO);
                 try {

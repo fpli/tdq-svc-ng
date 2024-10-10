@@ -14,6 +14,28 @@
           /*background-color: aqua;*/
           /* border: 1px solid gray; */
       }
+
+      .page-alert-table {
+          border-collapse: collapse;
+          width: 90%;
+      }
+
+      .page-alert-table td, #page-alert-table th {
+          border: 1px solid #ddd;
+          padding: 8px;
+      }
+
+      .page-alert-table tr:nth-child(even) {
+          background-color: #f2f2f2;
+      }
+
+      .page-alert-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #04AA6D;
+          color: white;
+      }
   </style>
 </head>
 <body>
@@ -24,12 +46,25 @@
       Dear <b th:text="${alert.owner}">application owner</b>, <br/><br/>
       It has come to our attention that one or more pages associated with your application pool <b th:text="${alert.poolName}">pool name</b> are not properly registered in Braavos (our Tracking Metadata System),
       yet they are actively generating events that are being captured in our tracking system on <b th:text="${alert.dt}">2024-03-06</b>. <br/>  <br/>
-      Below is the involved pageid(s):
-      <ul th:each="pageId : ${alert.pageIds}">
-        <li th:text="${pageId}"></li>
-      </ul>
+      Below is the involved pageid(s) and daily volume:
+      <table class="page-alert-table">
+        <thead>
+            <tr>
+              <th>Page ID</th>
+              <th>Volume</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="page : ${alert.list}">
+              <td><span th:text="${page.pageId}">0</span></td>
+              <td><span th:text="${page.eventCnt}">0</span></td>
+            </tr>
+        </tbody>
+      </table>
     </p>
 
+    <br/>
+    <a href="https://tdq.vip.ebay.com/profiling/invalidpage">TDQ Page Metadata Quality Tool</a>
     <br/>
 
     <div>
